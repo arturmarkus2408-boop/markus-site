@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MARKUS — бухгалтерские, налоговые и юридические услуги в Узбекистане</title>
+<meta name="description" content="Бухгалтерское сопровождение, регистрация ИП/ООО/СП ООО/ЧП, налоговый консалтинг и юридические услуги в Ташкенте. Рассчитайте стоимость и проверьте контрагента бесплатно.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          noir: '#0B0B0D',
+          noirCard: '#17171A',
+          noirBorder: '#28282C',
+          paper: '#FAFAF8',
+          stone: '#F4F3EF',
+          gold: '#C9A46B',
+          goldLight: '#DFC28E',
+          goldDim: '#8A7550',
+        },
+        fontFamily: {
+          serif: ['"PT Serif"', 'serif'],
+          sans: ['Manrope', 'sans-serif'],
+          mono: ['"IBM Plex Mono"', 'monospace'],
+        }
+      }
+    }
+  }
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Manrope', sans-serif; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  .card-hover { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+  .card-hover:hover { transform: translateY(-3px); border-color: #C9A46B; }
+
+  /* ===== Кастомные слайдеры ===== */
+  .mslider { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 999px; background: #2A2A2E; outline: none; }
+  .mslider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #C9A46B; border: 3px solid #0B0B0D;
+    box-shadow: 0 0 0 1px #C9A46B;
+    cursor: pointer; margin-top: -8px;
+    transition: transform .15s ease;
+  }
+  .mslider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+  .mslider::-moz-range-thumb {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #C9A46B; border: 3px solid #0B0B0D; box-shadow: 0 0 0 1px #C9A46B; cursor: pointer;
+  }
+  .tick-wrap { position: relative; height: 18px; margin-top: 6px; }
+  .slider-wrap { position: relative; padding-top: 26px; }
+  .slider-bubble {
+    position: absolute; top: 0; transform: translateX(-50%);
+    background: #C9A46B; color: #0B0B0D; font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+    pointer-events: none; white-space: nowrap;
+  }
+  .tick-label {
+    position: absolute; transform: translateX(-50%);
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #6B6B70;
+    cursor: pointer; user-select: none; padding: 2px 4px; border-radius: 4px;
+    transition: color .15s ease, font-weight .15s ease;
+  }
+  .tick-label:hover { color: #DFC28E; }
+  .tick-label.active { color: #C9A46B; font-weight: 700; }
+</style>
+</head>
+<body class="bg-paper text-noir">
+
+<!-- ===== ШАПКА ===== -->
+<header class="sticky top-0 z-50 bg-noir/95 backdrop-blur border-b border-white/10">
+  <div class="max-w-6xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
+    <a href="#top" class="font-serif text-xl font-bold tracking-tight text-paper">MARKUS</a>
+    <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-paper/80">
+      <a href="#about" class="hover:text-gold transition-colors">О нас</a>
+      <a href="#services" class="hover:text-gold transition-colors">Услуги</a>
+      <a href="#calculator" class="hover:text-gold transition-colors">Калькулятор</a>
+      <a href="#contact" class="hover:text-gold transition-colors">Контакты</a>
+    </nav>
+    <a href="#contact" class="bg-gold hover:bg-goldLight transition-colors text-noir text-sm font-semibold px-5 py-2.5 rounded-full">
+      Связаться с нами
+    </a>
+  </div>
+</header>
+
+<!-- ===== ГЕРОЙ ===== -->
+<section id="top" class="bg-noir text-paper">
+  <div class="max-w-6xl mx-auto px-5 md:px-8 pt-16 pb-14 md:pt-24 md:pb-20">
+    <span class="inline-block bg-gold/15 text-gold text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full mb-6">MARKUS</span>
+    <h1 class="font-serif text-4xl md:text-6xl font-bold leading-[1.1] max-w-2xl">
+      Бухгалтерские услуги в Узбекистане, которым доверяют
+    </h1>
+    <p class="mt-6 text-lg text-paper/70 max-w-xl">
+      Мы поможем открыть компанию, правильно подобрать систему налогообложения и оказать ряд сопутствующих услуг, связанных с ведением бизнеса.
+    </p>
+    <div class="mt-9 flex flex-wrap gap-4">
+      <a href="#contact" class="bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-7 py-3.5 rounded-full">
+        Получить консультацию
+      </a>
+      <a href="tel:+998330801070" class="border border-paper/25 hover:border-paper/50 transition-colors text-paper font-semibold px-7 py-3.5 rounded-full flex items-center gap-2">
+        📞 +998 33 080-10-70
+      </a>
+    </div>
+
+    <div class="mt-14 grid sm:grid-cols-3 gap-5">
+      <div class="bg-noirCard border border-noirBorder rounded-2xl p-6">
+        <div class="font-serif text-3xl font-bold text-gold mb-1">500+</div>
+        <p class="text-sm text-paper/60 leading-relaxed">Компаний доверяют нам ведение бухгалтерии и юридическое сопровождение</p>
+      </div>
+      <div class="bg-noirCard border border-noirBorder rounded-2xl p-6">
+        <div class="font-serif text-3xl font-bold text-gold mb-1">80%</div>
+        <p class="text-sm text-paper/60 leading-relaxed">Новых клиентов приходят по рекомендациям</p>
+      </div>
+      <div class="bg-noirCard border border-noirBorder rounded-2xl p-6">
+        <div class="font-serif text-3xl font-bold text-gold mb-1">1000+</div>
+        <p class="text-sm text-paper/60 leading-relaxed">Консультаций проведено, чтобы помочь предпринимателям начать и успешно вести бизнес</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ИНСТРУМЕНТЫ (быстрый доступ) ===== -->
+<section class="max-w-6xl mx-auto px-5 md:px-8 py-16">
+  <p class="font-mono text-gold text-xs tracking-widest uppercase mb-3">Инструменты Markus</p>
+  <h2 class="font-serif text-2xl md:text-3xl font-bold mb-10">Попробуйте прямо сейчас — бесплатно</h2>
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="tool-cards">
+    <button data-tool="calc" class="tool-card text-left card-hover bg-white border border-noir/10 rounded-2xl p-6 relative">
+      <span class="absolute top-5 right-5 text-[11px] font-semibold bg-gold/15 text-goldDim px-2.5 py-1 rounded-full">Работает</span>
+      <div class="font-mono text-2xl text-gold mb-3">01</div>
+      <h3 class="font-serif text-lg font-bold mb-1.5">Калькулятор стоимости услуг</h3>
+      <p class="text-noir/55 text-sm leading-relaxed">Полный расчёт — ниже на странице ↓</p>
+    </button>
+    <button data-tool="contractor" class="tool-card text-left card-hover bg-white border border-noir/10 rounded-2xl p-6 relative">
+      <span class="absolute top-5 right-5 text-[11px] font-semibold bg-gold/15 text-goldDim px-2.5 py-1 rounded-full">Работает</span>
+      <div class="font-mono text-2xl text-gold mb-3">02</div>
+      <h3 class="font-serif text-lg font-bold mb-1.5">Проверка контрагента по ИНН</h3>
+      <p class="text-noir/55 text-sm leading-relaxed">Копируем ИНН и открываем нужный официальный реестр.</p>
+    </button>
+    <button data-tool="ai" class="tool-card text-left card-hover bg-white border border-noir/10 rounded-2xl p-6 relative">
+      <span class="absolute top-5 right-5 text-[11px] font-semibold bg-gold/15 text-goldDim px-2.5 py-1 rounded-full">Работает*</span>
+      <div class="font-mono text-2xl text-gold mb-3">03</div>
+      <h3 class="font-serif text-lg font-bold mb-1.5">AI-ассистент по Налоговому кодексу</h3>
+      <p class="text-noir/55 text-sm leading-relaxed">Отвечает на вопросы по НК РУз простыми словами.</p>
+    </button>
+    <button data-tool="news" class="tool-card text-left card-hover bg-white border border-noir/10 rounded-2xl p-6 relative">
+      <span class="absolute top-5 right-5 text-[11px] font-semibold bg-noir/5 text-noir/50 px-2.5 py-1 rounded-full">В разработке</span>
+      <div class="font-mono text-2xl text-gold mb-3">04</div>
+      <h3 class="font-serif text-lg font-bold mb-1.5">Новости и изменения в законах</h3>
+      <p class="text-noir/55 text-sm leading-relaxed">Лента из Telegram-канала Markus.</p>
+    </button>
+    <button data-tool="docs" class="tool-card text-left card-hover bg-white border border-noir/10 rounded-2xl p-6 relative">
+      <span class="absolute top-5 right-5 text-[11px] font-semibold bg-noir/5 text-noir/50 px-2.5 py-1 rounded-full">В разработке</span>
+      <div class="font-mono text-2xl text-gold mb-3">05</div>
+      <h3 class="font-serif text-lg font-bold mb-1.5">Образцы документов</h3>
+      <p class="text-noir/55 text-sm leading-relaxed">Готовые шаблоны договоров и юридических документов.</p>
+    </button>
+    <div class="bg-noir text-paper rounded-2xl p-6 flex flex-col justify-between">
+      <div>
+        <div class="font-mono text-2xl text-gold mb-3">06</div>
+        <h3 class="font-serif text-lg font-bold mb-1.5">Нужен живой эксперт?</h3>
+        <p class="text-paper/55 text-sm leading-relaxed">Бухгалтер разберёт вашу ситуацию лично.</p>
+      </div>
+      <a href="#contact" class="mt-5 inline-block bg-gold hover:bg-goldLight transition-colors text-noir text-sm font-semibold px-5 py-2.5 rounded-full text-center">Написать →</a>
+    </div>
+  </div>
+  <div id="tool-panel" class="hidden mt-6 bg-white border border-noir/10 rounded-2xl p-7">
+    <div id="tool-panel-content"></div>
+  </div>
+</section>
+
+<!-- ===== ОТКРЫТИЕ БИЗНЕСА ===== -->
+<section id="services" class="bg-stone border-y border-noir/10">
+  <div class="max-w-6xl mx-auto px-5 md:px-8 py-20">
+    <span class="inline-block bg-gold/15 text-goldDim text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full mb-4">Регистрация</span>
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
+      <h2 class="font-serif text-3xl md:text-4xl font-bold max-w-md">Открытие бизнеса</h2>
+      <p class="text-noir/60 max-w-md">Есть идея, но не знаете, с чего начать? Поможем выбрать оптимальную форму и сопроводим на всех этапах оформления.</p>
+    </div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div class="bg-white rounded-2xl p-6 border border-noir/10">
+        <div class="w-9 h-9 rounded-full border border-gold/40 text-gold flex items-center justify-center mb-4">✓</div>
+        <h3 class="font-serif font-bold text-lg mb-2">Регистрация ООО</h3>
+        <p class="text-sm text-noir/55 leading-relaxed">Форма бизнеса, где учредители несут ответственность в пределах своих вкладов в уставной капитал. Подходит для малого и среднего бизнеса.</p>
+      </div>
+      <div class="bg-white rounded-2xl p-6 border border-noir/10">
+        <div class="w-9 h-9 rounded-full border border-gold/40 text-gold flex items-center justify-center mb-4">✓</div>
+        <h3 class="font-serif font-bold text-lg mb-2">Регистрация СП ООО</h3>
+        <p class="text-sm text-noir/55 leading-relaxed">Организация, созданная совместно с иностранными или местными партнёрами. Идеально для реализации совместных проектов.</p>
+      </div>
+      <div class="bg-white rounded-2xl p-6 border border-noir/10">
+        <div class="w-9 h-9 rounded-full border border-gold/40 text-gold flex items-center justify-center mb-4">✓</div>
+        <h3 class="font-serif font-bold text-lg mb-2">Регистрация ИП ООО</h3>
+        <p class="text-sm text-noir/55 leading-relaxed">Компания с иностранными инвестициями, работающая на основе законодательства страны. Выгодна для иностранных инвесторов.</p>
+      </div>
+      <div class="bg-white rounded-2xl p-6 border border-noir/10">
+        <div class="w-9 h-9 rounded-full border border-gold/40 text-gold flex items-center justify-center mb-4">✓</div>
+        <h3 class="font-serif font-bold text-lg mb-2">Регистрация ЧП</h3>
+        <p class="text-sm text-noir/55 leading-relaxed">Бизнес, полностью принадлежащий одному владельцу, который самостоятельно управляет деятельностью и несёт ответственность.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== БУХГАЛТЕРСКОЕ СОПРОВОЖДЕНИЕ ===== -->
+<section class="max-w-6xl mx-auto px-5 md:px-8 py-20">
+  <div class="grid md:grid-cols-2 gap-12 items-start">
+    <div>
+      <span class="inline-block bg-gold/15 text-goldDim text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full mb-4">Бухгалтерия</span>
+      <h2 class="font-serif text-3xl md:text-4xl font-bold mb-5">Бухгалтерское сопровождение от Markus</h2>
+      <p class="text-noir/60 leading-relaxed mb-4">Освободите себя от необходимости разбираться в сложных бухгалтерских и налоговых вопросах, тратя на это ценное время и ресурсы.</p>
+      <p class="text-noir/60 leading-relaxed">Мы предлагаем полный спектр услуг по бухгалтерскому, налоговому и кадровому учёту, позволяя вам сосредоточиться исключительно на развитии бизнеса.</p>
+    </div>
+    <div class="space-y-4">
+      <div class="bg-white border border-noir/10 rounded-2xl p-6 flex gap-4">
+        <span class="font-mono text-gold font-bold text-lg shrink-0">1</span>
+        <div>
+          <h3 class="font-serif font-bold mb-1">Ведение бухгалтерского учёта «под ключ»</h3>
+          <p class="text-sm text-noir/55">Первичная документация, проводки, отчётность — без штатного бухгалтера в компании.</p>
+        </div>
+      </div>
+      <div class="bg-white border border-noir/10 rounded-2xl p-6 flex gap-4">
+        <span class="font-mono text-gold font-bold text-lg shrink-0">2</span>
+        <div>
+          <h3 class="font-serif font-bold mb-1">Восстановление бухгалтерского учёта</h3>
+          <p class="text-sm text-noir/55">Быстрая и профессиональная помощь в восстановлении бухгалтерской документации. Мы устраним ошибки, восполним пропущенные записи и приведём учёт в соответствие с законодательством.</p>
+        </div>
+      </div>
+      <div class="bg-white border border-noir/10 rounded-2xl p-6 flex gap-4">
+        <span class="font-mono text-gold font-bold text-lg shrink-0">3</span>
+        <div>
+          <h3 class="font-serif font-bold mb-1">Налоговый учёт и возврат НДС</h3>
+          <p class="text-sm text-noir/55">Расчёт и своевременная сдача отчётности, сопровождение налоговых проверок.</p>
+        </div>
+      </div>
+      <div class="bg-white border border-noir/10 rounded-2xl p-6 flex gap-4">
+        <span class="font-mono text-gold font-bold text-lg shrink-0">4</span>
+        <div>
+          <h3 class="font-serif font-bold mb-1">Ведение кадрового учёта</h3>
+          <p class="text-sm text-noir/55">Зарплата, НДФЛ и ИНПС, начисление социального налога, кадровое делопроизводство.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== КАЛЬКУЛЯТОР ===== -->
+<section id="calculator" class="bg-noir text-paper">
+  <div class="max-w-6xl mx-auto px-5 md:px-8 py-20">
+    <span class="inline-block bg-gold/15 text-gold text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full mb-4">Калькулятор</span>
+    <h2 class="font-serif text-3xl md:text-4xl font-bold mb-3">Рассчитайте стоимость сопровождения</h2>
+    <p class="text-paper/60 max-w-xl mb-10">Двигайте ползунки — расчёт обновляется мгновенно. Итог согласовывается с бухгалтером перед заключением договора.</p>
+
+    <div class="grid lg:grid-cols-[1fr,360px] gap-8">
+      <div class="space-y-8">
+
+        <!-- Режим налогообложения -->
+        <div>
+          <h3 class="font-semibold mb-1">Режим налогообложения</h3>
+          <p class="text-sm text-paper/50 mb-4">Выберите систему налогообложения вашего бизнеса.</p>
+          <div class="space-y-3">
+            <label class="flex items-start gap-3 bg-noirCard border border-gold rounded-xl p-4 cursor-pointer">
+              <input type="radio" name="regime" value="usn" checked class="mt-1 accent-gold">
+              <span class="text-sm">ИП, ООО, ИП ООО, СП ООО, ЧП на УСН <span class="text-gold font-mono">(4%)</span></span>
+            </label>
+            <label class="flex items-start gap-3 bg-noirCard border border-noirBorder rounded-xl p-4 cursor-pointer">
+              <input type="radio" name="regime" value="osn" class="mt-1 accent-gold">
+              <span class="text-sm">ИП, ООО, ИП ООО, СП ООО, ЧП на ОСН <span class="text-paper/40">(НДС 12%, налог на прибыль 15%)</span></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Сотрудники -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="font-semibold">Количество сотрудников</h3>
+            <span id="employees-badge" class="font-mono text-xs bg-gold/15 text-gold px-2.5 py-1 rounded-full">0</span>
+          </div>
+          <p class="text-sm text-paper/50 mb-3">Расчёт зарплаты, удержание НДФЛ и ИНПС, начисление социального налога и отчётность в ГНК по каждому сотруднику.</p>
+          <div class="slider-wrap">
+            <span id="employees-bubble" class="slider-bubble">0</span>
+            <input type="range" id="employees" class="mslider" min="0" max="100" step="1" value="0">
+            <div class="tick-wrap" id="employees-ticks"></div>
+          </div>
+        </div>
+
+        <!-- ВЭД операции -->
+        <div>
+          <h3 class="font-semibold mb-1">Внешнеэкономическая деятельность</h3>
+          <p class="text-sm text-paper/50 mb-4">Валютный контроль, оформление ГТД, валютные контракты.</p>
+
+          <div class="mb-6">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-sm text-paper/70">Экспортных операций в месяц</span>
+              <span id="export-badge" class="font-mono text-xs text-gold">0</span>
+            </div>
+            <div class="slider-wrap">
+              <span id="export-bubble" class="slider-bubble">0</span>
+              <input type="range" id="export-ops" class="mslider" min="0" max="100" step="1" value="0">
+              <div class="tick-wrap" id="export-ticks"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-sm text-paper/70">Импортных операций в месяц</span>
+              <span id="import-badge" class="font-mono text-xs text-gold">0</span>
+            </div>
+            <div class="slider-wrap">
+              <span id="import-bubble" class="slider-bubble">0</span>
+              <input type="range" id="import-ops" class="mslider" min="0" max="100" step="1" value="0">
+              <div class="tick-wrap" id="import-ticks"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Документооборот -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="font-semibold">Документооборот в месяц</h3>
+            <span id="docs-badge" class="font-mono text-xs bg-gold/15 text-gold px-2.5 py-1 rounded-full">20</span>
+          </div>
+          <p class="text-sm text-paper/50 mb-3">Общее число операций: ЭСФ, приходные документы, ТТН, доверенности, платёжные поручения.</p>
+          <div class="slider-wrap">
+            <span id="docflow-bubble" class="slider-bubble">20</span>
+            <input type="range" id="docflow" class="mslider" min="0" max="800" step="10" value="20">
+            <div class="tick-wrap" id="docflow-ticks"></div>
+          </div>
+        </div>
+
+        <!-- Доп. услуги -->
+        <div>
+          <h3 class="font-semibold mb-4">Дополнительные услуги <span class="text-paper/40 font-normal text-sm">(необязательно)</span></h3>
+          <div class="space-y-3" id="addons">
+            <label class="flex items-start justify-between gap-4 bg-noirCard border border-noirBorder rounded-xl p-4 cursor-pointer">
+              <span class="flex items-start gap-3 text-sm">
+                <input type="checkbox" class="addon mt-1 accent-gold" data-price="600000">
+                <span>Кадровый учёт полностью<br><span class="text-paper/40 text-xs">Ведение договоров, приказов, табелей, отпусков</span></span>
+              </span>
+              <span class="font-mono text-xs text-gold whitespace-nowrap">+600 000 сум</span>
+            </label>
+            <label class="flex items-start justify-between gap-4 bg-noirCard border border-noirBorder rounded-xl p-4 cursor-pointer">
+              <span class="flex items-start gap-3 text-sm">
+                <input type="checkbox" class="addon mt-1 accent-gold" data-price="400000">
+                <span>Валютный контроль и контракты ВЭД<br><span class="text-paper/40 text-xs">Расширенное сопровождение внешнеторговых сделок</span></span>
+              </span>
+              <span class="font-mono text-xs text-gold whitespace-nowrap">+400 000 сум</span>
+            </label>
+            <label class="flex items-start justify-between gap-4 bg-noirCard border border-noirBorder rounded-xl p-4 cursor-pointer">
+              <span class="flex items-start gap-3 text-sm">
+                <input type="checkbox" class="addon mt-1 accent-gold" data-price="1500000">
+                <span>Управленческий учёт<br><span class="text-paper/40 text-xs">P&amp;L, движение денежных средств, дашборды</span></span>
+              </span>
+              <span class="font-mono text-xs text-gold whitespace-nowrap">+1 500 000 сум</span>
+            </label>
+            <label class="flex items-start justify-between gap-4 bg-noirCard border border-noirBorder rounded-xl p-4 cursor-pointer">
+              <span class="flex items-start gap-3 text-sm">
+                <input type="checkbox" class="addon mt-1 accent-gold" data-price="600000">
+                <span>Оформление ЭЦП и доверенности<br><span class="text-paper/40 text-xs">Разовое оформление, без ведения</span></span>
+              </span>
+              <span class="font-mono text-xs text-gold whitespace-nowrap">+600 000 сум</span>
+            </label>
+            <label class="flex items-start justify-between gap-4 bg-noirCard border border-noirBorder rounded-xl p-4 cursor-pointer">
+              <span class="flex items-start gap-3 text-sm">
+                <input type="checkbox" class="addon mt-1 accent-gold" data-price="400000">
+                <span>Пакет консультаций (6 часов)<br><span class="text-paper/40 text-xs">Устные и письменные консультации бухгалтера</span></span>
+              </span>
+              <span class="font-mono text-xs text-gold whitespace-nowrap">+400 000 сум</span>
+            </label>
+            <label class="flex items-start justify-between gap-4 bg-noirCard border border-noirBorder rounded-xl p-4 cursor-pointer">
+              <span class="flex items-start gap-3 text-sm">
+                <input type="checkbox" class="addon-onetime mt-1 accent-gold" data-price="3000000">
+                <span>Восстановление учёта<br><span class="text-paper/40 text-xs">Разовая услуга, за прошлые периоды</span></span>
+              </span>
+              <span class="font-mono text-xs text-gold whitespace-nowrap">от 3 000 000 сум</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Срок оплаты -->
+        <div>
+          <h3 class="font-semibold mb-4">Срок оплаты <span class="text-paper/40 font-normal text-sm">(скидка)</span></h3>
+          <div class="grid grid-cols-2 gap-3" id="payment-terms">
+            <label class="flex items-center gap-2 bg-noirCard border border-gold rounded-xl p-4 cursor-pointer">
+              <input type="radio" name="term" value="0" checked class="accent-gold">
+              <span class="text-sm">Помесячно <span class="text-paper/40 text-xs block">Без скидки</span></span>
+            </label>
+            <label class="flex items-center gap-2 bg-noirCard border border-noirBorder rounded-xl p-4 cursor-pointer">
+              <input type="radio" name="term" value="0.03" class="accent-gold">
+              <span class="text-sm">3 месяца вперёд <span class="text-gold text-xs block">Скидка 3%</span></span>
+            </label>
+            <label class="flex items-center gap-2 bg-noirCard border border-noirBorder rounded-xl p-4 cursor-pointer">
+              <input type="radio" name="term" value="0.06" class="accent-gold">
+              <span class="text-sm">6 месяцев вперёд <span class="text-gold text-xs block">Скидка 6%</span></span>
+            </label>
+            <label class="flex items-center gap-2 bg-noirCard border border-noirBorder rounded-xl p-4 cursor-pointer">
+              <input type="radio" name="term" value="0.1" class="accent-gold">
+              <span class="text-sm">12 месяцев вперёд <span class="text-gold text-xs block">Скидка 10%</span></span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Сайдбар с итогом -->
+      <div class="lg:sticky lg:top-24 h-fit">
+        <div class="bg-noirCard border border-noirBorder rounded-2xl p-6">
+          <p class="text-xs text-paper/50 tracking-widest uppercase mb-2">Предварительная стоимость</p>
+          <div class="flex items-end gap-2 mb-1">
+            <span id="total-result" class="font-mono text-3xl font-bold text-gold">4 300 000</span>
+            <span class="text-paper/50 mb-1">сум</span>
+          </div>
+          <p class="text-xs text-paper/40 mb-5">в месяц</p>
+
+          <div class="space-y-2 text-sm border-t border-noirBorder pt-4 mb-5" id="breakdown">
+            <div class="flex justify-between"><span class="text-paper/50">Базовая ставка</span><span id="bd-base" class="font-mono">4 000 000</span></div>
+            <div class="flex justify-between" id="bd-osn-row" style="display:none"><span class="text-paper/50">Общеустановленная система (ОСН)</span><span id="bd-osn" class="font-mono">3 000 000</span></div>
+            <div class="flex justify-between"><span class="text-paper/50">Сотрудники</span><span id="bd-employees" class="font-mono">300 000</span></div>
+            <div class="flex justify-between"><span class="text-paper/50">ВЭД операции</span><span id="bd-ved" class="font-mono">0</span></div>
+            <div class="flex justify-between"><span class="text-paper/50">Документооборот</span><span id="bd-docs" class="font-mono">0</span></div>
+            <div class="flex justify-between"><span class="text-paper/50">Доп. услуги (месяц)</span><span id="bd-addons" class="font-mono">0</span></div>
+            <div id="bd-addons-list" class="pl-3 space-y-1 text-xs text-paper/45"></div>
+            <div class="flex justify-between" id="bd-discount-row" style="display:none"><span class="text-paper/50">Скидка за срок</span><span id="bd-discount" class="font-mono text-gold">0</span></div>
+            <div class="flex justify-between" id="bd-onetime-row" style="display:none"><span class="text-paper/50">Разово при подключении</span><span id="bd-onetime" class="font-mono">0</span></div>
+          </div>
+
+          <a href="#contact" class="block text-center bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-3 rounded-full mb-3">
+            Оставить заявку на этот тариф
+          </a>
+          <button id="pdf-btn" class="w-full text-center border border-paper/20 hover:border-gold transition-colors text-paper font-medium px-5 py-3 rounded-full mb-3">
+            📄 Скачать смету (PDF)
+          </button>
+          <a href="tel:+998330801070" class="block text-center border border-paper/20 hover:border-paper/40 transition-colors text-paper font-medium px-5 py-3 rounded-full">
+            📞 +998 33 080-10-70
+          </a>
+          <p class="text-xs text-paper/35 mt-4 leading-relaxed">Стоимость является предварительной. Конечная стоимость определяется после общения со специалистом компании MARKUS.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ЭТАПЫ ВЗАИМОДЕЙСТВИЯ ===== -->
+<section class="bg-stone">
+  <div class="max-w-6xl mx-auto px-5 md:px-8 py-20">
+    <span class="inline-block bg-gold/15 text-goldDim text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full mb-4">Этапы</span>
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
+      <h2 class="font-serif text-3xl md:text-4xl font-bold max-w-lg">Этапы взаимодействия: от знакомства до достижения целей</h2>
+      <p class="text-noir/60 max-w-md">Мы сделали процесс максимально простым: от первичной консультации и передачи документов до полной интеграции и ведения учёта.</p>
+    </div>
+    <div class="grid md:grid-cols-4 gap-5">
+      <div class="bg-gold rounded-2xl p-6 text-noir">
+        <div class="font-mono text-2xl font-bold mb-4">1</div>
+        <h3 class="font-serif font-bold mb-2">Свяжитесь с нами</h3>
+        <p class="text-sm text-noir/70">Позвоните нам или оставьте заявку через сайт либо мессенджер для консультации.</p>
+      </div>
+      <div class="bg-white border border-noir/10 rounded-2xl p-6">
+        <div class="font-mono text-2xl font-bold mb-4 text-gold">2</div>
+        <h3 class="font-serif font-bold mb-2">Консультация эксперта</h3>
+        <p class="text-sm text-noir/55">Наши эксперты разберутся в вашем вопросе, помогут выбрать тариф и определят окончательную стоимость услуг.</p>
+      </div>
+      <div class="bg-white border border-noir/10 rounded-2xl p-6">
+        <div class="font-mono text-2xl font-bold mb-4 text-gold">3</div>
+        <h3 class="font-serif font-bold mb-2">Начинаем работу</h3>
+        <p class="text-sm text-noir/55">Заключаем договор об оказании услуг, подключаем базу 1С, ведём соответствующий документооборот.</p>
+      </div>
+      <div class="bg-white border border-noir/10 rounded-2xl p-6">
+        <div class="font-mono text-2xl font-bold mb-4 text-gold">4</div>
+        <h3 class="font-serif font-bold mb-2">Экспертная поддержка</h3>
+        <p class="text-sm text-noir/55">Ведение налогового учёта, подготовка деклараций, контроль уплаты налогов и содействие в возврате НДС.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== О НАС ===== -->
+<section id="about" class="max-w-6xl mx-auto px-5 md:px-8 py-20">
+  <span class="inline-block bg-gold/15 text-goldDim text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full mb-4">О нас</span>
+  <h2 class="font-serif text-3xl md:text-4xl font-bold mb-8 max-w-lg">MARKUS</h2>
+  <div class="grid md:grid-cols-2 gap-10 items-center mb-14">
+    <p class="text-noir/65 leading-relaxed">
+      Компания Markus помогает предпринимателям и организациям в сфере бухгалтерского учёта и налогового сопровождения. За это время мы накопили опыт работы с бизнесом разного масштаба и отрасли — от начинающих ИП до крупных компаний.
+      <br><br>
+      Наши специалисты — это эксперты, которые продолжают развиваться, повышать квалификацию и применять современные инструменты, чтобы предлагать клиентам только лучшее. Мы ценим доверие и строим сотрудничество на прозрачности, ответственности и внимании к каждой детали.
+    </p>
+    <div class="bg-noir text-paper rounded-2xl p-8 text-center">
+      <div class="font-serif text-4xl font-bold text-gold mb-2">200+</div>
+      <p class="text-paper/60 text-sm">зарегистрированных компаний</p>
+    </div>
+  </div>
+  <div class="grid md:grid-cols-3 gap-5">
+    <div class="bg-noir text-paper rounded-2xl p-6">
+      <div class="text-gold mb-3">◆ ◆ ◆</div>
+      <h3 class="font-serif font-bold mb-2">Надёжность и ответственность</h3>
+      <p class="text-sm text-paper/55">Обеспечиваем предпринимателей и организации надёжной бухгалтерской и налоговой поддержкой, беря на себя полную ответственность за точность и своевременность отчётности.</p>
+    </div>
+    <div class="bg-noir text-paper rounded-2xl p-6">
+      <div class="text-gold mb-3">◆ ◆ ◆</div>
+      <h3 class="font-serif font-bold mb-2">Простота и прозрачность</h3>
+      <p class="text-sm text-paper/55">Делаем финансовые процессы максимально понятными, чтобы клиенты могли сосредоточиться на развитии бизнеса, а не на бумажной рутине.</p>
+    </div>
+    <div class="bg-noir text-paper rounded-2xl p-6">
+      <div class="text-gold mb-3">◆ ◆ ◆</div>
+      <h3 class="font-serif font-bold mb-2">Развитие и доверие</h3>
+      <p class="text-sm text-paper/55">Строим долгосрочные партнёрские отношения, развиваемся вместе с клиентами и предлагаем современные решения для роста бизнеса.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ФИНАЛЬНЫЙ CTA / ФОРМА ===== -->
+<section id="contact" class="bg-noir text-paper">
+  <div class="max-w-6xl mx-auto px-5 md:px-8 py-20 grid lg:grid-cols-[1.2fr,420px] gap-10 items-center">
+    <div>
+      <h2 class="font-serif text-3xl md:text-4xl font-bold mb-5 max-w-lg">Открыть бизнес, передать бухгалтерию на аутсорсинг или обратиться с другим вопросом — просто</h2>
+      <p class="text-paper/60 max-w-md mb-8">Есть вопросы? Оставьте заявку и наш специалист свяжется с вами в кратчайшие сроки.</p>
+      <a href="https://t.me/DDR3128" target="_blank" rel="noopener" class="inline-block bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-8 py-4 rounded-full">
+        Написать в Telegram →
+      </a>
+    </div>
+    <form id="lead-form" class="bg-white text-noir rounded-2xl p-7 space-y-4" onsubmit="return false;">
+      <div>
+        <label class="block text-sm font-semibold mb-2">Ваше имя</label>
+        <input type="text" required class="w-full border border-noir/15 rounded-lg px-4 py-3">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-2">Ваш телефон</label>
+        <input type="tel" required placeholder="+998 (__) ___-__-__" class="w-full border border-noir/15 rounded-lg px-4 py-3">
+      </div>
+      <button id="lead-submit" class="w-full bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-3.5 rounded-full">
+        Отправить
+      </button>
+      <p id="lead-note" class="text-xs text-noir/40 text-center">Нажимая «Отправить», вы соглашаетесь на обработку данных.</p>
+    </form>
+  </div>
+</section>
+
+<!-- ===== ФУТЕР ===== -->
+<footer class="bg-noir text-paper/60 border-t border-white/10">
+  <div class="max-w-6xl mx-auto px-5 md:px-8 py-14 grid md:grid-cols-4 gap-10 text-sm">
+    <div>
+      <div class="font-serif text-paper text-lg font-bold mb-3">MARKUS</div>
+      <p class="leading-relaxed mb-4">Бухгалтерские и консалтинговые услуги для бизнеса любого масштаба в Республике Узбекистан.</p>
+      <div class="flex gap-2">
+        <a href="https://t.me/DDR3128" target="_blank" rel="noopener" class="border border-white/15 hover:border-gold transition-colors rounded-full px-3 py-1.5 text-xs">Telegram</a>
+        <a href="https://wa.me/998330801070" target="_blank" rel="noopener" class="border border-white/15 hover:border-gold transition-colors rounded-full px-3 py-1.5 text-xs">WhatsApp</a>
+      </div>
+    </div>
+    <div>
+      <h4 class="text-paper font-semibold mb-3">Услуги</h4>
+      <ul class="space-y-2">
+        <li><a href="#services" class="hover:text-gold transition-colors">Регистрация ООО</a></li>
+        <li><a href="#services" class="hover:text-gold transition-colors">Регистрация ЧП</a></li>
+        <li><a href="#" class="hover:text-gold transition-colors">Ведение бухгалтерского учёта</a></li>
+        <li><a href="#" class="hover:text-gold transition-colors">Ведение кадрового учёта</a></li>
+        <li><a href="#" class="hover:text-gold transition-colors">Восстановление бухучёта</a></li>
+        <li><a href="#" class="hover:text-gold transition-colors">Ведение налогового учёта и возврат НДС</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="text-paper font-semibold mb-3">Навигация</h4>
+      <ul class="space-y-2">
+        <li><a href="#top" class="hover:text-gold transition-colors">Главная</a></li>
+        <li><a href="#about" class="hover:text-gold transition-colors">О нас</a></li>
+        <li><a href="#calculator" class="hover:text-gold transition-colors">Калькулятор</a></li>
+        <li><a href="#contact" class="hover:text-gold transition-colors">Контакты</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="text-paper font-semibold mb-3">Контакты</h4>
+      <p class="mb-2"><a href="tel:+998330801070" class="hover:text-gold transition-colors">+998 33 080-10-70</a></p>
+      <p class="mb-2"><a href="tel:+998330801070" class="hover:text-gold transition-colors">Заказать звонок</a></p>
+      <p class="mb-2"><a href="https://t.me/DDR3128" target="_blank" rel="noopener" class="hover:text-gold transition-colors">@DDR3128 — написать в Telegram</a></p>
+      <p>Узбекистан, г. Ташкент, Юнусабадский район</p>
+    </div>
+  </div>
+  <div class="border-t border-white/10 py-5 text-center text-xs text-paper/30">© 2026 Markus</div>
+</footer>
+
+<script>
+/* ============================================================
+   ДВИЖКИ (СЛАЙДЕРЫ) С ИНТЕРПОЛЯЦИЕЙ ЦЕНЫ ПО ОПОРНЫМ ТОЧКАМ
+   ============================================================ */
+
+// Линейная интерполяция между ближайшими опорными точками
+function interpolate(value, anchors) {
+  for (let i = 0; i < anchors.length - 1; i++) {
+    const [x0, y0] = anchors[i];
+    const [x1, y1] = anchors[i + 1];
+    if (value >= x0 && value <= x1) {
+      const t = (value - x0) / (x1 - x0);
+      return y0 + t * (y1 - y0);
+    }
+  }
+  return anchors[anchors.length - 1][1];
+}
+function round10k(n) { return Math.round(n / 10000) * 10000; }
+function fmt(n) { return Math.round(n).toLocaleString('ru-RU'); }
+
+// Позиционирование плавающего пузырька с текущим значением над бегунком
+function positionBubble(sliderEl, bubbleEl) {
+  const min = parseFloat(sliderEl.min), max = parseFloat(sliderEl.max), val = parseFloat(sliderEl.value);
+  const thumb = 20;
+  const percent = (val - min) / (max - min) * 100;
+  const offsetPx = thumb / 2 - (percent / 100) * thumb;
+  bubbleEl.style.left = `calc(${percent}% + ${offsetPx}px)`;
+  bubbleEl.textContent = sliderEl.value;
+}
+
+// Позиционирование подписей под движком с поправкой на ширину бегунка (20px)
+function positionTicks(sliderEl, ticksWrapEl, ticks) {
+  const min = parseFloat(sliderEl.min), max = parseFloat(sliderEl.max);
+  const thumb = 20; // ширина бегунка в px, совпадает с CSS
+  ticksWrapEl.innerHTML = '';
+  ticks.forEach(t => {
+    const percent = (t.value - min) / (max - min) * 100;
+    const offsetPx = thumb / 2 - (percent / 100) * thumb;
+    const el = document.createElement('span');
+    el.className = 'tick-label';
+    el.textContent = t.label;
+    el.style.left = `calc(${percent}% + ${offsetPx}px)`;
+    el.dataset.value = t.value;
+    el.addEventListener('click', () => {
+      sliderEl.value = t.value;
+      sliderEl.dispatchEvent(new Event('input'));
+    });
+    ticksWrapEl.appendChild(el);
+  });
+}
+
+// Подсветка ближайшей засечки золотым + заливка трека
+function refreshSliderVisuals(sliderEl, ticksWrapEl) {
+  const min = parseFloat(sliderEl.min), max = parseFloat(sliderEl.max), val = parseFloat(sliderEl.value);
+  const percent = (val - min) / (max - min) * 100;
+  sliderEl.style.background = `linear-gradient(to right, #C9A46B 0%, #C9A46B ${percent}%, #2A2A2E ${percent}%, #2A2A2E 100%)`;
+
+  let nearest = null, nearestDist = Infinity;
+  ticksWrapEl.querySelectorAll('.tick-label').forEach(el => {
+    const d = Math.abs(parseFloat(el.dataset.value) - val);
+    el.classList.remove('active');
+    if (d < nearestDist) { nearestDist = d; nearest = el; }
+  });
+  if (nearest) nearest.classList.add('active');
+}
+
+// ===== Конфигурация слайдеров =====
+// ПРИМЕЧАНИЕ: суммы ниже — placeholder по механике "3 сотрудника=300к, 10=800к".
+// Пришли реальную тарифную таблицу — подставлю точные цифры.
+const employeeAnchors = [[0,0],[3,300000],[10,800000],[25,1600000],[50,2800000],[100,4500000]];
+const exportAnchors    = [[0,0],[4,150000],[8,300000],[25,700000],[50,1300000],[100,2400000]];
+const importAnchors    = [[0,0],[4,150000],[8,300000],[25,700000],[50,1300000],[100,2400000]];
+const docflowAnchors   = [[0,0],[100,200000],[200,380000],[300,550000],[400,700000],[600,950000],[800,1200000]];
+
+const baseRates = { usn: 4000000, osn: 4000000 };
+const osnSurcharge = 3000000; // надбавка за общеустановленную систему (ОСН)
+
+const employeesSlider = document.getElementById('employees');
+const exportSlider = document.getElementById('export-ops');
+const importSlider = document.getElementById('import-ops');
+const docflowSlider = document.getElementById('docflow');
+
+positionTicks(employeesSlider, document.getElementById('employees-ticks'),
+  [{value:0,label:'0'},{value:3,label:'3'},{value:10,label:'10'},{value:25,label:'25'},{value:50,label:'50'},{value:100,label:'100+'}]);
+positionTicks(exportSlider, document.getElementById('export-ticks'),
+  [{value:0,label:'0'},{value:4,label:'4'},{value:8,label:'8'},{value:25,label:'25'},{value:50,label:'50'},{value:100,label:'100'}]);
+positionTicks(importSlider, document.getElementById('import-ticks'),
+  [{value:0,label:'0'},{value:4,label:'4'},{value:8,label:'8'},{value:25,label:'25'},{value:50,label:'50'},{value:100,label:'100'}]);
+positionTicks(docflowSlider, document.getElementById('docflow-ticks'),
+  [{value:0,label:'0'},{value:100,label:'100'},{value:200,label:'200'},{value:300,label:'300'},{value:400,label:'400'},{value:600,label:'600'},{value:800,label:'800'}]);
+
+function calcTotal() {
+  const regime = document.querySelector('input[name="regime"]:checked').value;
+  const base = baseRates[regime];
+  const osnFee = regime === 'osn' ? osnSurcharge : 0;
+
+  const empVal = parseFloat(employeesSlider.value);
+  const empPrice = interpolate(empVal, employeeAnchors);
+
+  const expVal = parseFloat(exportSlider.value);
+  const expPrice = interpolate(expVal, exportAnchors);
+
+  const impVal = parseFloat(importSlider.value);
+  const impPrice = interpolate(impVal, importAnchors);
+
+  const docVal = parseFloat(docflowSlider.value);
+  const docPrice = interpolate(docVal, docflowAnchors);
+
+  let addonsMonthly = 0, addonsOnetime = 0;
+  document.querySelectorAll('.addon:checked').forEach(el => addonsMonthly += parseFloat(el.dataset.price));
+  document.querySelectorAll('.addon-onetime:checked').forEach(el => addonsOnetime += parseFloat(el.dataset.price));
+
+  const discountRate = parseFloat(document.querySelector('input[name="term"]:checked').value);
+  const recurringSubtotal = base + osnFee + empPrice + expPrice + impPrice + docPrice + addonsMonthly;
+  const discountAmount = recurringSubtotal * discountRate;
+  const total = round10k(recurringSubtotal - discountAmount);
+
+  // Обновляем бейджи
+  document.getElementById('employees-badge').textContent = empVal;
+  document.getElementById('export-badge').textContent = expVal;
+  document.getElementById('import-badge').textContent = impVal;
+  document.getElementById('docs-badge').textContent = docVal;
+
+  // Обновляем разбивку
+  document.getElementById('bd-base').textContent = fmt(base);
+  const osnRow = document.getElementById('bd-osn-row');
+  if (regime === 'osn') {
+    osnRow.style.display = 'flex';
+    document.getElementById('bd-osn').textContent = fmt(osnFee);
+  } else {
+    osnRow.style.display = 'none';
+  }
+  document.getElementById('bd-employees').textContent = fmt(empPrice);
+  document.getElementById('bd-ved').textContent = fmt(expPrice + impPrice);
+  document.getElementById('bd-docs').textContent = fmt(docPrice);
+  document.getElementById('bd-addons').textContent = fmt(addonsMonthly);
+
+  const discRow = document.getElementById('bd-discount-row');
+  if (discountRate > 0) {
+    discRow.style.display = 'flex';
+    document.getElementById('bd-discount').textContent = '−' + fmt(discountAmount);
+  } else {
+    discRow.style.display = 'none';
+  }
+
+  const onetimeRow = document.getElementById('bd-onetime-row');
+  if (addonsOnetime > 0) {
+    onetimeRow.style.display = 'flex';
+    document.getElementById('bd-onetime').textContent = 'от ' + fmt(addonsOnetime);
+  } else {
+    onetimeRow.style.display = 'none';
+  }
+
+  document.getElementById('total-result').textContent = fmt(total);
+
+  refreshSliderVisuals(employeesSlider, document.getElementById('employees-ticks'));
+  refreshSliderVisuals(exportSlider, document.getElementById('export-ticks'));
+  refreshSliderVisuals(importSlider, document.getElementById('import-ticks'));
+  refreshSliderVisuals(docflowSlider, document.getElementById('docflow-ticks'));
+
+  positionBubble(employeesSlider, document.getElementById('employees-bubble'));
+  positionBubble(exportSlider, document.getElementById('export-bubble'));
+  positionBubble(importSlider, document.getElementById('import-bubble'));
+  positionBubble(docflowSlider, document.getElementById('docflow-bubble'));
+
+  // Построчная разбивка допуслуг — видно, за что именно платит клиент
+  const addonsListEl = document.getElementById('bd-addons-list');
+  const selected = [];
+  document.querySelectorAll('.addon:checked, .addon-onetime:checked').forEach(el => {
+    const label = el.closest('label').querySelector('span > span').childNodes[0].textContent.trim();
+    const isOnetime = el.classList.contains('addon-onetime');
+    selected.push(`<div class="flex justify-between"><span>${label}</span><span>${isOnetime ? 'от ' : '+'}${fmt(parseFloat(el.dataset.price))}</span></div>`);
+  });
+  addonsListEl.innerHTML = selected.join('');
+}
+
+[employeesSlider, exportSlider, importSlider, docflowSlider].forEach(s => s.addEventListener('input', calcTotal));
+document.querySelectorAll('input[name="regime"], input[name="term"], .addon, .addon-onetime').forEach(el => {
+  el.addEventListener('change', calcTotal);
+});
+calcTotal();
+
+/* ============================================================
+   ПРОВЕРКА КОНТРАГЕНТА ПО ИНН
+   ============================================================ */
+// Реестры проверены по твоей правке: openinfo.uz, stat.uz, my.soliq.uz, faktura.safe — убраны (не принимали ИНН через URL).
+// Рабочие форматы ссылок подтверждены (ИНН подставляется автоматически):
+function registryLinks(inn) {
+  return [
+    { name: 'Orginfo.uz', desc: 'Карточка организации — руководитель, ОКЭД, адрес', url: `https://www.orginfo.uz/ru/search/organizations/?q=${inn}` },
+    { name: 'MyOrg.uz', desc: 'Финпоказатели, налоги, суды, санкционные списки', url: `https://myorg.uz/ru/company/${inn}` },
+    { name: 'iHamkor.uz', desc: 'Данные ГНК: учредители, финпоказатели, уплаченные налоги', url: `https://ihamkor.uz/ru` },
+  ];
+}
+
+function renderContractorTool() {
+  const regs = registryLinks('___');
+  return `
+    <h3 class="font-serif text-xl font-bold mb-1">Проверка контрагента по ИНН</h3>
+    <p class="text-noir/55 text-sm mb-5">Введите ИНН — ссылки ниже сразу откроют карточку компании в нужном реестре.</p>
+    <div class="flex flex-col sm:flex-row gap-3 mb-6">
+      <input id="inn-input" type="text" inputmode="numeric" maxlength="9" placeholder="Например: 311283164"
+        class="flex-1 border border-noir/15 rounded-lg px-4 py-3 font-mono text-lg">
+      <button id="inn-go-btn" class="bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-6 py-3 rounded-lg whitespace-nowrap">Проверить</button>
+    </div>
+    <p id="inn-error" class="text-sm text-red-600 mb-4 hidden">Введите ровно 9 цифр ИНН</p>
+    <div class="grid sm:grid-cols-3 gap-4" id="inn-registry-grid">
+      ${regs.map(r => `
+        <a href="${r.url}" target="_blank" rel="noopener" class="inn-link card-hover block bg-stone border border-noir/10 rounded-xl p-4" data-name="${r.name}">
+          <div class="font-serif font-bold mb-1">${r.name}</div>
+          <p class="text-xs text-noir/50">${r.desc}</p>
+        </a>
+      `).join('')}
+    </div>
+  `;
+}
+
+/* ============================================================
+   AI-АССИСТЕНТ — теперь настоящий, через /api/assistant
+   ============================================================ */
+const aiQuickQuestions = ['Что такое НДС?', 'Ставки НДФЛ и соц.налога', 'Переход с УСН на ОСН + НДС', 'Отпускные при увольнении'];
+function renderAiTool() {
+  return `
+    <div class="bg-noir text-paper rounded-2xl p-5 flex items-center gap-3 mb-4">
+      <div class="w-9 h-9 rounded-full bg-gold text-noir font-serif font-bold flex items-center justify-center">M</div>
+      <div>
+        <div class="font-semibold">Ассистент Markus</div>
+        <div class="text-xs text-paper/50">НК, НСБУ, ТК Республики Узбекистан</div>
+      </div>
+    </div>
+    <div id="ai-chat" class="border border-noir/10 rounded-2xl p-5 h-52 overflow-y-auto mb-4 space-y-3 bg-stone">
+      <div class="text-sm text-noir/60">Задайте вопрос или выберите готовый вариант ниже.</div>
+    </div>
+    <div class="flex flex-wrap gap-2 mb-4">
+      ${aiQuickQuestions.map(q => `<button class="ai-chip bg-stone border border-noir/10 hover:border-gold transition-colors text-sm px-3 py-1.5 rounded-full">${q}</button>`).join('')}
+    </div>
+    <div class="flex gap-3">
+      <input id="ai-input" type="text" placeholder="Ваш вопрос..." class="flex-1 border border-noir/15 rounded-lg px-4 py-3 text-sm">
+      <button id="ai-send" class="bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-3 rounded-lg">Отправить</button>
+    </div>
+    <p class="text-xs text-noir/40 mt-3">Ассистент даёт справочную информацию и не является юридической консультацией.</p>
+  `;
+}
+async function aiRespond(question) {
+  const chat = document.getElementById('ai-chat');
+  const userMsg = document.createElement('div');
+  userMsg.className = 'ml-auto max-w-[80%] bg-noir text-paper text-sm rounded-xl rounded-br-sm px-4 py-2.5';
+  userMsg.textContent = question;
+  chat.appendChild(userMsg);
+
+  const loadingMsg = document.createElement('div');
+  loadingMsg.className = 'max-w-[85%] bg-white border border-noir/10 text-sm rounded-xl rounded-bl-sm px-4 py-2.5 text-noir/40';
+  loadingMsg.textContent = 'Печатает…';
+  chat.appendChild(loadingMsg);
+  chat.scrollTop = chat.scrollHeight;
+
+  try {
+    const resp = await fetch('/api/assistant', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question }),
+    });
+    const data = await resp.json();
+    loadingMsg.textContent = resp.ok ? data.answer : ('⚠️ ' + (data.error || 'Ошибка ассистента'));
+    if (!resp.ok) loadingMsg.classList.add('text-red-600');
+  } catch (err) {
+    loadingMsg.textContent = '⚠️ Не удалось связаться с сервером. Попробуйте позже или напишите бухгалтеру: t.me/DDR3128';
+  }
+  chat.scrollTop = chat.scrollHeight;
+}
+
+/* ============================================================
+   КАРТОЧКИ ИНСТРУМЕНТОВ
+   ============================================================ */
+const toolContent = {
+  calc: {
+    title: 'Калькулятор — ниже на странице',
+    body: 'Полный расчёт стоимости с движками для сотрудников, ВЭД-операций и документооборота — прокрутите к разделу «Калькулятор».',
+    cta: 'Перейти к калькулятору', ctaHref: '#calculator'
+  },
+  news: {
+    title: 'Лента новостей — в разработке',
+    body: 'Будет автоматически подтягивать последние посты из Telegram-канала Markus через Telegram Bot API.',
+    cta: 'Открыть канал', ctaHref: 'https://t.me/DDR3128'
+  },
+  docs: {
+    title: 'Образцы документов — наполняется',
+    body: 'Раздел с готовыми шаблонами договоров скоро появится. Нужен конкретный документ прямо сейчас — напишите, подготовим.',
+    cta: 'Запросить документ', ctaHref: 'https://t.me/DDR3128'
+  }
+};
+const panel = document.getElementById('tool-panel');
+const panelContent = document.getElementById('tool-panel-content');
+document.querySelectorAll('.tool-card').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tool = btn.dataset.tool;
+    if (tool === 'contractor') {
+      panelContent.innerHTML = renderContractorTool();
+      document.getElementById('inn-go-btn').addEventListener('click', () => {
+        const val = document.getElementById('inn-input').value.trim();
+        const errEl = document.getElementById('inn-error');
+        if (!/^\d{9}$/.test(val)) { errEl.classList.remove('hidden'); return; }
+        errEl.classList.add('hidden');
+        const links = registryLinks(val);
+        document.querySelectorAll('.inn-link').forEach((el, i) => {
+          el.href = links[i].url;
+        });
+        // Автоматически открываем первый реестр (Orginfo) — самый полный
+        window.open(links[0].url, '_blank');
+      });
+    } else if (tool === 'ai') {
+      panelContent.innerHTML = renderAiTool();
+      document.querySelectorAll('.ai-chip').forEach(chip => {
+        chip.addEventListener('click', () => aiRespond(chip.textContent));
+      });
+      document.getElementById('ai-send').addEventListener('click', () => {
+        const val = document.getElementById('ai-input').value.trim();
+        if (!val) return;
+        aiRespond(val);
+        document.getElementById('ai-input').value = '';
+      });
+    } else {
+      const data = toolContent[tool];
+      panelContent.innerHTML = `
+        <h3 class="font-serif text-xl font-bold mb-3">${data.title}</h3>
+        <p class="text-noir/60 mb-5 max-w-xl">${data.body}</p>
+        <a href="${data.ctaHref}" target="_blank" rel="noopener" class="inline-block bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-2.5 rounded-full">${data.cta} →</a>
+      `;
+    }
+    panel.classList.remove('hidden');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+});
+
+/* ============================================================
+   ФОРМА ЗАЯВКИ
+   ============================================================ */
+document.getElementById('lead-submit').addEventListener('click', () => {
+  const form = document.getElementById('lead-form');
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  document.getElementById('lead-note').textContent = 'Заявка сформирована — сейчас откроется Telegram, отправьте сообщение вручную.';
+  window.open('https://t.me/DDR3128', '_blank');
+});
+</script>
+
+<!-- ===== ПЕЧАТНАЯ СМЕТА (для PDF) ===== -->
+<div id="print-summary" class="hidden">
+  <div style="font-family: 'PT Serif', serif; padding: 30px;">
+    <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 4px;">MARKUS — смета на бухгалтерское сопровождение</h1>
+    <p style="color:#666; font-size:13px; margin-bottom:20px;" id="print-date"></p>
+    <table style="width:100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 14px;">
+      <tbody id="print-rows"></tbody>
+      <tfoot>
+        <tr style="border-top: 2px solid #000;">
+          <td style="padding:10px 0; font-weight:bold;">Итого в месяц</td>
+          <td style="padding:10px 0; font-weight:bold; text-align:right;" id="print-total"></td>
+        </tr>
+      </tfoot>
+    </table>
+    <p style="margin-top:24px; font-size:12px; color:#888;">Стоимость является предварительной. Конечная стоимость определяется после общения со специалистом компании MARKUS.<br>+998 33 080-10-70 · Telegram: @DDR3128</p>
+  </div>
+</div>
+
+<script>
+document.getElementById('pdf-btn').addEventListener('click', () => {
+  const rows = [];
+  rows.push(['Режим налогообложения', document.querySelector('input[name="regime"]:checked').value === 'osn' ? 'ОСН' : 'УСН (4%)']);
+  rows.push(['Базовая ставка', fmt(baseRates[document.querySelector('input[name="regime"]:checked').value]) + ' сум']);
+  if (document.querySelector('input[name="regime"]:checked').value === 'osn') {
+    rows.push(['Надбавка ОСН', fmt(osnSurcharge) + ' сум']);
+  }
+  rows.push(['Количество сотрудников', employeesSlider.value]);
+  rows.push(['Стоимость за сотрудников', document.getElementById('bd-employees').textContent + ' сум']);
+  rows.push(['Экспортных операций в месяц', exportSlider.value]);
+  rows.push(['Импортных операций в месяц', importSlider.value]);
+  rows.push(['Стоимость ВЭД', document.getElementById('bd-ved').textContent + ' сум']);
+  rows.push(['Документооборот в месяц', docflowSlider.value]);
+  rows.push(['Стоимость документооборота', document.getElementById('bd-docs').textContent + ' сум']);
+  document.querySelectorAll('.addon:checked, .addon-onetime:checked').forEach(el => {
+    const label = el.closest('label').querySelector('span > span').textContent.split('\n')[0];
+    rows.push([label.trim(), fmt(parseFloat(el.dataset.price)) + ' сум']);
+  });
+  const termLabel = document.querySelector('input[name="term"]:checked').closest('label').querySelector('span').textContent.trim();
+  rows.push(['Срок оплаты', termLabel.split(/\s{2,}/)[0]]);
+
+  document.getElementById('print-rows').innerHTML = rows.map(r =>
+    `<tr style="border-bottom:1px solid #eee;"><td style="padding:6px 0; color:#444;">${r[0]}</td><td style="padding:6px 0; text-align:right;">${r[1]}</td></tr>`
+  ).join('');
+  document.getElementById('print-total').textContent = document.getElementById('total-result').textContent + ' сум';
+  document.getElementById('print-date').textContent = 'Сформировано: ' + new Date().toLocaleDateString('ru-RU');
+
+  document.body.classList.add('printing-summary');
+  window.print();
+  document.body.classList.remove('printing-summary');
+});
+</script>
+
+<style>
+  @media print {
+    body.printing-summary > *:not(#print-summary) { display: none !important; }
+    body.printing-summary #print-summary { display: block !important; }
+  }
+</style>
+
+</body>
+</html>
