@@ -68,6 +68,8 @@
     cursor: pointer; user-select: none; padding: 2px 4px; border-radius: 4px;
     transition: color .15s ease, font-weight .15s ease;
   }
+  .service-item { cursor: pointer; padding: 4px 8px; margin: 0 -8px; border-radius: 6px; transition: background-color .15s, color .15s; }
+  .service-item:hover { background-color: rgba(201,164,107,0.15); color: #DFC28E; }
   .tick-label:hover { color: #DFC28E; }
   .tick-label.active { color: #C9A46B; font-weight: 700; }
 </style>
@@ -132,31 +134,26 @@
   <h2 class="font-serif text-2xl md:text-3xl font-bold mb-10">Попробуйте прямо сейчас — бесплатно</h2>
   <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="tool-cards">
     <button data-tool="calc" class="tool-card text-left card-hover bg-white border border-noir/10 rounded-2xl p-6 relative">
-      <span class="absolute top-5 right-5 text-[11px] font-semibold bg-gold/15 text-goldDim px-2.5 py-1 rounded-full">Работает</span>
       <div class="font-mono text-2xl text-gold mb-3">01</div>
       <h3 class="font-serif text-lg font-bold mb-1.5">Калькулятор стоимости услуг</h3>
       <p class="text-noir/55 text-sm leading-relaxed">Полный расчёт — ниже на странице ↓</p>
     </button>
     <button data-tool="contractor" class="tool-card text-left card-hover bg-white border border-noir/10 rounded-2xl p-6 relative">
-      <span class="absolute top-5 right-5 text-[11px] font-semibold bg-gold/15 text-goldDim px-2.5 py-1 rounded-full">Работает</span>
       <div class="font-mono text-2xl text-gold mb-3">02</div>
       <h3 class="font-serif text-lg font-bold mb-1.5">Проверка контрагента по ИНН</h3>
       <p class="text-noir/55 text-sm leading-relaxed">Копируем ИНН и открываем нужный официальный реестр.</p>
     </button>
     <button data-tool="ai" class="tool-card text-left card-hover bg-white border border-noir/10 rounded-2xl p-6 relative">
-      <span class="absolute top-5 right-5 text-[11px] font-semibold bg-gold/15 text-goldDim px-2.5 py-1 rounded-full">Работает*</span>
       <div class="font-mono text-2xl text-gold mb-3">03</div>
       <h3 class="font-serif text-lg font-bold mb-1.5">AI-ассистент по Налоговому кодексу</h3>
       <p class="text-noir/55 text-sm leading-relaxed">Отвечает на вопросы по НК РУз простыми словами.</p>
     </button>
     <button data-tool="news" class="tool-card text-left card-hover bg-white border border-noir/10 rounded-2xl p-6 relative">
-      <span class="absolute top-5 right-5 text-[11px] font-semibold bg-noir/5 text-noir/50 px-2.5 py-1 rounded-full">В разработке</span>
       <div class="font-mono text-2xl text-gold mb-3">04</div>
       <h3 class="font-serif text-lg font-bold mb-1.5">Новости и изменения в законах</h3>
       <p class="text-noir/55 text-sm leading-relaxed">Лента из Telegram-канала Markus.</p>
     </button>
     <button data-tool="docs" class="tool-card text-left card-hover bg-white border border-noir/10 rounded-2xl p-6 relative">
-      <span class="absolute top-5 right-5 text-[11px] font-semibold bg-noir/5 text-noir/50 px-2.5 py-1 rounded-full">В разработке</span>
       <div class="font-mono text-2xl text-gold mb-3">05</div>
       <h3 class="font-serif text-lg font-bold mb-1.5">Образцы документов</h3>
       <p class="text-noir/55 text-sm leading-relaxed">Готовые шаблоны договоров и юридических документов.</p>
@@ -387,19 +384,19 @@
         <div>
           <h3 class="font-semibold mb-4">Срок оплаты <span class="text-paper/40 font-normal text-sm">(скидка)</span></h3>
           <div class="grid grid-cols-2 gap-3" id="payment-terms">
-            <label class="flex items-center gap-2 bg-noirCard border border-gold rounded-xl p-4 cursor-pointer">
+            <label class="term-label flex items-center gap-2 bg-noirCard border border-gold rounded-xl p-4 cursor-pointer transition-colors">
               <input type="radio" name="term" value="0" checked class="accent-gold">
               <span class="text-sm">Помесячно <span class="text-paper/40 text-xs block">Без скидки</span></span>
             </label>
-            <label class="flex items-center gap-2 bg-noirCard border border-noirBorder rounded-xl p-4 cursor-pointer">
+            <label class="term-label flex items-center gap-2 bg-noirCard border border-noirBorder rounded-xl p-4 cursor-pointer transition-colors">
               <input type="radio" name="term" value="0.03" class="accent-gold">
               <span class="text-sm">3 месяца вперёд <span class="text-gold text-xs block">Скидка 3%</span></span>
             </label>
-            <label class="flex items-center gap-2 bg-noirCard border border-noirBorder rounded-xl p-4 cursor-pointer">
+            <label class="term-label flex items-center gap-2 bg-noirCard border border-noirBorder rounded-xl p-4 cursor-pointer transition-colors">
               <input type="radio" name="term" value="0.06" class="accent-gold">
               <span class="text-sm">6 месяцев вперёд <span class="text-gold text-xs block">Скидка 6%</span></span>
             </label>
-            <label class="flex items-center gap-2 bg-noirCard border border-noirBorder rounded-xl p-4 cursor-pointer">
+            <label class="term-label flex items-center gap-2 bg-noirCard border border-noirBorder rounded-xl p-4 cursor-pointer transition-colors">
               <input type="radio" name="term" value="0.1" class="accent-gold">
               <span class="text-sm">12 месяцев вперёд <span class="text-gold text-xs block">Скидка 10%</span></span>
             </label>
@@ -454,24 +451,25 @@
       <h2 class="font-serif text-3xl md:text-4xl font-bold max-w-lg">Этапы взаимодействия: от знакомства до достижения целей</h2>
       <p class="text-noir/60 max-w-md">Мы сделали процесс максимально простым: от первичной консультации и передачи документов до полной интеграции и ведения учёта.</p>
     </div>
-    <div class="grid md:grid-cols-4 gap-5">
-      <div class="bg-gold rounded-2xl p-6 text-noir">
-        <div class="font-mono text-2xl font-bold mb-4">1</div>
+    <div class="grid md:grid-cols-4 gap-5 relative">
+      <div class="hidden md:block absolute top-[38px] left-[12.5%] right-[12.5%] h-px bg-noir/10"></div>
+      <div class="bg-white border border-noir/10 rounded-2xl p-6 relative">
+        <div class="w-9 h-9 rounded-full bg-gold text-noir font-mono font-bold flex items-center justify-center mb-4">1</div>
         <h3 class="font-serif font-bold mb-2">Свяжитесь с нами</h3>
-        <p class="text-sm text-noir/70">Позвоните нам или оставьте заявку через сайт либо мессенджер для консультации.</p>
+        <p class="text-sm text-noir/55">Позвоните нам или оставьте заявку через сайт либо мессенджер для консультации.</p>
       </div>
-      <div class="bg-white border border-noir/10 rounded-2xl p-6">
-        <div class="font-mono text-2xl font-bold mb-4 text-gold">2</div>
+      <div class="bg-white border border-noir/10 rounded-2xl p-6 relative">
+        <div class="w-9 h-9 rounded-full bg-white border-2 border-gold text-gold font-mono font-bold flex items-center justify-center mb-4">2</div>
         <h3 class="font-serif font-bold mb-2">Консультация эксперта</h3>
         <p class="text-sm text-noir/55">Наши эксперты разберутся в вашем вопросе, помогут выбрать тариф и определят окончательную стоимость услуг.</p>
       </div>
-      <div class="bg-white border border-noir/10 rounded-2xl p-6">
-        <div class="font-mono text-2xl font-bold mb-4 text-gold">3</div>
+      <div class="bg-white border border-noir/10 rounded-2xl p-6 relative">
+        <div class="w-9 h-9 rounded-full bg-white border-2 border-gold text-gold font-mono font-bold flex items-center justify-center mb-4">3</div>
         <h3 class="font-serif font-bold mb-2">Начинаем работу</h3>
         <p class="text-sm text-noir/55">Заключаем договор об оказании услуг, подключаем базу 1С, ведём соответствующий документооборот.</p>
       </div>
-      <div class="bg-white border border-noir/10 rounded-2xl p-6">
-        <div class="font-mono text-2xl font-bold mb-4 text-gold">4</div>
+      <div class="bg-white border border-noir/10 rounded-2xl p-6 relative">
+        <div class="w-9 h-9 rounded-full bg-white border-2 border-gold text-gold font-mono font-bold flex items-center justify-center mb-4">4</div>
         <h3 class="font-serif font-bold mb-2">Экспертная поддержка</h3>
         <p class="text-sm text-noir/55">Ведение налогового учёта, подготовка деклараций, контроль уплаты налогов и содействие в возврате НДС.</p>
       </div>
@@ -526,11 +524,11 @@
     <form id="lead-form" class="bg-white text-noir rounded-2xl p-7 space-y-4" onsubmit="return false;">
       <div>
         <label class="block text-sm font-semibold mb-2">Ваше имя</label>
-        <input type="text" required class="w-full border border-noir/15 rounded-lg px-4 py-3">
+        <input id="lead-name" type="text" required class="w-full border border-noir/15 rounded-lg px-4 py-3">
       </div>
       <div>
         <label class="block text-sm font-semibold mb-2">Ваш телефон</label>
-        <input type="tel" required placeholder="+998 (__) ___-__-__" class="w-full border border-noir/15 rounded-lg px-4 py-3">
+        <input id="lead-phone" type="tel" required placeholder="+998 (__) ___-__-__" class="w-full border border-noir/15 rounded-lg px-4 py-3">
       </div>
       <button id="lead-submit" class="w-full bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-3.5 rounded-full">
         Отправить
@@ -560,6 +558,34 @@
         <li><a href="#" class="hover:text-gold transition-colors">Ведение кадрового учёта</a></li>
         <li><a href="#" class="hover:text-gold transition-colors">Восстановление бухучёта</a></li>
         <li><a href="#" class="hover:text-gold transition-colors">Ведение налогового учёта и возврат НДС</a></li>
+      </ul>
+      <button id="services-toggle" class="text-gold text-xs font-semibold mt-3 hover:underline">Показать полный список услуг ↓</button>
+      <ul id="services-more" class="space-y-1 mt-2 hidden">
+        <li class="text-paper/40 text-xs uppercase tracking-wide pt-2">Открытие бизнеса</li>
+        <li class="service-item">ООО (Общество с ограниченной ответственностью)</li>
+        <li class="service-item">СП ООО (Совместное предприятие в форме ООО)</li>
+        <li class="service-item">ИП ООО (Иностранное предприятие в форме ООО)</li>
+        <li class="service-item">ЧП (Частное предприятие)</li>
+        <li class="service-item">ИП (Индивидуальное предпринимательство)</li>
+        <li class="text-paper/40 text-xs uppercase tracking-wide pt-2">Корпоративные изменения</li>
+        <li class="service-item">Смена юр. адреса, наименования, организационно-правовой формы</li>
+        <li class="service-item">Увеличение / уменьшение Уставного фонда</li>
+        <li class="service-item">Купля-продажа доли в Уставном фонде</li>
+        <li class="service-item">Вывод движимого и недвижимого имущества в пользу участника</li>
+        <li class="service-item">Реорганизация в форме присоединения (слияния)</li>
+        <li class="text-paper/40 text-xs uppercase tracking-wide pt-2">Прочее</li>
+        <li class="service-item">Купля-продажа (аренда) транспортных средств</li>
+        <li class="service-item">Подготовка претензионных писем должникам</li>
+        <li class="service-item">Получение ПИНФЛ для иностранных граждан (в т.ч. удалённо)</li>
+        <li class="service-item">Подтверждение права на работу для иностранных граждан</li>
+        <li class="service-item">Рабочая, бизнес, IT-виза для иностранных граждан</li>
+        <li class="service-item">Нотариальные доверенности для граждан за рубежом</li>
+        <li class="service-item">Статус резидента IT-парка</li>
+        <li class="service-item">IT-карта для учредителей, специалистов, инвесторов IT-парка</li>
+        <li class="service-item">Лицензия на туристическую деятельность</li>
+        <li class="service-item">Лицензия на курсы повышения квалификации</li>
+        <li class="service-item">Лицензия на специализированные дошкольные учреждения</li>
+        <li class="service-item">Лицензия на оптовую торговлю алкогольной продукцией</li>
       </ul>
     </div>
     <div>
@@ -695,6 +721,13 @@ function calcTotal() {
   document.querySelectorAll('.addon-onetime:checked').forEach(el => addonsOnetime += parseFloat(el.dataset.price));
 
   const discountRate = parseFloat(document.querySelector('input[name="term"]:checked').value);
+
+  // Подсветка выбранного срока оплаты — раньше не обновлялась при клике
+  document.querySelectorAll('.term-label').forEach(label => {
+    const isChecked = label.querySelector('input').checked;
+    label.classList.toggle('border-gold', isChecked);
+    label.classList.toggle('border-noirBorder', !isChecked);
+  });
   const recurringSubtotal = base + osnFee + empPrice + expPrice + impPrice + docPrice + addonsMonthly;
   const discountAmount = recurringSubtotal * discountRate;
   const total = round10k(recurringSubtotal - discountAmount);
@@ -781,16 +814,17 @@ function renderContractorTool() {
   const regs = registryLinks('___');
   return `
     <h3 class="font-serif text-xl font-bold mb-1">Проверка контрагента по ИНН</h3>
-    <p class="text-noir/55 text-sm mb-5">Введите ИНН — ссылки ниже сразу откроют карточку компании в нужном реестре.</p>
+    <p class="text-noir/55 text-sm mb-5">Введите ИНН и нажмите «Проверить» — ниже станут кликабельны ссылки на реестры. Выбирайте сами, какой открыть.</p>
     <div class="flex flex-col sm:flex-row gap-3 mb-6">
-      <input id="inn-input" type="text" inputmode="numeric" maxlength="9" placeholder="Например: 311283164"
-        class="flex-1 border border-noir/15 rounded-lg px-4 py-3 font-mono text-lg">
+      <input id="inn-input" type="text" inputmode="numeric" maxlength="9" placeholder="000000000"
+        class="flex-1 border border-noir/15 rounded-lg px-4 py-3 font-mono text-lg tracking-widest">
       <button id="inn-go-btn" class="bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-6 py-3 rounded-lg whitespace-nowrap">Проверить</button>
     </div>
     <p id="inn-error" class="text-sm text-red-600 mb-4 hidden">Введите ровно 9 цифр ИНН</p>
+    <p class="text-xs text-noir/40 mb-3" id="inn-hint">Ссылки станут активны после проверки ↓</p>
     <div class="grid sm:grid-cols-3 gap-4" id="inn-registry-grid">
       ${regs.map(r => `
-        <a href="${r.url}" target="_blank" rel="noopener" class="inn-link card-hover block bg-stone border border-noir/10 rounded-xl p-4" data-name="${r.name}">
+        <a href="javascript:void(0)" class="inn-link card-hover block bg-stone border border-noir/10 rounded-xl p-4 opacity-40 pointer-events-none transition-opacity" data-name="${r.name}">
           <div class="font-serif font-bold mb-1">${r.name}</div>
           <p class="text-xs text-noir/50">${r.desc}</p>
         </a>
@@ -803,18 +837,24 @@ function renderContractorTool() {
    AI-АССИСТЕНТ — теперь настоящий, через /api/assistant
    ============================================================ */
 const aiQuickQuestions = ['Что такое НДС?', 'Ставки НДФЛ и соц.налога', 'Переход с УСН на ОСН + НДС', 'Отпускные при увольнении'];
+// История чата хранится тут, а не внутри HTML — поэтому не теряется при переключении вкладок.
+// sessionStorage хранит её до закрытия вкладки браузера (как ты и просил — минимум до ухода с сайта).
+let aiChatHistory = JSON.parse(sessionStorage.getItem('markus_ai_chat') || '[]');
+function saveAiHistory() { sessionStorage.setItem('markus_ai_chat', JSON.stringify(aiChatHistory)); }
+
 function renderAiTool() {
   return `
-    <div class="bg-noir text-paper rounded-2xl p-5 flex items-center gap-3 mb-4">
-      <div class="w-9 h-9 rounded-full bg-gold text-noir font-serif font-bold flex items-center justify-center">M</div>
-      <div>
-        <div class="font-semibold">Ассистент Markus</div>
-        <div class="text-xs text-paper/50">НК, НСБУ, ТК Республики Узбекистан</div>
+    <div class="bg-noir text-paper rounded-2xl p-5 flex items-center justify-between gap-3 mb-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-gold text-noir font-serif font-bold flex items-center justify-center">M</div>
+        <div>
+          <div class="font-semibold">Ассистент Markus</div>
+          <div class="text-xs text-paper/50">НК, НСБУ, ТК Республики Узбекистан</div>
+        </div>
       </div>
+      <button id="ai-pdf-btn" class="text-xs border border-paper/20 hover:border-gold transition-colors px-3 py-1.5 rounded-full whitespace-nowrap">📄 PDF чата</button>
     </div>
-    <div id="ai-chat" class="border border-noir/10 rounded-2xl p-5 h-52 overflow-y-auto mb-4 space-y-3 bg-stone">
-      <div class="text-sm text-noir/60">Задайте вопрос или выберите готовый вариант ниже.</div>
-    </div>
+    <div id="ai-chat" class="border border-noir/10 rounded-2xl p-5 h-64 overflow-y-auto mb-4 space-y-3 bg-stone"></div>
     <div class="flex flex-wrap gap-2 mb-4">
       ${aiQuickQuestions.map(q => `<button class="ai-chip bg-stone border border-noir/10 hover:border-gold transition-colors text-sm px-3 py-1.5 rounded-full">${q}</button>`).join('')}
     </div>
@@ -825,59 +865,168 @@ function renderAiTool() {
     <p class="text-xs text-noir/40 mt-3">Ассистент даёт справочную информацию и не является юридической консультацией.</p>
   `;
 }
+function renderChatBubble(role, text) {
+  const chat = document.getElementById('ai-chat');
+  const el = document.createElement('div');
+  if (role === 'user') {
+    el.className = 'ml-auto max-w-[80%] bg-noir text-paper text-sm rounded-xl rounded-br-sm px-4 py-2.5';
+  } else {
+    el.className = 'max-w-[85%] bg-white border border-noir/10 text-sm rounded-xl rounded-bl-sm px-4 py-2.5';
+  }
+  el.textContent = text;
+  chat.appendChild(el);
+  return el;
+}
+function restoreAiChat() {
+  const chat = document.getElementById('ai-chat');
+  if (aiChatHistory.length === 0) {
+    chat.innerHTML = `<div class="text-sm text-noir/60">Задайте вопрос или выберите готовый вариант ниже.</div>`;
+  } else {
+    aiChatHistory.forEach(m => renderChatBubble(m.role, m.text));
+  }
+  chat.scrollTop = chat.scrollHeight;
+}
 async function aiRespond(question) {
   const chat = document.getElementById('ai-chat');
-  const userMsg = document.createElement('div');
-  userMsg.className = 'ml-auto max-w-[80%] bg-noir text-paper text-sm rounded-xl rounded-br-sm px-4 py-2.5';
-  userMsg.textContent = question;
-  chat.appendChild(userMsg);
+  if (aiChatHistory.length === 0) chat.innerHTML = ''; // убираем приветствие при первом сообщении
+  renderChatBubble('user', question);
+  aiChatHistory.push({ role: 'user', text: question });
+  saveAiHistory();
 
-  const loadingMsg = document.createElement('div');
-  loadingMsg.className = 'max-w-[85%] bg-white border border-noir/10 text-sm rounded-xl rounded-bl-sm px-4 py-2.5 text-noir/40';
-  loadingMsg.textContent = 'Печатает…';
-  chat.appendChild(loadingMsg);
+  const loadingEl = renderChatBubble('bot', 'Печатает…');
+  loadingEl.classList.add('text-noir/40');
   chat.scrollTop = chat.scrollHeight;
 
   try {
+    const today = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
     const resp = await fetch('/api/assistant', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question }),
+      body: JSON.stringify({ question, today }),
     });
     const data = await resp.json();
-    loadingMsg.textContent = resp.ok ? data.answer : ('⚠️ ' + (data.error || 'Ошибка ассистента'));
-    if (!resp.ok) loadingMsg.classList.add('text-red-600');
+    const answer = resp.ok ? data.answer : ('⚠️ ' + (data.error || 'Ошибка ассистента'));
+    loadingEl.textContent = answer;
+    loadingEl.classList.remove('text-noir/40');
+    if (!resp.ok) loadingEl.classList.add('text-red-600');
+    aiChatHistory.push({ role: 'bot', text: answer });
+    saveAiHistory();
   } catch (err) {
-    loadingMsg.textContent = '⚠️ Не удалось связаться с сервером. Попробуйте позже или напишите бухгалтеру: t.me/DDR3128';
+    const msg = '⚠️ Не удалось связаться с сервером. Попробуйте позже или напишите бухгалтеру: t.me/DDR3128';
+    loadingEl.textContent = msg;
+    loadingEl.classList.add('text-red-600');
+    aiChatHistory.push({ role: 'bot', text: msg });
+    saveAiHistory();
   }
   chat.scrollTop = chat.scrollHeight;
+}
+function exportAiChatPdf() {
+  if (aiChatHistory.length === 0) { alert('Сначала задайте хотя бы один вопрос ассистенту.'); return; }
+  const printEl = document.getElementById('print-ai-chat');
+  const rowsHtml = aiChatHistory.map(m => `
+    <div style="margin-bottom:14px;">
+      <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:3px;">${m.role === 'user' ? 'Вопрос клиента' : 'Ответ ассистента Markus'}</div>
+      <div style="font-size:14px; ${m.role === 'user' ? 'font-weight:600;' : ''}">${m.text.replace(/</g, '&lt;')}</div>
+    </div>
+  `).join('');
+  printEl.querySelector('#print-ai-rows').innerHTML = rowsHtml;
+  printEl.querySelector('#print-ai-date').textContent = 'Сформировано: ' + new Date().toLocaleDateString('ru-RU');
+  document.body.classList.add('printing-ai-chat');
+  window.print();
+  document.body.classList.remove('printing-ai-chat');
+}
+
+/* ============================================================
+   НОВОСТИ — реальная лента из Telegram-канала через серверную функцию
+   ============================================================ */
+async function renderNewsTool() {
+  panelContent.innerHTML = `
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h3 class="font-serif text-xl font-bold mb-1">Новости Markus</h3>
+        <p class="text-noir/55 text-sm">Обновляется автоматически из канала <a href="https://t.me/MARKUS_JW" target="_blank" class="text-gold">@MARKUS_JW</a></p>
+      </div>
+      <a href="https://t.me/MARKUS_JW" target="_blank" rel="noopener" class="bg-gold hover:bg-goldLight transition-colors text-noir text-sm font-semibold px-4 py-2 rounded-full whitespace-nowrap">Подписаться</a>
+    </div>
+    <div id="news-feed" class="space-y-4">
+      <div class="text-center text-noir/40 text-sm py-8">Загружаем ленту…</div>
+    </div>
+  `;
+  try {
+    const resp = await fetch('/api/news');
+    const data = await resp.json();
+    const feed = document.getElementById('news-feed');
+    if (!resp.ok || !data.posts || data.posts.length === 0) {
+      feed.innerHTML = `<div class="text-center text-noir/40 text-sm py-8">Не удалось загрузить ленту. <a href="https://t.me/MARKUS_JW" target="_blank" class="text-gold">Открыть канал напрямую →</a></div>`;
+      return;
+    }
+    feed.innerHTML = data.posts.map(p => {
+      const isLong = p.textHtml.length > 320;
+      return `
+      <div class="relative border border-noir/10 rounded-xl p-4 bg-stone overflow-hidden">
+        <p class="text-sm whitespace-pre-line mb-2 ${isLong ? 'max-h-24 overflow-hidden' : ''}">${p.textHtml}</p>
+        ${isLong ? `<div class="absolute bottom-8 left-0 right-0 h-10 bg-gradient-to-t from-stone to-transparent pointer-events-none"></div>
+        <a href="${p.link || 'https://t.me/MARKUS_JW'}" target="_blank" class="text-gold text-xs font-semibold relative">Читать полностью →</a><br>` : ''}
+        <div class="text-xs text-noir/40 ${isLong ? '' : 'mt-1'}">${p.date}</div>
+      </div>
+    `;
+    }).join('');
+  } catch (err) {
+    document.getElementById('news-feed').innerHTML = `<div class="text-center text-noir/40 text-sm py-8">Не удалось загрузить ленту. <a href="https://t.me/MARKUS_JW" target="_blank" class="text-gold">Открыть канал напрямую →</a></div>`;
+  }
+}
+
+/* ============================================================
+   ДОКУМЕНТЫ — список с поиском (сами файлы добавляются через documents.json)
+   ============================================================ */
+async function renderDocsTool() {
+  panelContent.innerHTML = `
+    <h3 class="font-serif text-xl font-bold mb-1">Образцы документов</h3>
+    <p class="text-noir/55 text-sm mb-5">Готовые шаблоны по законодательству Республики Узбекистан. Скачивайте, заполняйте под свою ситуацию.</p>
+    <input id="docs-search" type="text" placeholder="Найти документ — например, «аренда» или «увольнение»" class="w-full border border-noir/15 rounded-lg px-4 py-3 text-sm mb-5">
+    <div id="docs-list" class="space-y-3"></div>
+  `;
+  try {
+    const resp = await fetch('/documents.json');
+    const docs = await resp.json();
+    function renderList(filter) {
+      const q = filter.trim().toLowerCase();
+      const filtered = !q ? docs : docs.filter(d => (d.name + ' ' + d.category + ' ' + (d.keywords||'')).toLowerCase().includes(q));
+      const list = document.getElementById('docs-list');
+      if (filtered.length === 0) {
+        list.innerHTML = `<p class="text-sm text-noir/40 text-center py-8">Ничего не найдено. Нужен конкретный документ — <a href="https://t.me/DDR3128" target="_blank" class="text-gold">напишите нам</a>.</p>`;
+        return;
+      }
+      list.innerHTML = filtered.map(d => `
+        <a href="${d.url}" target="_blank" rel="noopener" class="card-hover flex items-center justify-between bg-stone border border-noir/10 rounded-xl p-4">
+          <div>
+            <div class="font-semibold text-sm">${d.name}</div>
+            <div class="text-xs text-noir/45">${d.category}</div>
+          </div>
+          <span class="text-gold text-sm whitespace-nowrap">Скачать →</span>
+        </a>
+      `).join('');
+    }
+    renderList('');
+    document.getElementById('docs-search').addEventListener('input', (e) => renderList(e.target.value));
+  } catch (err) {
+    document.getElementById('docs-list').innerHTML = `<p class="text-sm text-noir/40 text-center py-8">Список документов ещё наполняется. <a href="https://t.me/DDR3128" target="_blank" class="text-gold">Напишите нам</a> — пришлём нужный шаблон.</p>`;
+  }
 }
 
 /* ============================================================
    КАРТОЧКИ ИНСТРУМЕНТОВ
    ============================================================ */
-const toolContent = {
-  calc: {
-    title: 'Калькулятор — ниже на странице',
-    body: 'Полный расчёт стоимости с движками для сотрудников, ВЭД-операций и документооборота — прокрутите к разделу «Калькулятор».',
-    cta: 'Перейти к калькулятору', ctaHref: '#calculator'
-  },
-  news: {
-    title: 'Лента новостей — в разработке',
-    body: 'Будет автоматически подтягивать последние посты из Telegram-канала Markus через Telegram Bot API.',
-    cta: 'Открыть канал', ctaHref: 'https://t.me/DDR3128'
-  },
-  docs: {
-    title: 'Образцы документов — наполняется',
-    body: 'Раздел с готовыми шаблонами договоров скоро появится. Нужен конкретный документ прямо сейчас — напишите, подготовим.',
-    cta: 'Запросить документ', ctaHref: 'https://t.me/DDR3128'
-  }
-};
 const panel = document.getElementById('tool-panel');
 const panelContent = document.getElementById('tool-panel-content');
 document.querySelectorAll('.tool-card').forEach(btn => {
   btn.addEventListener('click', () => {
     const tool = btn.dataset.tool;
+    if (tool === 'calc') {
+      // Калькулятор уже есть ниже на этой же странице — просто прокручиваем, без отдельной панели
+      document.getElementById('calculator').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
     if (tool === 'contractor') {
       panelContent.innerHTML = renderContractorTool();
       document.getElementById('inn-go-btn').addEventListener('click', () => {
@@ -888,12 +1037,15 @@ document.querySelectorAll('.tool-card').forEach(btn => {
         const links = registryLinks(val);
         document.querySelectorAll('.inn-link').forEach((el, i) => {
           el.href = links[i].url;
+          el.target = '_blank';
+          el.rel = 'noopener';
+          el.classList.remove('opacity-40', 'pointer-events-none');
         });
-        // Автоматически открываем первый реестр (Orginfo) — самый полный
-        window.open(links[0].url, '_blank');
+        document.getElementById('inn-hint').textContent = 'Готово — выберите реестр:';
       });
     } else if (tool === 'ai') {
       panelContent.innerHTML = renderAiTool();
+      restoreAiChat();
       document.querySelectorAll('.ai-chip').forEach(chip => {
         chip.addEventListener('click', () => aiRespond(chip.textContent));
       });
@@ -903,29 +1055,118 @@ document.querySelectorAll('.tool-card').forEach(btn => {
         aiRespond(val);
         document.getElementById('ai-input').value = '';
       });
-    } else {
-      const data = toolContent[tool];
-      panelContent.innerHTML = `
-        <h3 class="font-serif text-xl font-bold mb-3">${data.title}</h3>
-        <p class="text-noir/60 mb-5 max-w-xl">${data.body}</p>
-        <a href="${data.ctaHref}" target="_blank" rel="noopener" class="inline-block bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-2.5 rounded-full">${data.cta} →</a>
-      `;
+      document.getElementById('ai-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') document.getElementById('ai-send').click();
+      });
+      document.getElementById('ai-pdf-btn').addEventListener('click', exportAiChatPdf);
+    } else if (tool === 'news') {
+      renderNewsTool();
+    } else if (tool === 'docs') {
+      renderDocsTool();
     }
     panel.classList.remove('hidden');
     panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 });
 
+document.getElementById('services-toggle').addEventListener('click', () => {
+  const more = document.getElementById('services-more');
+  const btn = document.getElementById('services-toggle');
+  const isHidden = more.classList.toggle('hidden');
+  btn.textContent = isHidden ? 'Показать полный список услуг ↓' : 'Скрыть ↑';
+});
+
 /* ============================================================
-   ФОРМА ЗАЯВКИ
+   МОДАЛЬНОЕ ОКНО «ВОПРОС ПО УСЛУГЕ» — клик по пункту в футере
    ============================================================ */
-document.getElementById('lead-submit').addEventListener('click', () => {
+const serviceModal = document.getElementById('service-modal');
+let currentServiceName = '';
+document.querySelectorAll('.service-item').forEach(li => {
+  li.addEventListener('click', () => {
+    currentServiceName = li.textContent.trim();
+    document.getElementById('service-modal-title').textContent = currentServiceName;
+    document.getElementById('service-modal-text').value = '';
+    document.getElementById('service-modal-phone').value = '';
+    document.getElementById('service-modal-note').textContent = '';
+    serviceModal.classList.remove('hidden');
+  });
+});
+document.getElementById('service-modal-close').addEventListener('click', () => serviceModal.classList.add('hidden'));
+serviceModal.addEventListener('click', (e) => { if (e.target === serviceModal) serviceModal.classList.add('hidden'); });
+document.getElementById('service-modal-submit').addEventListener('click', async () => {
+  const phone = document.getElementById('service-modal-phone').value.trim();
+  const message = document.getElementById('service-modal-text').value.trim();
+  const note = document.getElementById('service-modal-note');
+  if (!phone) { note.textContent = 'Укажите телефон для связи'; note.classList.add('text-red-600'); return; }
+  const btn = document.getElementById('service-modal-submit');
+  btn.disabled = true; btn.textContent = 'Отправляем…';
+  try {
+    const resp = await fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Вопрос с сайта', phone, message, service: currentServiceName, source: 'markus-site-service-question' }),
+    });
+    if (resp.ok) {
+      note.textContent = '✓ Отправлено! Мы свяжемся с вами.';
+      note.classList.remove('text-red-600'); note.classList.add('text-gold');
+      setTimeout(() => serviceModal.classList.add('hidden'), 1500);
+    } else {
+      note.textContent = '⚠️ Ошибка отправки. Напишите нам: t.me/DDR3128';
+      note.classList.add('text-red-600');
+    }
+  } catch (err) {
+    note.textContent = '⚠️ Нет связи с сервером. Напишите нам: t.me/DDR3128';
+    note.classList.add('text-red-600');
+  }
+  btn.disabled = false; btn.textContent = 'Отправить';
+});
+
+/* ============================================================
+   ФОРМА ЗАЯВКИ — теперь реально отправляется через /api/lead
+   ============================================================ */
+document.getElementById('lead-submit').addEventListener('click', async () => {
   const form = document.getElementById('lead-form');
   if (!form.checkValidity()) { form.reportValidity(); return; }
-  document.getElementById('lead-note').textContent = 'Заявка сформирована — сейчас откроется Telegram, отправьте сообщение вручную.';
-  window.open('https://t.me/DDR3128', '_blank');
+  const btn = document.getElementById('lead-submit');
+  const note = document.getElementById('lead-note');
+  const name = document.getElementById('lead-name').value.trim();
+  const phone = document.getElementById('lead-phone').value.trim();
+
+  btn.disabled = true;
+  btn.textContent = 'Отправляем…';
+  try {
+    const resp = await fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, phone, source: 'markus-site' }),
+    });
+    if (resp.ok) {
+      note.textContent = '✓ Заявка отправлена! Мы свяжемся с вами в ближайшее время.';
+      note.classList.add('text-gold');
+      form.reset();
+    } else {
+      const data = await resp.json().catch(() => ({}));
+      note.textContent = '⚠️ Не получилось отправить автоматически. Напишите нам напрямую: t.me/DDR3128';
+      window.open('https://t.me/DDR3128', '_blank');
+    }
+  } catch (err) {
+    note.textContent = '⚠️ Нет связи с сервером. Открываем Telegram — напишите нам напрямую.';
+    window.open('https://t.me/DDR3128', '_blank');
+  }
+  btn.disabled = false;
+  btn.textContent = 'Отправить';
 });
 </script>
+
+<!-- ===== ПЕЧАТНАЯ ВЕРСИЯ ЧАТА С ИИ (для PDF) ===== -->
+<div id="print-ai-chat" class="hidden">
+  <div style="font-family: 'PT Serif', serif; padding: 30px;">
+    <h1 style="font-size: 22px; font-weight: bold; margin-bottom: 4px;">MARKUS — переписка с AI-ассистентом</h1>
+    <p style="color:#666; font-size:13px; margin-bottom:24px;" id="print-ai-date"></p>
+    <div id="print-ai-rows" style="font-family: Arial, sans-serif;"></div>
+    <p style="margin-top:24px; font-size:12px; color:#888;">Справочная информация, не является юридической консультацией.<br>+998 33 080-10-70 · Telegram: @DDR3128</p>
+  </div>
+</div>
 
 <!-- ===== ПЕЧАТНАЯ СМЕТА (для PDF) ===== -->
 <div id="print-summary" class="hidden">
@@ -983,8 +1224,25 @@ document.getElementById('pdf-btn').addEventListener('click', () => {
   @media print {
     body.printing-summary > *:not(#print-summary) { display: none !important; }
     body.printing-summary #print-summary { display: block !important; }
+    body.printing-ai-chat > *:not(#print-ai-chat) { display: none !important; }
+    body.printing-ai-chat #print-ai-chat { display: block !important; }
   }
 </style>
+
+<!-- ===== МОДАЛЬНОЕ ОКНО: ВОПРОС ПО УСЛУГЕ ===== -->
+<div id="service-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-5">
+  <div class="bg-white rounded-2xl p-6 max-w-md w-full">
+    <div class="flex justify-between items-start mb-1">
+      <h3 class="font-serif text-lg font-bold" id="service-modal-title">Вопрос по услуге</h3>
+      <button id="service-modal-close" class="text-noir/40 hover:text-noir text-xl leading-none">&times;</button>
+    </div>
+    <p class="text-sm text-noir/50 mb-4">Опишите ситуацию — ответим в ближайшее время.</p>
+    <textarea id="service-modal-text" rows="3" placeholder="Ваш вопрос..." class="w-full border border-noir/15 rounded-lg px-4 py-3 text-sm mb-3"></textarea>
+    <input id="service-modal-phone" type="tel" placeholder="Телефон для связи" required class="w-full border border-noir/15 rounded-lg px-4 py-3 text-sm mb-4">
+    <button id="service-modal-submit" class="w-full bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-3 rounded-full">Отправить</button>
+    <p id="service-modal-note" class="text-xs text-noir/40 text-center mt-2"></p>
+  </div>
+</div>
 
 </body>
 </html>
