@@ -418,8 +418,9 @@
           <div class="space-y-2 text-sm border-t border-noirBorder pt-4 mb-5" id="breakdown">
             <div class="flex justify-between"><span class="text-paper/50">Базовая ставка</span><span id="bd-base" class="font-mono">4 000 000</span></div>
             <div class="flex justify-between" id="bd-osn-row" style="display:none"><span class="text-paper/50">Общеустановленная система (ОСН)</span><span id="bd-osn" class="font-mono">3 000 000</span></div>
-            <div class="flex justify-between"><span class="text-paper/50">Сотрудники</span><span id="bd-employees" class="font-mono">300 000</span></div>
-            <div class="flex justify-between"><span class="text-paper/50">ВЭД операции</span><span id="bd-ved" class="font-mono">0</span></div>
+            <div class="flex justify-between"><span class="text-paper/50">Сотрудники <span id="bd-emp-count" class="text-paper/30">(0 чел.)</span></span><span id="bd-employees" class="font-mono">0</span></div>
+            <div class="flex justify-between"><span class="text-paper/50">Экспортные операции <span id="bd-exp-count" class="text-paper/30">(0)</span></span><span id="bd-export" class="font-mono">0</span></div>
+            <div class="flex justify-between"><span class="text-paper/50">Импортные операции <span id="bd-imp-count" class="text-paper/30">(0)</span></span><span id="bd-import" class="font-mono">0</span></div>
             <div class="flex justify-between"><span class="text-paper/50">Документооборот</span><span id="bd-docs" class="font-mono">0</span></div>
             <div class="flex justify-between"><span class="text-paper/50">Доп. услуги (месяц)</span><span id="bd-addons" class="font-mono">0</span></div>
             <div id="bd-addons-list" class="pl-3 space-y-1 text-xs text-paper/45"></div>
@@ -454,7 +455,7 @@
     <div class="grid md:grid-cols-4 gap-5 relative">
       <div class="hidden md:block absolute top-[38px] left-[12.5%] right-[12.5%] h-px bg-noir/10"></div>
       <div class="bg-white border border-noir/10 rounded-2xl p-6 relative">
-        <div class="w-9 h-9 rounded-full bg-gold text-noir font-mono font-bold flex items-center justify-center mb-4">1</div>
+        <div class="w-9 h-9 rounded-full bg-white border-2 border-gold text-gold font-mono font-bold flex items-center justify-center mb-4">1</div>
         <h3 class="font-serif font-bold mb-2">Свяжитесь с нами</h3>
         <p class="text-sm text-noir/55">Позвоните нам или оставьте заявку через сайт либо мессенджер для консультации.</p>
       </div>
@@ -528,7 +529,11 @@
       </div>
       <div>
         <label class="block text-sm font-semibold mb-2">Ваш телефон</label>
-        <input id="lead-phone" type="tel" required placeholder="+998 (__) ___-__-__" class="w-full border border-noir/15 rounded-lg px-4 py-3">
+        <div class="flex items-center border border-noir/15 rounded-lg overflow-hidden">
+          <span class="px-3 py-3 bg-stone text-noir/60 font-mono text-sm border-r border-noir/10 select-none">+998</span>
+          <input id="lead-phone" type="tel" inputmode="numeric" maxlength="9" required placeholder="33 808 77 44" class="flex-1 px-3 py-3 outline-none font-mono">
+        </div>
+        <p class="text-xs text-noir/40 mt-1">Введите 9 цифр без +998. Иностранный номер? <a href="https://t.me/DDR3128" target="_blank" class="text-gold">напишите в Telegram</a></p>
       </div>
       <button id="lead-submit" class="w-full bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-3.5 rounded-full">
         Отправить
@@ -546,7 +551,7 @@
       <p class="leading-relaxed mb-4">Бухгалтерские и консалтинговые услуги для бизнеса любого масштаба в Республике Узбекистан.</p>
       <div class="flex gap-2">
         <a href="https://t.me/DDR3128" target="_blank" rel="noopener" class="border border-white/15 hover:border-gold transition-colors rounded-full px-3 py-1.5 text-xs">Telegram</a>
-        <a href="https://wa.me/998330801070" target="_blank" rel="noopener" class="border border-white/15 hover:border-gold transition-colors rounded-full px-3 py-1.5 text-xs">WhatsApp</a>
+        <a href="https://wa.me/998338087744" target="_blank" rel="noopener" class="border border-white/15 hover:border-gold transition-colors rounded-full px-3 py-1.5 text-xs">WhatsApp</a>
       </div>
     </div>
     <div>
@@ -748,7 +753,11 @@ function calcTotal() {
     osnRow.style.display = 'none';
   }
   document.getElementById('bd-employees').textContent = fmt(empPrice);
-  document.getElementById('bd-ved').textContent = fmt(expPrice + impPrice);
+  document.getElementById('bd-emp-count').textContent = `(${empVal} чел.)`;
+  document.getElementById('bd-export').textContent = fmt(expPrice);
+  document.getElementById('bd-exp-count').textContent = `(${expVal})`;
+  document.getElementById('bd-import').textContent = fmt(impPrice);
+  document.getElementById('bd-imp-count').textContent = `(${impVal})`;
   document.getElementById('bd-docs').textContent = fmt(docPrice);
   document.getElementById('bd-addons').textContent = fmt(addonsMonthly);
 
@@ -804,9 +813,9 @@ calcTotal();
 // Рабочие форматы ссылок подтверждены (ИНН подставляется автоматически):
 function registryLinks(inn) {
   return [
-    { name: 'Orginfo.uz', desc: 'Карточка организации — руководитель, ОКЭД, адрес', url: `https://www.orginfo.uz/ru/search/organizations/?q=${inn}` },
-    { name: 'MyOrg.uz', desc: 'Финпоказатели, налоги, суды, санкционные списки', url: `https://myorg.uz/ru/company/${inn}` },
-    { name: 'iHamkor.uz', desc: 'Данные ГНК: учредители, финпоказатели, уплаченные налоги', url: `https://ihamkor.uz/ru` },
+    { name: 'Orginfo.uz', desc: 'Карточка организации — руководитель, ОКЭД, адрес', url: `https://www.orginfo.uz/ru/search/organizations/?q=${inn}`, auto: true },
+    { name: 'MyOrg.uz', desc: 'Финпоказатели, налоги, суды, санкционные списки', url: `https://myorg.uz/ru/company/${inn}`, auto: true },
+    { name: 'iHamkor.uz', desc: 'Данные ГНК: учредители, финпоказатели, налоги', url: 'https://ihamkor.uz/ru', auto: false },
   ];
 }
 
@@ -824,9 +833,12 @@ function renderContractorTool() {
     <p class="text-xs text-noir/40 mb-3" id="inn-hint">Ссылки станут активны после проверки ↓</p>
     <div class="grid sm:grid-cols-3 gap-4" id="inn-registry-grid">
       ${regs.map(r => `
-        <a href="javascript:void(0)" class="inn-link card-hover block bg-stone border border-noir/10 rounded-xl p-4 opacity-40 pointer-events-none transition-opacity" data-name="${r.name}">
+        <a href="javascript:void(0)" class="inn-link card-hover block bg-stone border border-noir/10 rounded-xl p-4 opacity-40 pointer-events-none transition-opacity" data-name="${r.name}" data-auto="${r.auto}">
           <div class="font-serif font-bold mb-1">${r.name}</div>
-          <p class="text-xs text-noir/50">${r.desc}</p>
+          <p class="text-xs text-noir/50 mb-1">${r.desc}</p>
+          ${r.auto
+            ? '<p class="text-[11px] text-gold">ИНН подставится автоматически</p>'
+            : '<p class="text-[11px] text-noir/35">ИНН скопируем — вставьте в поиск на сайте</p>'}
         </a>
       `).join('')}
     </div>
@@ -981,7 +993,9 @@ async function renderNewsTool() {
 /* ============================================================
    ДОКУМЕНТЫ — список с поиском (сами файлы добавляются через documents.json)
    ============================================================ */
+let docsExpanded = false;
 async function renderDocsTool() {
+  docsExpanded = false;
   panelContent.innerHTML = `
     <h3 class="font-serif text-xl font-bold mb-1">Образцы документов</h3>
     <p class="text-noir/55 text-sm mb-5">Готовые шаблоны по законодательству Республики Узбекистан. Скачивайте, заполняйте под свою ситуацию.</p>
@@ -999,8 +1013,13 @@ async function renderDocsTool() {
         list.innerHTML = `<p class="text-sm text-noir/40 text-center py-8">Ничего не найдено. Нужен конкретный документ — <a href="https://t.me/DDR3128" target="_blank" class="text-gold">напишите нам</a>.</p>`;
         return;
       }
-      list.innerHTML = filtered.map(d => `
-        <a href="${d.url}" target="_blank" rel="noopener" class="card-hover flex items-center justify-between bg-stone border border-noir/10 rounded-xl p-4">
+      // Гармошка: при пустом поиске показываем 3 документа, остальные под блюром
+      const showAll = docsExpanded || q.length > 0;
+      const visible = showAll ? filtered : filtered.slice(0, 3);
+      const hiddenCount = filtered.length - visible.length;
+
+      const cards = visible.map(d => `
+        <a href="${d.url}" ${d.url.startsWith('http') ? 'target="_blank" rel="noopener"' : 'download'} class="card-hover flex items-center justify-between bg-stone border border-noir/10 rounded-xl p-4">
           <div>
             <div class="font-semibold text-sm">${d.name}</div>
             <div class="text-xs text-noir/45">${d.category}</div>
@@ -1008,6 +1027,20 @@ async function renderDocsTool() {
           <span class="text-gold text-sm whitespace-nowrap">Скачать →</span>
         </a>
       `).join('');
+
+      list.innerHTML = cards + (hiddenCount > 0 ? `
+        <div class="relative -mt-2">
+          <div class="h-16 bg-gradient-to-b from-transparent to-white pointer-events-none absolute inset-x-0 -top-16"></div>
+          <button id="docs-expand" class="w-full text-center text-gold text-sm font-semibold py-3 hover:underline">Показать ещё ${hiddenCount} ${hiddenCount === 1 ? 'документ' : 'документов'} ↓</button>
+        </div>
+      ` : (docsExpanded && filtered.length > 3 ? `
+        <button id="docs-collapse" class="w-full text-center text-noir/40 text-sm py-3 hover:underline">Свернуть ↑</button>
+      ` : ''));
+
+      const expandBtn = document.getElementById('docs-expand');
+      if (expandBtn) expandBtn.addEventListener('click', () => { docsExpanded = true; renderList(filter); });
+      const collapseBtn = document.getElementById('docs-collapse');
+      if (collapseBtn) collapseBtn.addEventListener('click', () => { docsExpanded = false; renderList(filter); });
     }
     renderList('');
     document.getElementById('docs-search').addEventListener('input', (e) => renderList(e.target.value));
@@ -1042,6 +1075,10 @@ document.querySelectorAll('.tool-card').forEach(btn => {
           el.target = '_blank';
           el.rel = 'noopener';
           el.classList.remove('opacity-40', 'pointer-events-none');
+          // Для реестров без автоподстановки — копируем ИНН в буфер при клике
+          if (!links[i].auto) {
+            el.addEventListener('click', () => { navigator.clipboard.writeText(val).catch(() => {}); });
+          }
         });
         document.getElementById('inn-hint').textContent = 'Готово — выберите реестр:';
       });
@@ -1082,6 +1119,25 @@ document.getElementById('services-toggle').addEventListener('click', () => {
   const isHidden = more.classList.toggle('hidden');
   btn.textContent = isHidden ? 'Показать полный список услуг ↓' : 'Скрыть ↑';
 });
+
+/* ============================================================
+   НАВИГАЦИЯ: полоса прогресса + кнопка «Наверх»
+   ============================================================ */
+const progressBar = document.getElementById('scroll-progress');
+const backToTop = document.getElementById('back-to-top');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = h > 0 ? (window.scrollY / h) * 100 : 0;
+  progressBar.style.width = pct + '%';
+  if (window.scrollY > 600) {
+    backToTop.classList.remove('hidden');
+    backToTop.classList.add('flex');
+  } else {
+    backToTop.classList.add('hidden');
+    backToTop.classList.remove('flex');
+  }
+});
+backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
 /* ============================================================
    МОДАЛЬНОЕ ОКНО «ВОПРОС ПО УСЛУГЕ» — клик по пункту в футере
@@ -1137,7 +1193,13 @@ document.getElementById('lead-submit').addEventListener('click', async () => {
   const btn = document.getElementById('lead-submit');
   const note = document.getElementById('lead-note');
   const name = document.getElementById('lead-name').value.trim();
-  const phone = document.getElementById('lead-phone').value.trim();
+  const phoneDigits = document.getElementById('lead-phone').value.trim().replace(/\D/g, '');
+  if (phoneDigits.length !== 9) {
+    note.textContent = '⚠️ Введите 9 цифр номера без +998 (например: 338087744)';
+    note.className = 'text-xs text-red-600 text-center';
+    return;
+  }
+  const phone = '+998' + phoneDigits;
 
   btn.disabled = true;
   btn.textContent = 'Отправляем…';
@@ -1148,17 +1210,17 @@ document.getElementById('lead-submit').addEventListener('click', async () => {
       body: JSON.stringify({ name, phone, source: 'markus-site' }),
     });
     if (resp.ok) {
-      note.textContent = '✓ Заявка отправлена! Мы свяжемся с вами в ближайшее время.';
-      note.classList.add('text-gold');
+      note.textContent = '✓ Заявка отправлена и принята в обработку. Мы свяжемся с вами в ближайшее время.';
+      note.className = 'text-xs text-gold text-center font-semibold';
       form.reset();
     } else {
       const data = await resp.json().catch(() => ({}));
-      note.textContent = '⚠️ Не получилось отправить автоматически. Напишите нам напрямую: t.me/DDR3128';
-      window.open('https://t.me/DDR3128', '_blank');
+      note.textContent = '⚠️ ' + (data.error || 'Не удалось отправить') + ' — напишите нам: t.me/DDR3128';
+      note.className = 'text-xs text-red-600 text-center';
     }
   } catch (err) {
-    note.textContent = '⚠️ Нет связи с сервером. Открываем Telegram — напишите нам напрямую.';
-    window.open('https://t.me/DDR3128', '_blank');
+    note.textContent = '⚠️ Нет связи с сервером. Напишите нам напрямую: t.me/DDR3128';
+    note.className = 'text-xs text-red-600 text-center';
   }
   btn.disabled = false;
   btn.textContent = 'Отправить';
@@ -1205,7 +1267,8 @@ document.getElementById('pdf-btn').addEventListener('click', () => {
   rows.push(['Стоимость за сотрудников', document.getElementById('bd-employees').textContent + ' сум']);
   rows.push(['Экспортных операций в месяц', exportSlider.value]);
   rows.push(['Импортных операций в месяц', importSlider.value]);
-  rows.push(['Стоимость ВЭД', document.getElementById('bd-ved').textContent + ' сум']);
+  rows.push(['Стоимость экспортных операций', document.getElementById('bd-export').textContent + ' сум']);
+  rows.push(['Стоимость импортных операций', document.getElementById('bd-import').textContent + ' сум']);
   rows.push(['Документооборот в месяц', docflowSlider.value]);
   rows.push(['Стоимость документооборота', document.getElementById('bd-docs').textContent + ' сум']);
   document.querySelectorAll('.addon:checked, .addon-onetime:checked').forEach(el => {
@@ -1235,6 +1298,14 @@ document.getElementById('pdf-btn').addEventListener('click', () => {
     body.printing-ai-chat #print-ai-chat { display: block !important; }
   }
 </style>
+
+<!-- ===== ПОЛОСА ПРОГРЕССА ЧТЕНИЯ ===== -->
+<div id="scroll-progress" style="position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#C9A46B,#DFC28E);z-index:60;transition:width .1s linear"></div>
+
+<!-- ===== ПЛАВАЮЩАЯ КНОПКА «НАВЕРХ» ===== -->
+<button id="back-to-top" class="hidden fixed bottom-6 right-6 z-50 bg-noir/90 hover:bg-gold hover:text-noir text-paper border border-gold/40 rounded-full w-12 h-12 items-center justify-center transition-colors shadow-lg" title="Наверх">
+  ↑
+</button>
 
 <!-- ===== МОДАЛЬНОЕ ОКНО: ВОПРОС ПО УСЛУГЕ ===== -->
 <div id="service-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-5">
