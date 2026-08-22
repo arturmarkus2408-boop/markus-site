@@ -606,7 +606,7 @@
     <div>
       <h2 class="font-serif text-3xl md:text-4xl font-bold mb-5 max-w-lg">Открыть бизнес, передать бухгалтерию на аутсорсинг или обратиться с другим вопросом — просто</h2>
       <p class="text-paper/60 max-w-md mb-8">Есть вопросы? Оставьте заявку и наш специалист свяжется с вами в кратчайшие сроки.</p>
-      <a href="https://t.me/DDR3128" target="_blank" rel="noopener" class="inline-block bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-8 py-4 rounded-full">
+      <a href="https://t.me/MarkusJW_bot" target="_blank" rel="noopener" class="inline-block bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-8 py-4 rounded-full">
         Написать в Telegram →
       </a>
     </div>
@@ -621,7 +621,7 @@
           <span class="px-3 py-3 bg-stone text-noir/60 font-mono text-sm border-r border-noir/10 select-none">+998</span>
           <input id="lead-phone" type="tel" inputmode="numeric" maxlength="9" required placeholder="__ ___ __ __" class="flex-1 px-3 py-3 outline-none font-mono">
         </div>
-        <p class="text-xs text-noir/40 mt-1">Введите 9 цифр без +998. Иностранный номер? <a href="https://t.me/DDR3128" target="_blank" class="text-gold">напишите в Telegram</a></p>
+        <p class="text-xs text-noir/40 mt-1">Введите 9 цифр без +998. Иностранный номер? <a href="https://t.me/MarkusJW_bot" target="_blank" class="text-gold">напишите в Telegram</a></p>
       </div>
       <button id="lead-submit" class="w-full bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-3.5 rounded-full">
         Отправить
@@ -702,7 +702,7 @@
       <div class="font-serif text-paper text-lg font-bold mb-3">MARKUS</div>
       <p class="leading-relaxed mb-4">Бухгалтерские и консалтинговые услуги для бизнеса любого масштаба в Республике Узбекистан.</p>
       <div class="flex gap-2">
-        <a href="https://t.me/DDR3128" target="_blank" rel="noopener" class="border border-white/15 hover:border-gold transition-colors rounded-full px-3 py-1.5 text-xs">Telegram</a>
+        <a href="https://t.me/MarkusJW_bot" target="_blank" rel="noopener" class="border border-white/15 hover:border-gold transition-colors rounded-full px-3 py-1.5 text-xs">Telegram</a>
         <a href="https://wa.me/998338087744" target="_blank" rel="noopener" class="border border-white/15 hover:border-gold transition-colors rounded-full px-3 py-1.5 text-xs">WhatsApp</a>
       </div>
     </div>
@@ -758,7 +758,7 @@
       <h4 class="text-paper font-semibold mb-3">Контакты</h4>
       <p class="mb-2"><a href="tel:+998330801070" class="hover:text-gold transition-colors">+998 33 080-10-70</a></p>
       <p class="mb-2"><a href="tel:+998330801070" class="hover:text-gold transition-colors">Заказать звонок</a></p>
-      <p class="mb-2"><a href="https://t.me/DDR3128" target="_blank" rel="noopener" class="hover:text-gold transition-colors">@DDR3128 — написать в Telegram</a></p>
+      <p class="mb-2"><a href="https://t.me/MarkusJW_bot" target="_blank" rel="noopener" class="hover:text-gold transition-colors">@MarkusJW_bot — написать в Telegram</a></p>
       <p>Узбекистан, г. Ташкент, Юнусабадский район</p>
     </div>
   </div>
@@ -1120,7 +1120,7 @@ async function aiRespond(question) {
     saveAiHistory();
     chat.scrollTop = botEl.offsetTop - 12;
   } catch (err) {
-    const msg = '⚠️ Не удалось связаться с сервером. Попробуйте позже или напишите бухгалтеру: t.me/DDR3128';
+    const msg = '⚠️ Не удалось связаться с сервером. Попробуйте позже или напишите бухгалтеру: t.me/MarkusJW_bot';
     loadingEl.textContent = msg;
     loadingEl.classList.remove('text-noir/40');
     loadingEl.classList.add('text-red-600');
@@ -1260,7 +1260,7 @@ async function renderDocsTool() {
       const filtered = !q ? docs : docs.filter(d => (d.name + ' ' + d.category + ' ' + (d.keywords||'')).toLowerCase().includes(q));
       const list = document.getElementById('docs-list');
       if (filtered.length === 0) {
-        list.innerHTML = `<p class="text-sm text-noir/40 text-center py-8">Ничего не найдено. Нужен конкретный документ — <a href="https://t.me/DDR3128" target="_blank" class="text-gold">напишите нам</a>.</p>`;
+        list.innerHTML = `<p class="text-sm text-noir/40 text-center py-8">Ничего не найдено. Нужен конкретный документ — <a href="https://t.me/MarkusJW_bot" target="_blank" class="text-gold">напишите нам</a>.</p>`;
         return;
       }
       // Гармошка: при пустом поиске показываем 3 документа, остальные под блюром
@@ -1295,7 +1295,7 @@ async function renderDocsTool() {
     renderList('');
     document.getElementById('docs-search').addEventListener('input', (e) => renderList(e.target.value));
   } catch (err) {
-    document.getElementById('docs-list').innerHTML = `<p class="text-sm text-noir/40 text-center py-8">Список документов ещё наполняется. <a href="https://t.me/DDR3128" target="_blank" class="text-gold">Напишите нам</a> — пришлём нужный шаблон.</p>`;
+    document.getElementById('docs-list').innerHTML = `<p class="text-sm text-noir/40 text-center py-8">Список документов ещё наполняется. <a href="https://t.me/MarkusJW_bot" target="_blank" class="text-gold">Напишите нам</a> — пришлём нужный шаблон.</p>`;
   }
 }
 
@@ -1552,11 +1552,11 @@ document.getElementById('service-modal-submit').addEventListener('click', async 
       note.classList.remove('text-red-600'); note.classList.add('text-gold');
       setTimeout(() => serviceModal.classList.add('hidden'), 1500);
     } else {
-      note.textContent = '⚠️ Ошибка отправки. Напишите нам: t.me/DDR3128';
+      note.textContent = '⚠️ Ошибка отправки. Напишите нам: t.me/MarkusJW_bot';
       note.classList.add('text-red-600');
     }
   } catch (err) {
-    note.textContent = '⚠️ Нет связи с сервером. Напишите нам: t.me/DDR3128';
+    note.textContent = '⚠️ Нет связи с сервером. Напишите нам: t.me/MarkusJW_bot';
     note.classList.add('text-red-600');
   }
   btn.disabled = false; btn.textContent = 'Отправить';
@@ -1593,11 +1593,11 @@ document.getElementById('lead-submit').addEventListener('click', async () => {
       form.reset();
     } else {
       const data = await resp.json().catch(() => ({}));
-      note.textContent = '⚠️ ' + (data.error || 'Не удалось отправить') + ' — напишите нам: t.me/DDR3128';
+      note.textContent = '⚠️ ' + (data.error || 'Не удалось отправить') + ' — напишите нам: t.me/MarkusJW_bot';
       note.className = 'text-xs text-red-600 text-center';
     }
   } catch (err) {
-    note.textContent = '⚠️ Нет связи с сервером. Напишите нам напрямую: t.me/DDR3128';
+    note.textContent = '⚠️ Нет связи с сервером. Напишите нам напрямую: t.me/MarkusJW_bot';
     note.className = 'text-xs text-red-600 text-center';
   }
   btn.disabled = false;
@@ -1611,7 +1611,7 @@ document.getElementById('lead-submit').addEventListener('click', async () => {
     <h1 style="font-size: 22px; font-weight: bold; margin-bottom: 4px;">MARKUS — переписка с AI-ассистентом</h1>
     <p style="color:#666; font-size:13px; margin-bottom:24px;" id="print-ai-date"></p>
     <div id="print-ai-rows" style="font-family: Arial, sans-serif;"></div>
-    <p style="margin-top:24px; font-size:12px; color:#888;">Справочная информация, не является юридической консультацией.<br>+998 33 080-10-70 · Telegram: @DDR3128</p>
+    <p style="margin-top:24px; font-size:12px; color:#888;">Справочная информация, не является юридической консультацией.<br>+998 33 080-10-70 · Telegram: @MarkusJW_bot</p>
   </div>
 </div>
 
@@ -1645,7 +1645,7 @@ document.getElementById('lead-submit').addEventListener('click', async () => {
       </table>
     </div>
 
-    <p style="margin-top:24px; font-size:12px; color:#888;">Стоимость является предварительной. Конечная стоимость определяется после общения со специалистом компании MARKUS.<br>+998 33 080-10-70 · Telegram: @DDR3128</p>
+    <p style="margin-top:24px; font-size:12px; color:#888;">Стоимость является предварительной. Конечная стоимость определяется после общения со специалистом компании MARKUS.<br>+998 33 080-10-70 · Telegram: @MarkusJW_bot</p>
   </div>
 </div>
 
