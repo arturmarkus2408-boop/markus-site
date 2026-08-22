@@ -63,7 +63,7 @@
 </script>
 <style>
   html { scroll-behavior: smooth; }
-  #top, #services, #calculator, #about, #contact { scroll-margin-top: 90px; }
+  #top, #tools, #services, #calculator, #about, #contact { scroll-margin-top: 90px; }
   body { font-family: 'Manrope', sans-serif; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   .card-hover { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
@@ -123,6 +123,7 @@
   <div class="max-w-6xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
     <a href="#top" class="font-serif text-xl font-bold tracking-tight text-paper">MARKUS</a>
     <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-paper/80">
+      <a href="#tools" class="hover:text-gold transition-colors">Инструменты</a>
       <a href="#about" class="hover:text-gold transition-colors">О нас</a>
       <a href="#services" class="hover:text-gold transition-colors">Услуги</a>
       <a href="#calculator" class="hover:text-gold transition-colors">Калькулятор</a>
@@ -131,17 +132,17 @@
     <div class="flex items-center gap-3">
       <div class="relative" id="lang-switcher">
         <button id="lang-btn" type="button" class="flex items-center gap-1.5 text-paper/80 hover:text-gold hover:border-gold/50 transition-colors text-sm font-medium border border-white/15 rounded-full px-3 py-2">
-          <span id="lang-btn-flag">🇷🇺</span> <span id="lang-btn-label">RU</span>
+          <img id="lang-btn-flag" src="https://flagcdn.com/20x15/ru.png" width="20" height="15" alt="" class="rounded-sm"> <span id="lang-btn-label">RU</span>
         </button>
         <div id="lang-menu" class="hidden absolute right-0 mt-2 w-32 bg-noirCard border border-noirBorder rounded-xl shadow-xl overflow-hidden text-sm z-50">
-          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="ru" data-flag="🇷🇺">🇷🇺 <span>RU</span></button>
-          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="uz" data-flag="🇺🇿">🇺🇿 <span>UZ</span></button>
-          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="en" data-flag="🇬🇧">🇬🇧 <span>EN</span></button>
-          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="tr" data-flag="🇹🇷">🇹🇷 <span>TR</span></button>
-          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="zh-CN" data-flag="🇨🇳">🇨🇳 <span>CN</span></button>
-          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="de" data-flag="🇩🇪">🇩🇪 <span>DE</span></button>
-          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="fr" data-flag="🇫🇷">🇫🇷 <span>FR</span></button>
-          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="ar" data-flag="🇸🇦">🇸🇦 <span>SA</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="ru" data-flag="ru"><img src="https://flagcdn.com/20x15/ru.png" width="20" height="15" alt="" class="rounded-sm"> <span>RU</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="uz" data-flag="uz"><img src="https://flagcdn.com/20x15/uz.png" width="20" height="15" alt="" class="rounded-sm"> <span>UZ</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="en" data-flag="gb"><img src="https://flagcdn.com/20x15/gb.png" width="20" height="15" alt="" class="rounded-sm"> <span>EN</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="tr" data-flag="tr"><img src="https://flagcdn.com/20x15/tr.png" width="20" height="15" alt="" class="rounded-sm"> <span>TR</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="zh-CN" data-flag="cn"><img src="https://flagcdn.com/20x15/cn.png" width="20" height="15" alt="" class="rounded-sm"> <span>CN</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="de" data-flag="de"><img src="https://flagcdn.com/20x15/de.png" width="20" height="15" alt="" class="rounded-sm"> <span>DE</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="fr" data-flag="fr"><img src="https://flagcdn.com/20x15/fr.png" width="20" height="15" alt="" class="rounded-sm"> <span>FR</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="ar" data-flag="sa"><img src="https://flagcdn.com/20x15/sa.png" width="20" height="15" alt="" class="rounded-sm"> <span>SA</span></button>
         </div>
       </div>
       <a href="#contact" class="bg-gold hover:bg-goldLight transition-colors text-noir text-sm font-semibold px-5 py-2.5 rounded-full">
@@ -200,7 +201,7 @@
 </section>
 
 <!-- ===== ИНСТРУМЕНТЫ (быстрый доступ) ===== -->
-<section class="max-w-6xl mx-auto px-5 md:px-8 py-16">
+<section id="tools" class="max-w-6xl mx-auto px-5 md:px-8 py-16">
   <p class="font-mono text-gold text-xs tracking-widest uppercase mb-3">Инструменты Markus</p>
   <h2 class="font-serif text-2xl md:text-3xl font-bold mb-10">Попробуйте прямо сейчас — бесплатно</h2>
   <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="tool-cards">
@@ -619,7 +620,7 @@
         <label class="block text-sm font-semibold mb-2">Ваш телефон</label>
         <div class="flex items-center border border-noir/15 rounded-lg overflow-hidden">
           <span class="px-3 py-3 bg-stone text-noir/60 font-mono text-sm border-r border-noir/10 select-none">+998</span>
-          <input id="lead-phone" type="tel" inputmode="numeric" maxlength="9" required placeholder="__ ___ __ __" class="flex-1 px-3 py-3 outline-none font-mono">
+          <input id="lead-phone" type="tel" inputmode="numeric" maxlength="11" required placeholder="__ ___ __ __" class="flex-1 px-3 py-3 outline-none font-mono">
         </div>
         <p class="text-xs text-noir/40 mt-1">Введите 9 цифр без +998. Иностранный номер? <a href="https://t.me/MarkusJW_bot" target="_blank" class="text-gold">напишите в Telegram</a></p>
       </div>
@@ -644,6 +645,10 @@
       <a href="#top" data-section="top" class="section-nav-item group flex items-center gap-3">
         <span class="section-nav-dot block w-[7px] h-[7px] rounded-full bg-paper/25 border border-paper/25 transition-all duration-300 relative z-10 flex-shrink-0"></span>
         <span class="section-nav-label text-xs font-medium text-paper/35 group-hover:text-paper/70 transition-colors duration-300 whitespace-nowrap">Главная</span>
+      </a>
+      <a href="#tools" data-section="tools" class="section-nav-item group flex items-center gap-3">
+        <span class="section-nav-dot block w-[7px] h-[7px] rounded-full bg-paper/25 border border-paper/25 transition-all duration-300 relative z-10 flex-shrink-0"></span>
+        <span class="section-nav-label text-xs font-medium text-paper/35 group-hover:text-paper/70 transition-colors duration-300 whitespace-nowrap">Инструменты</span>
       </a>
       <a href="#services" data-section="services" class="section-nav-item group flex items-center gap-3">
         <span class="section-nav-dot block w-[7px] h-[7px] rounded-full bg-paper/25 border border-paper/25 transition-all duration-300 relative z-10 flex-shrink-0"></span>
@@ -1401,10 +1406,10 @@ document.querySelectorAll('.tool-card').forEach(btn => {
   const langMenu = document.getElementById('lang-menu');
   const langLabel = document.getElementById('lang-btn-label');
   const langFlag = document.getElementById('lang-btn-flag');
-  const langFlags = { ru: '🇷🇺', uz: '🇺🇿', en: '🇬🇧', tr: '🇹🇷', 'zh-CN': '🇨🇳', de: '🇩🇪', fr: '🇫🇷', ar: '🇸🇦' };
+  const langFlags = { ru: 'ru', uz: 'uz', en: 'gb', tr: 'tr', 'zh-CN': 'cn', de: 'de', fr: 'fr', ar: 'sa' };
   const curLang = getCurrentLang();
   langLabel.textContent = langLabels[curLang] || 'RU';
-  langFlag.textContent = langFlags[curLang] || '🇷🇺';
+  langFlag.src = `https://flagcdn.com/20x15/${langFlags[curLang] || 'ru'}.png`;
   langBtn.addEventListener('click', (e) => { e.stopPropagation(); langMenu.classList.toggle('hidden'); });
   document.addEventListener('click', () => langMenu.classList.add('hidden'));
   document.querySelectorAll('.lang-option').forEach(btn => {
@@ -1424,7 +1429,7 @@ document.getElementById('services-toggle').addEventListener('click', () => {
    ============================================================ */
 const sectionNavItems = document.querySelectorAll('.section-nav-item');
 const sectionNavProgress = document.getElementById('section-nav-progress');
-const trackedSections = ['top', 'services', 'calculator', 'about', 'contact']
+const trackedSections = ['top', 'tools', 'services', 'calculator', 'about', 'contact']
   .map(id => document.getElementById(id))
   .filter(Boolean);
 
@@ -1511,10 +1516,10 @@ let currentServiceName = '';
 let currentSource = 'markus-site-service-question';
 let currentContactMethod = 'phone';
 const contactMethodConfig = {
-  phone:    { placeholder: 'Телефон для связи', type: 'tel' },
-  telegram: { placeholder: '@username в Telegram', type: 'text' },
-  whatsapp: { placeholder: 'Номер WhatsApp, например +998 __ ___-__-__', type: 'tel' },
-  email:    { placeholder: 'Ваш email', type: 'email' },
+  phone:    { placeholder: 'Телефон для связи', type: 'tel', maxlength: 11 },
+  telegram: { placeholder: '@username в Telegram', type: 'text', maxlength: 33 },
+  whatsapp: { placeholder: 'Номер WhatsApp, например 90 123 45 67', type: 'tel', maxlength: 11 },
+  email:    { placeholder: 'Ваш email', type: 'email', maxlength: 100 },
 };
 function setContactMethod(method) {
   currentContactMethod = method;
@@ -1522,6 +1527,7 @@ function setContactMethod(method) {
   const input = document.getElementById('service-modal-contact');
   input.type = contactMethodConfig[method].type;
   input.placeholder = contactMethodConfig[method].placeholder;
+  input.maxLength = contactMethodConfig[method].maxlength;
   input.value = '';
 }
 document.querySelectorAll('.method-btn').forEach(b => b.addEventListener('click', () => setContactMethod(b.dataset.method)));
@@ -1583,13 +1589,45 @@ document.getElementById('calc-lead-btn').addEventListener('click', () => {
   serviceModal.classList.remove('hidden');
 });
 
+// Маска телефона: пока печатает — не даём ввести ничего, кроме цифр, и не больше 9 (без +998).
+// Используется и в форме заявки, и в окне "Вопрос по услуге" (для методов "Звонок" и "WhatsApp").
+function formatPhoneDigits(raw) {
+  const digits = raw.replace(/\D/g, '').slice(0, 9);
+  return [digits.slice(0, 2), digits.slice(2, 5), digits.slice(5, 7), digits.slice(7, 9)].filter(Boolean).join(' ');
+}
+
+document.getElementById('service-modal-contact').addEventListener('input', (e) => {
+  if (currentContactMethod === 'phone' || currentContactMethod === 'whatsapp') {
+    e.target.value = formatPhoneDigits(e.target.value);
+  }
+});
+
 document.getElementById('service-modal-close').addEventListener('click', () => serviceModal.classList.add('hidden'));
 serviceModal.addEventListener('click', (e) => { if (e.target === serviceModal) serviceModal.classList.add('hidden'); });
 document.getElementById('service-modal-submit').addEventListener('click', async () => {
-  const contactValue = document.getElementById('service-modal-contact').value.trim();
+  let contactValue = document.getElementById('service-modal-contact').value.trim();
   const message = document.getElementById('service-modal-text').value.trim();
   const note = document.getElementById('service-modal-note');
+  note.classList.remove('text-red-600', 'text-gold');
+
   if (!contactValue) { note.textContent = 'Укажите контакт для связи'; note.classList.add('text-red-600'); return; }
+
+  if (currentContactMethod === 'phone' || currentContactMethod === 'whatsapp') {
+    const digits = contactValue.replace(/\D/g, '');
+    if (digits.length !== 9) {
+      note.textContent = '⚠️ Введите 9 цифр номера без +998 (например: 90 123 45 67)';
+      note.classList.add('text-red-600');
+      return;
+    }
+    contactValue = '+998' + digits;
+  } else if (currentContactMethod === 'email') {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactValue)) {
+      note.textContent = '⚠️ Проверьте формат email (например: name@mail.com)';
+      note.classList.add('text-red-600');
+      return;
+    }
+  }
+
   const btn = document.getElementById('service-modal-submit');
   btn.disabled = true; btn.textContent = 'Отправляем…';
   try {
@@ -1616,6 +1654,9 @@ document.getElementById('service-modal-submit').addEventListener('click', async 
 /* ============================================================
    ФОРМА ЗАЯВКИ — теперь реально отправляется через /api/lead
    ============================================================ */
+document.getElementById('lead-phone').addEventListener('input', (e) => {
+  e.target.value = formatPhoneDigits(e.target.value);
+});
 document.getElementById('lead-submit').addEventListener('click', async () => {
   const form = document.getElementById('lead-form');
   if (!form.checkValidity()) { form.reportValidity(); return; }
