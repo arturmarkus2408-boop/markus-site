@@ -853,6 +853,7 @@ function renderAiTool() {
         </div>
       </div>
       <button id="ai-pdf-btn" class="text-xs border border-paper/20 hover:border-gold transition-colors px-3 py-1.5 rounded-full whitespace-nowrap">📄 PDF чата</button>
+      <button id="ai-clear-btn" class="text-xs border border-paper/20 hover:border-red-400 hover:text-red-400 transition-colors px-3 py-1.5 rounded-full whitespace-nowrap ml-2">🗑️ Очистить</button>
     </div>
     <div id="ai-chat" class="border border-noir/10 rounded-2xl p-5 h-64 overflow-y-auto mb-4 space-y-3 bg-stone"></div>
     <div class="flex flex-wrap gap-2 mb-4">
@@ -918,7 +919,8 @@ async function aiRespond(question) {
     aiChatHistory.push({ role: 'bot', text: msg });
     saveAiHistory();
   }
-  chat.scrollTop = chat.scrollHeight;
+  // Прокручиваем так, чтобы было видно НАЧАЛО нового ответа, а не только хвост длинного текста
+  chat.scrollTop = loadingEl.offsetTop - 12;
 }
 function exportAiChatPdf() {
   if (aiChatHistory.length === 0) { alert('Сначала задайте хотя бы один вопрос ассистенту.'); return; }
@@ -1059,6 +1061,11 @@ document.querySelectorAll('.tool-card').forEach(btn => {
         if (e.key === 'Enter') document.getElementById('ai-send').click();
       });
       document.getElementById('ai-pdf-btn').addEventListener('click', exportAiChatPdf);
+      document.getElementById('ai-clear-btn').addEventListener('click', () => {
+        aiChatHistory = [];
+        saveAiHistory();
+        restoreAiChat();
+      });
     } else if (tool === 'news') {
       renderNewsTool();
     } else if (tool === 'docs') {
