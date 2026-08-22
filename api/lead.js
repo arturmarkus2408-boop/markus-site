@@ -56,8 +56,9 @@ export default async function handler(req, res) {
 
   const { name, phone, source, message, service, contactMethod, contactValue } = req.body || {};
   const isServiceQuestion = source === 'markus-site-service-question';
+  const isCalcLead = source === 'markus-site-calculator';
 
-  if (isServiceQuestion) {
+  if (isServiceQuestion || isCalcLead) {
     if (!contactValue) {
       return res.status(400).json({ error: 'Не передан контакт для связи' });
     }
@@ -66,9 +67,18 @@ export default async function handler(req, res) {
   }
 
   const methodLabels = { phone: 'Звонок / телефон', telegram: 'Telegram', whatsapp: 'WhatsApp', email: 'Email' };
-  const header = isServiceQuestion ? '💬 Вопрос с сайта MARKUS (footer)' : '🆕 Новая заявка с сайта MARKUS';
+  let header;
+  if (isCalcLead) header = '🧮 Заявка с калькулятора MARKUS';
+  else if (isServiceQuestion) header = '💬 Вопрос с сайта MARKUS (footer)';
+  else header = '🆕 Новая заявка с сайта MARKUS';
+
   const lines = [header, ''];
-  if (isServiceQuestion) {
+  if (isCalcLead) {
+    lines.push(`🏷️ ${service || '—'}`);
+    lines.push(`📋 Детали расчёта:\n${message || '—'}`);
+    lines.push(`☎️ Способ связи: ${methodLabels[contactMethod] || contactMethod || '—'}`);
+    lines.push(`📇 Контакт: ${contactValue}`);
+  } else if (isServiceQuestion) {
     lines.push(`🏷️ Услуга: ${service || '—'}`);
     lines.push(`📝 Вопрос: ${message || '—'}`);
     lines.push(`☎️ Способ связи: ${methodLabels[contactMethod] || contactMethod || '—'}`);

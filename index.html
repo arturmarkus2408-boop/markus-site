@@ -131,17 +131,17 @@
     <div class="flex items-center gap-3">
       <div class="relative" id="lang-switcher">
         <button id="lang-btn" type="button" class="flex items-center gap-1.5 text-paper/80 hover:text-gold hover:border-gold/50 transition-colors text-sm font-medium border border-white/15 rounded-full px-3 py-2">
-          🌐 <span id="lang-btn-label">RU</span>
+          <span id="lang-btn-flag">🇷🇺</span> <span id="lang-btn-label">RU</span>
         </button>
-        <div id="lang-menu" class="hidden absolute right-0 mt-2 w-52 bg-noirCard border border-noirBorder rounded-xl shadow-xl overflow-hidden text-sm z-50">
-          <button type="button" class="lang-option w-full text-left px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="ru">🇷🇺 Русский</button>
-          <button type="button" class="lang-option w-full text-left px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="uz">🇺🇿 Oʻzbekcha</button>
-          <button type="button" class="lang-option w-full text-left px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="en">🇬🇧 English</button>
-          <button type="button" class="lang-option w-full text-left px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="tr">🇹🇷 Türkçe</button>
-          <button type="button" class="lang-option w-full text-left px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="zh-CN">🇨🇳 中文</button>
-          <button type="button" class="lang-option w-full text-left px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="de">🇩🇪 Deutsch</button>
-          <button type="button" class="lang-option w-full text-left px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="fr">🇫🇷 Français</button>
-          <button type="button" class="lang-option w-full text-left px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="ar">🇸🇦 العربية</button>
+        <div id="lang-menu" class="hidden absolute right-0 mt-2 w-32 bg-noirCard border border-noirBorder rounded-xl shadow-xl overflow-hidden text-sm z-50">
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="ru" data-flag="🇷🇺">🇷🇺 <span>RU</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="uz" data-flag="🇺🇿">🇺🇿 <span>UZ</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="en" data-flag="🇬🇧">🇬🇧 <span>EN</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="tr" data-flag="🇹🇷">🇹🇷 <span>TR</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="zh-CN" data-flag="🇨🇳">🇨🇳 <span>CN</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="de" data-flag="🇩🇪">🇩🇪 <span>DE</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="fr" data-flag="🇫🇷">🇫🇷 <span>FR</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="ar" data-flag="🇸🇦">🇸🇦 <span>SA</span></button>
         </div>
       </div>
       <a href="#contact" class="bg-gold hover:bg-goldLight transition-colors text-noir text-sm font-semibold px-5 py-2.5 rounded-full">
@@ -516,9 +516,9 @@
             <div class="flex justify-between" id="bd-onetime-row" style="display:none"><span class="text-paper/50">Разово при подключении <span class="text-paper/30">(не в абонплату)</span></span><span id="bd-onetime" class="font-mono text-gold">0</span></div>
           </div>
 
-          <a href="#contact" class="block text-center bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-3 rounded-full mb-3">
+          <button type="button" id="calc-lead-btn" class="block w-full text-center bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-3 rounded-full mb-3">
             Оставить заявку на этот тариф
-          </a>
+          </button>
           <button id="pdf-btn" class="w-full text-center border border-paper/20 hover:border-gold transition-colors text-paper font-medium px-5 py-3 rounded-full mb-3">
             📄 Скачать смету (PDF)
           </button>
@@ -1400,7 +1400,11 @@ document.querySelectorAll('.tool-card').forEach(btn => {
   const langBtn = document.getElementById('lang-btn');
   const langMenu = document.getElementById('lang-menu');
   const langLabel = document.getElementById('lang-btn-label');
-  langLabel.textContent = langLabels[getCurrentLang()] || 'RU';
+  const langFlag = document.getElementById('lang-btn-flag');
+  const langFlags = { ru: '🇷🇺', uz: '🇺🇿', en: '🇬🇧', tr: '🇹🇷', 'zh-CN': '🇨🇳', de: '🇩🇪', fr: '🇫🇷', ar: '🇸🇦' };
+  const curLang = getCurrentLang();
+  langLabel.textContent = langLabels[curLang] || 'RU';
+  langFlag.textContent = langFlags[curLang] || '🇷🇺';
   langBtn.addEventListener('click', (e) => { e.stopPropagation(); langMenu.classList.toggle('hidden'); });
   document.addEventListener('click', () => langMenu.classList.add('hidden'));
   document.querySelectorAll('.lang-option').forEach(btn => {
@@ -1499,10 +1503,12 @@ backToTop.addEventListener('click', () => {
 });
 
 /* ============================================================
-   МОДАЛЬНОЕ ОКНО «ВОПРОС ПО УСЛУГЕ» — клик по пункту в футере
+   МОДАЛЬНОЕ ОКНО «ВОПРОС ПО УСЛУГЕ» / «ЗАЯВКА НА ТАРИФ» — переиспользуется в двух местах:
+   клик по пункту в футере и клик "Оставить заявку на этот тариф" в калькуляторе
    ============================================================ */
 const serviceModal = document.getElementById('service-modal');
 let currentServiceName = '';
+let currentSource = 'markus-site-service-question';
 let currentContactMethod = 'phone';
 const contactMethodConfig = {
   phone:    { placeholder: 'Телефон для связи', type: 'tel' },
@@ -1523,6 +1529,7 @@ document.querySelectorAll('.method-btn').forEach(b => b.addEventListener('click'
 document.querySelectorAll('.service-item').forEach(li => {
   li.addEventListener('click', () => {
     currentServiceName = li.textContent.trim();
+    currentSource = 'markus-site-service-question';
     document.getElementById('service-modal-title').textContent = currentServiceName;
     document.getElementById('service-modal-text').value = '';
     const note = document.getElementById('service-modal-note');
@@ -1532,6 +1539,50 @@ document.querySelectorAll('.service-item').forEach(li => {
     serviceModal.classList.remove('hidden');
   });
 });
+
+// Собираем читаемую расшифровку тарифа из калькулятора — именно это уходит в заявку,
+// чтобы бухгалтер сразу видел, что именно выбрал клиент, а не просто "новая заявка".
+function buildCalcSummaryText() {
+  const regimeInput = document.querySelector('input[name="regime"]:checked');
+  const regimeText = regimeInput && regimeInput.value === 'osn' ? 'ОСН' : 'УСН (4%)';
+  const total = document.getElementById('total-result').textContent;
+  const empCount = document.getElementById('bd-emp-count').textContent.replace(/[()]/g, '');
+  const expCount = document.getElementById('bd-exp-count').textContent.replace(/[()]/g, '');
+  const impCount = document.getElementById('bd-imp-count').textContent.replace(/[()]/g, '');
+  const docsCount = document.getElementById('docflow').value;
+  const termInput = document.querySelector('input[name="term"]:checked');
+  const termText = termInput ? termInput.closest('label').querySelector('span').textContent.trim().split(/\s{2,}/)[0] : '';
+
+  const lines = [
+    `Тариф: ${total} сум/мес (${regimeText})`,
+    `Сотрудники: ${empCount}, экспорт: ${expCount}, импорт: ${impCount}, документооборот: ${docsCount}`,
+    `Срок оплаты: ${termText}`,
+  ];
+
+  const addonsList = Array.from(document.querySelectorAll('#bd-addons-list > div')).map(d => d.textContent.trim());
+  if (addonsList.length > 0) lines.push('Доп. услуги: ' + addonsList.join('; '));
+
+  if (document.getElementById('restore-toggle').checked) {
+    const restoreMonths = document.getElementById('restore-months').value;
+    const restoreTotal = document.getElementById('restore-total-display').textContent;
+    lines.push(`Восстановление учёта: ${restoreMonths} мес. — ${restoreTotal} (разово, не в абонплату)`);
+  }
+  return lines.join('\n');
+}
+
+document.getElementById('calc-lead-btn').addEventListener('click', () => {
+  const total = document.getElementById('total-result').textContent;
+  currentServiceName = `Калькулятор — тариф ${total} сум/мес`;
+  currentSource = 'markus-site-calculator';
+  document.getElementById('service-modal-title').textContent = 'Заявка на этот тариф';
+  document.getElementById('service-modal-text').value = buildCalcSummaryText();
+  const note = document.getElementById('service-modal-note');
+  note.textContent = '';
+  note.classList.remove('text-red-600', 'text-gold');
+  setContactMethod('phone');
+  serviceModal.classList.remove('hidden');
+});
+
 document.getElementById('service-modal-close').addEventListener('click', () => serviceModal.classList.add('hidden'));
 serviceModal.addEventListener('click', (e) => { if (e.target === serviceModal) serviceModal.classList.add('hidden'); });
 document.getElementById('service-modal-submit').addEventListener('click', async () => {
@@ -1545,7 +1596,7 @@ document.getElementById('service-modal-submit').addEventListener('click', async 
     const resp = await fetch('/api/lead', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: 'Вопрос с сайта', contactMethod: currentContactMethod, contactValue, message, service: currentServiceName, source: 'markus-site-service-question' }),
+      body: JSON.stringify({ name: 'Вопрос с сайта', contactMethod: currentContactMethod, contactValue, message, service: currentServiceName, source: currentSource }),
     });
     if (resp.ok) {
       note.textContent = '✓ Отправлено! Мы свяжемся с вами.';

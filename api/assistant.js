@@ -19,6 +19,7 @@
 // Провайдер без ключа в переменных окружения просто тихо пропускается в цепочке — сайт не падает.
 
 const GEMINI_MODEL_CHAIN = [
+  'gemini-flash-latest', // самообновляемый алиас — Google сам подставляет самую свежую Flash-модель, без ручных правок в будущем
   'gemini-3.7-flash',
   'gemini-3.6-flash',
   'gemini-3.5-flash-lite',
@@ -48,10 +49,10 @@ let cachedAt = 0;
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 часа
 
 async function callGemini(apiKey, model, question, dateContext) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
   const response = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
     body: JSON.stringify({
       contents: [{ parts: [{ text: dateContext + question }] }],
       systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
