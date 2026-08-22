@@ -544,6 +544,29 @@
 </section>
 
 <!-- ===== ФУТЕР ===== -->
+<!-- ===== ПОЛОСА ПРОГРЕССА ЧТЕНИЯ ===== -->
+<div id="scroll-progress" style="position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#C9A46B,#DFC28E);z-index:60;transition:width .1s linear"></div>
+
+<!-- ===== ПЛАВАЮЩАЯ КНОПКА «НАВЕРХ» ===== -->
+<button id="back-to-top" class="hidden fixed bottom-6 right-6 z-50 bg-noir/90 hover:bg-gold hover:text-noir text-paper border border-gold/40 rounded-full w-12 h-12 items-center justify-center transition-colors shadow-lg" title="Наверх">
+  ↑
+</button>
+
+<!-- ===== МОДАЛЬНОЕ ОКНО: ВОПРОС ПО УСЛУГЕ ===== -->
+<div id="service-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-5">
+  <div class="bg-white rounded-2xl p-6 max-w-md w-full">
+    <div class="flex justify-between items-start mb-1">
+      <h3 class="font-serif text-lg font-bold" id="service-modal-title">Вопрос по услуге</h3>
+      <button id="service-modal-close" class="text-noir/40 hover:text-noir text-xl leading-none">&times;</button>
+    </div>
+    <p class="text-sm text-noir/50 mb-4">Опишите ситуацию — ответим в ближайшее время.</p>
+    <textarea id="service-modal-text" rows="3" placeholder="Ваш вопрос..." class="w-full border border-noir/15 rounded-lg px-4 py-3 text-sm mb-3"></textarea>
+    <input id="service-modal-phone" type="tel" placeholder="Телефон для связи" required class="w-full border border-noir/15 rounded-lg px-4 py-3 text-sm mb-4">
+    <button id="service-modal-submit" class="w-full bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-3 rounded-full">Отправить</button>
+    <p id="service-modal-note" class="text-xs text-noir/40 text-center mt-2"></p>
+  </div>
+</div>
+
 <footer class="bg-noir text-paper/60 border-t border-white/10">
   <div class="max-w-6xl mx-auto px-5 md:px-8 py-14 grid md:grid-cols-4 gap-10 text-sm">
     <div>
@@ -883,10 +906,30 @@ function renderChatBubble(role, text) {
   const el = document.createElement('div');
   if (role === 'user') {
     el.className = 'ml-auto max-w-[80%] bg-noir text-paper text-sm rounded-xl rounded-br-sm px-4 py-2.5';
+    el.textContent = text;
   } else {
     el.className = 'max-w-[85%] bg-white border border-noir/10 text-sm rounded-xl rounded-bl-sm px-4 py-2.5';
+    // Длинные ответы сворачиваем с кнопкой «Показать полностью»
+    if (text.length > 300) {
+      const short = document.createElement('div');
+      short.className = 'whitespace-pre-line';
+      short.textContent = text.slice(0, 300) + '…';
+      const btn = document.createElement('button');
+      btn.className = 'text-gold text-xs font-semibold mt-2 hover:underline';
+      btn.textContent = 'Показать полностью ↓';
+      let expanded = false;
+      btn.addEventListener('click', () => {
+        expanded = !expanded;
+        short.textContent = expanded ? text : text.slice(0, 300) + '…';
+        btn.textContent = expanded ? 'Свернуть ↑' : 'Показать полностью ↓';
+      });
+      el.appendChild(short);
+      el.appendChild(btn);
+    } else {
+      el.className += ' whitespace-pre-line';
+      el.textContent = text;
+    }
   }
-  el.textContent = text;
   chat.appendChild(el);
   return el;
 }
@@ -919,20 +962,21 @@ async function aiRespond(question) {
     });
     const data = await resp.json();
     const answer = resp.ok ? data.answer : ('⚠️ ' + (data.error || 'Ошибка ассистента'));
-    loadingEl.textContent = answer;
-    loadingEl.classList.remove('text-noir/40');
-    if (!resp.ok) loadingEl.classList.add('text-red-600');
+    loadingEl.remove();
+    const botEl = renderChatBubble('bot', answer);
+    if (!resp.ok) botEl.classList.add('text-red-600');
     aiChatHistory.push({ role: 'bot', text: answer });
     saveAiHistory();
+    chat.scrollTop = botEl.offsetTop - 12;
   } catch (err) {
     const msg = '⚠️ Не удалось связаться с сервером. Попробуйте позже или напишите бухгалтеру: t.me/DDR3128';
     loadingEl.textContent = msg;
+    loadingEl.classList.remove('text-noir/40');
     loadingEl.classList.add('text-red-600');
     aiChatHistory.push({ role: 'bot', text: msg });
     saveAiHistory();
+    chat.scrollTop = loadingEl.offsetTop - 12;
   }
-  // Прокручиваем так, чтобы было видно НАЧАЛО нового ответа, а не только хвост длинного текста
-  chat.scrollTop = loadingEl.offsetTop - 12;
 }
 function exportAiChatPdf() {
   if (aiChatHistory.length === 0) { alert('Сначала задайте хотя бы один вопрос ассистенту.'); return; }
@@ -1317,28 +1361,6 @@ document.getElementById('pdf-btn').addEventListener('click', () => {
   }
 </style>
 
-<!-- ===== ПОЛОСА ПРОГРЕССА ЧТЕНИЯ ===== -->
-<div id="scroll-progress" style="position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#C9A46B,#DFC28E);z-index:60;transition:width .1s linear"></div>
-
-<!-- ===== ПЛАВАЮЩАЯ КНОПКА «НАВЕРХ» ===== -->
-<button id="back-to-top" class="hidden fixed bottom-6 right-6 z-50 bg-noir/90 hover:bg-gold hover:text-noir text-paper border border-gold/40 rounded-full w-12 h-12 items-center justify-center transition-colors shadow-lg" title="Наверх">
-  ↑
-</button>
-
-<!-- ===== МОДАЛЬНОЕ ОКНО: ВОПРОС ПО УСЛУГЕ ===== -->
-<div id="service-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-5">
-  <div class="bg-white rounded-2xl p-6 max-w-md w-full">
-    <div class="flex justify-between items-start mb-1">
-      <h3 class="font-serif text-lg font-bold" id="service-modal-title">Вопрос по услуге</h3>
-      <button id="service-modal-close" class="text-noir/40 hover:text-noir text-xl leading-none">&times;</button>
-    </div>
-    <p class="text-sm text-noir/50 mb-4">Опишите ситуацию — ответим в ближайшее время.</p>
-    <textarea id="service-modal-text" rows="3" placeholder="Ваш вопрос..." class="w-full border border-noir/15 rounded-lg px-4 py-3 text-sm mb-3"></textarea>
-    <input id="service-modal-phone" type="tel" placeholder="Телефон для связи" required class="w-full border border-noir/15 rounded-lg px-4 py-3 text-sm mb-4">
-    <button id="service-modal-submit" class="w-full bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-3 rounded-full">Отправить</button>
-    <p id="service-modal-note" class="text-xs text-noir/40 text-center mt-2"></p>
-  </div>
-</div>
 
 </body>
 </html>
