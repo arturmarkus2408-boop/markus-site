@@ -63,6 +63,7 @@
 </script>
 <style>
   html { scroll-behavior: smooth; }
+  #top, #services, #calculator, #about, #contact { scroll-margin-top: 90px; }
   body { font-family: 'Manrope', sans-serif; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   .card-hover { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
@@ -104,11 +105,14 @@
   .method-btn.active-method { border-color: #C9A46B; background-color: rgba(201,164,107,0.14); color: #8A7550; font-weight: 700; }
 
   /* ===== Виджет Google Translate — прячем стандартный вид, оставляем только наш переключатель ===== */
-  body { top: 0 !important; }
+  body { top: 0 !important; position: static !important; }
+  .goog-te-banner-frame,
   .goog-te-banner-frame.skiptranslate,
+  iframe.goog-te-banner-frame,
+  iframe.skiptranslate,
   .goog-te-gadget-icon,
   #goog-gt-tt, .goog-tooltip, .goog-tooltip:hover,
-  .goog-text-highlight { display: none !important; background: transparent !important; box-shadow: none !important; }
+  .goog-text-highlight { display: none !important; visibility: hidden !important; height: 0 !important; box-shadow: none !important; background: transparent !important; }
   #google_translate_element { display: none !important; }
 </style>
 </head>
@@ -456,6 +460,10 @@
                 <div class="tick-wrap" id="restore-ticks"></div>
               </div>
               <p class="text-xs text-paper/40 mt-3">Окончательная сумма по восстановлению учёта определяется после беседы со специалистом компании MARKUS — она зависит от состояния документов, количества операций и налогового режима за восстанавливаемый период.</p>
+              <div class="mt-3 pt-3 border-t border-noirBorder flex items-center justify-between">
+                <span class="text-xs text-paper/60">Сумма восстановления <span class="text-paper/35">(разовая оплата, не входит в ежемесячный платёж)</span></span>
+                <span id="restore-total-display" class="font-mono text-sm text-gold font-semibold whitespace-nowrap ml-3">1 000 000 сум</span>
+              </div>
             </div>
           </div>
         </div>
@@ -505,7 +513,7 @@
             <div class="flex justify-between"><span class="text-paper/50">Доп. услуги (месяц)</span><span id="bd-addons" class="font-mono">0</span></div>
             <div id="bd-addons-list" class="pl-3 space-y-1 text-xs text-paper/45"></div>
             <div class="flex justify-between" id="bd-discount-row" style="display:none"><span class="text-paper/50">Скидка за срок</span><span id="bd-discount" class="font-mono text-gold">0</span></div>
-            <div class="flex justify-between" id="bd-onetime-row" style="display:none"><span class="text-paper/50">Разово при подключении</span><span id="bd-onetime" class="font-mono">0</span></div>
+            <div class="flex justify-between" id="bd-onetime-row" style="display:none"><span class="text-paper/50">Разово при подключении <span class="text-paper/30">(не в абонплату)</span></span><span id="bd-onetime" class="font-mono text-gold">0</span></div>
           </div>
 
           <a href="#contact" class="block text-center bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-3 rounded-full mb-3">
@@ -626,6 +634,36 @@
 <!-- ===== ФУТЕР ===== -->
 <!-- ===== ПОЛОСА ПРОГРЕССА ЧТЕНИЯ ===== -->
 <div id="scroll-progress" style="position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#C9A46B,#DFC28E);z-index:60;transition:width .1s linear"></div>
+
+<!-- ===== БОКОВОЙ НАВИГАТОР ПО РАЗДЕЛАМ СТРАНИЦЫ ===== -->
+<nav id="section-nav" class="hidden md:block fixed left-5 top-1/2 -translate-y-1/2 z-40">
+  <div class="bg-noir/90 backdrop-blur border border-white/10 rounded-2xl py-5 px-4 shadow-lg">
+    <div class="relative flex flex-col gap-6">
+      <div class="absolute left-[3px] top-1 bottom-1 w-px bg-white/15"></div>
+      <div id="section-nav-progress" class="absolute left-[3px] top-1 w-px bg-gold transition-all duration-300 ease-out" style="height:0%"></div>
+      <a href="#top" data-section="top" class="section-nav-item group flex items-center gap-3">
+        <span class="section-nav-dot block w-[7px] h-[7px] rounded-full bg-paper/25 border border-paper/25 transition-all duration-300 relative z-10 flex-shrink-0"></span>
+        <span class="section-nav-label text-xs font-medium text-paper/35 group-hover:text-paper/70 transition-colors duration-300 whitespace-nowrap">Главная</span>
+      </a>
+      <a href="#services" data-section="services" class="section-nav-item group flex items-center gap-3">
+        <span class="section-nav-dot block w-[7px] h-[7px] rounded-full bg-paper/25 border border-paper/25 transition-all duration-300 relative z-10 flex-shrink-0"></span>
+        <span class="section-nav-label text-xs font-medium text-paper/35 group-hover:text-paper/70 transition-colors duration-300 whitespace-nowrap">Услуги</span>
+      </a>
+      <a href="#calculator" data-section="calculator" class="section-nav-item group flex items-center gap-3">
+        <span class="section-nav-dot block w-[7px] h-[7px] rounded-full bg-paper/25 border border-paper/25 transition-all duration-300 relative z-10 flex-shrink-0"></span>
+        <span class="section-nav-label text-xs font-medium text-paper/35 group-hover:text-paper/70 transition-colors duration-300 whitespace-nowrap">Калькулятор</span>
+      </a>
+      <a href="#about" data-section="about" class="section-nav-item group flex items-center gap-3">
+        <span class="section-nav-dot block w-[7px] h-[7px] rounded-full bg-paper/25 border border-paper/25 transition-all duration-300 relative z-10 flex-shrink-0"></span>
+        <span class="section-nav-label text-xs font-medium text-paper/35 group-hover:text-paper/70 transition-colors duration-300 whitespace-nowrap">О нас</span>
+      </a>
+      <a href="#contact" data-section="contact" class="section-nav-item group flex items-center gap-3">
+        <span class="section-nav-dot block w-[7px] h-[7px] rounded-full bg-paper/25 border border-paper/25 transition-all duration-300 relative z-10 flex-shrink-0"></span>
+        <span class="section-nav-label text-xs font-medium text-paper/35 group-hover:text-paper/70 transition-colors duration-300 whitespace-nowrap">Контакты</span>
+      </a>
+    </div>
+  </div>
+</nav>
 
 <!-- ===== ПЛАВАЮЩАЯ КНОПКА «НАВЕРХ» / «ВЕРНУТЬСЯ ТУДА, ГДЕ ВЫ ОСТАНОВИЛИСЬ» ===== -->
 <div id="back-to-top-wrap" class="hidden fixed bottom-6 right-6 z-50 items-center gap-2">
@@ -855,6 +893,7 @@ function calcTotal() {
   document.getElementById('restore-block').classList.toggle('hidden', !restoreOn);
   document.getElementById('restore-badge').textContent = restoreMonths + ' мес.';
   document.getElementById('restore-price').textContent = restoreOn ? fmt(restorePrice) + ' сум' : 'от 1 000 000 сум';
+  document.getElementById('restore-total-display').textContent = fmt(restorePrice) + ' сум';
   positionBubble(document.getElementById('restore-months'), document.getElementById('restore-bubble'));
   refreshSliderVisuals(document.getElementById('restore-months'), document.getElementById('restore-ticks'));
 
@@ -922,17 +961,16 @@ function calcTotal() {
   positionBubble(importSlider, document.getElementById('import-bubble'));
   positionBubble(docflowSlider, document.getElementById('docflow-bubble'));
 
-  // Построчная разбивка допуслуг — видно, за что именно платит клиент
+  // Построчная разбивка допуслуг — видно, за что именно платит клиент.
+  // Восстановление учёта сюда не входит — оно разовое и показывается отдельно (внутри своего блока и в строке "Разово при подключении"),
+  // чтобы не путать клиента с ежемесячными платежами.
   const addonsListEl = document.getElementById('bd-addons-list');
   const selected = [];
   document.querySelectorAll('.addon:checked, .addon-onetime:checked').forEach(el => {
     const label = el.closest('label').querySelector('span > span').childNodes[0].textContent.trim();
     const isOnetime = el.classList.contains('addon-onetime');
-    selected.push(`<div class="flex justify-between"><span>${label}</span><span>${isOnetime ? 'от ' : '+'}${fmt(parseFloat(el.dataset.price))}</span></div>`);
+    selected.push(`<div class="flex justify-between"><span>${label}${isOnetime ? ' <span class="text-paper/30">(разово)</span>' : ''}</span><span>${isOnetime ? 'от ' : '+'}${fmt(parseFloat(el.dataset.price))}</span></div>`);
   });
-  if (restoreOn) {
-    selected.push(`<div class="flex justify-between"><span>Восстановление учёта (${restoreMonths} мес.)</span><span>${fmt(restorePrice)}</span></div>`);
-  }
   addonsListEl.innerHTML = selected.join('');
 }
 
@@ -1333,6 +1371,16 @@ document.querySelectorAll('.tool-card').forEach(btn => {
    стандартную серую панель Google прячем через CSS.
    ============================================================ */
 (function () {
+  // Google Translate иногда всё равно пытается сдвинуть страницу вниз под свою (скрытую) панель —
+  // отслеживаем это и сразу возвращаем страницу на место, чтобы шапка сайта не перекрывалась.
+  const resetBodyOffset = () => {
+    if (document.body.style.top && document.body.style.top !== '0px') {
+      document.body.style.top = '0px';
+    }
+  };
+  new MutationObserver(resetBodyOffset).observe(document.body, { attributes: true, attributeFilter: ['style'] });
+  resetBodyOffset();
+
   const langLabels = { ru: 'RU', uz: 'UZ', en: 'EN', tr: 'TR', 'zh-CN': 'ZH', de: 'DE', fr: 'FR', ar: 'AR' };
   function getCurrentLang() {
     const match = document.cookie.match(/googtrans=\/ru\/([a-zA-Z-]+)/);
@@ -1366,6 +1414,41 @@ document.getElementById('services-toggle').addEventListener('click', () => {
   const isHidden = more.classList.toggle('hidden');
   btn.textContent = isHidden ? 'Показать полный список услуг ↓' : 'Скрыть ↑';
 });
+
+/* ============================================================
+   БОКОВОЙ НАВИГАТОР ПО РАЗДЕЛАМ — подсвечивает, в каком блоке сейчас клиент
+   ============================================================ */
+const sectionNavItems = document.querySelectorAll('.section-nav-item');
+const sectionNavProgress = document.getElementById('section-nav-progress');
+const trackedSections = ['top', 'services', 'calculator', 'about', 'contact']
+  .map(id => document.getElementById(id))
+  .filter(Boolean);
+
+function updateSectionNav() {
+  if (trackedSections.length === 0) return;
+  const scrollPos = window.scrollY + window.innerHeight * 0.35;
+  let activeIndex = 0;
+  trackedSections.forEach((sec, i) => { if (sec.offsetTop <= scrollPos) activeIndex = i; });
+
+  sectionNavItems.forEach((item, i) => {
+    const dot = item.querySelector('.section-nav-dot');
+    const label = item.querySelector('.section-nav-label');
+    const isActive = i === activeIndex;
+    dot.classList.toggle('bg-gold', isActive);
+    dot.classList.toggle('border-gold', isActive);
+    dot.classList.toggle('scale-125', isActive);
+    dot.classList.toggle('bg-paper/25', !isActive);
+    dot.classList.toggle('border-paper/25', !isActive);
+    label.classList.toggle('text-gold', isActive);
+    label.classList.toggle('font-semibold', isActive);
+    label.classList.toggle('text-paper/35', !isActive);
+  });
+
+  const progressPct = trackedSections.length > 1 ? (activeIndex / (trackedSections.length - 1)) * 100 : 0;
+  sectionNavProgress.style.height = progressPct + '%';
+}
+window.addEventListener('scroll', updateSectionNav);
+updateSectionNav();
 
 /* ============================================================
    НАВИГАЦИЯ: полоса прогресса + кнопка «Наверх»
@@ -1537,6 +1620,8 @@ document.getElementById('lead-submit').addEventListener('click', async () => {
   <div style="font-family: 'PT Serif', serif; padding: 30px;">
     <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 4px;">MARKUS — смета на бухгалтерское сопровождение</h1>
     <p style="color:#666; font-size:13px; margin-bottom:20px;" id="print-date"></p>
+
+    <p style="font-size:13px; font-weight:bold; text-transform:uppercase; letter-spacing:0.04em; color:#555; margin-bottom:6px;">Ежемесячная абонентская плата</p>
     <table style="width:100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 14px;">
       <tbody id="print-rows"></tbody>
       <tfoot>
@@ -1546,6 +1631,20 @@ document.getElementById('lead-submit').addEventListener('click', async () => {
         </tr>
       </tfoot>
     </table>
+
+    <div id="print-onetime-section" style="margin-top:26px;">
+      <p style="font-size:13px; font-weight:bold; text-transform:uppercase; letter-spacing:0.04em; color:#555; margin-bottom:6px;">Разовые услуги <span style="font-weight:normal; text-transform:none; color:#999;">(оплачиваются один раз, не входят в ежемесячную плату)</span></p>
+      <table style="width:100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 14px;">
+        <tbody id="print-onetime-rows"></tbody>
+        <tfoot>
+          <tr style="border-top: 2px solid #000;">
+            <td style="padding:10px 0; font-weight:bold;">Итого разово</td>
+            <td style="padding:10px 0; font-weight:bold; text-align:right;" id="print-onetime-total"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
     <p style="margin-top:24px; font-size:12px; color:#888;">Стоимость является предварительной. Конечная стоимость определяется после общения со специалистом компании MARKUS.<br>+998 33 080-10-70 · Telegram: @DDR3128</p>
   </div>
 </div>
@@ -1566,7 +1665,8 @@ document.getElementById('pdf-btn').addEventListener('click', () => {
   rows.push(['Стоимость импортных операций', document.getElementById('bd-import').textContent + ' сум']);
   rows.push(['Документооборот в месяц', docflowSlider.value]);
   rows.push(['Стоимость документооборота', document.getElementById('bd-docs').textContent + ' сум']);
-  document.querySelectorAll('.addon:checked, .addon-onetime:checked').forEach(el => {
+  // Только ежемесячные допуслуги — восстановление сюда не входит, оно разовое
+  document.querySelectorAll('.addon:checked').forEach(el => {
     const label = el.closest('label').querySelector('span > span').textContent.split('\n')[0];
     rows.push([label.trim(), fmt(parseFloat(el.dataset.price)) + ' сум']);
   });
@@ -1578,6 +1678,32 @@ document.getElementById('pdf-btn').addEventListener('click', () => {
   ).join('');
   document.getElementById('print-total').textContent = document.getElementById('total-result').textContent + ' сум';
   document.getElementById('print-date').textContent = 'Сформировано: ' + new Date().toLocaleDateString('ru-RU');
+
+  // Разовые услуги — отдельным блоком. Пока это только восстановление учёта,
+  // но структура готова, если позже появятся другие разовые допуслуги (addon-onetime).
+  const onetimeRows = [];
+  const restoreOn = document.getElementById('restore-toggle').checked;
+  if (restoreOn) {
+    const restoreMonths = parseInt(document.getElementById('restore-months').value);
+    const restoreTotal = restoreMonths * 1000000;
+    onetimeRows.push(['Восстановление учёта (' + restoreMonths + ' мес.)', fmt(restoreTotal) + ' сум']);
+  }
+  document.querySelectorAll('.addon-onetime:checked').forEach(el => {
+    const label = el.closest('label').querySelector('span > span').textContent.split('\n')[0];
+    onetimeRows.push([label.trim(), fmt(parseFloat(el.dataset.price)) + ' сум']);
+  });
+
+  const onetimeSection = document.getElementById('print-onetime-section');
+  if (onetimeRows.length > 0) {
+    onetimeSection.style.display = 'block';
+    document.getElementById('print-onetime-rows').innerHTML = onetimeRows.map(r =>
+      `<tr style="border-bottom:1px solid #eee;"><td style="padding:6px 0; color:#444;">${r[0]}</td><td style="padding:6px 0; text-align:right;">${r[1]}</td></tr>`
+    ).join('');
+    const onetimeSum = onetimeRows.reduce((sum, r) => sum + parseInt(r[1].replace(/\D/g, '')), 0);
+    document.getElementById('print-onetime-total').textContent = fmt(onetimeSum) + ' сум';
+  } else {
+    onetimeSection.style.display = 'none';
+  }
 
   document.body.classList.add('printing-summary');
   window.print();
