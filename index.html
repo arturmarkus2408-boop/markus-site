@@ -556,13 +556,13 @@
     </div>
     <div>
       <h4 class="text-paper font-semibold mb-3">Услуги</h4>
-      <ul class="space-y-2">
-        <li><a href="#services" class="hover:text-gold transition-colors">Регистрация ООО</a></li>
-        <li><a href="#services" class="hover:text-gold transition-colors">Регистрация ЧП</a></li>
-        <li><a href="#" class="hover:text-gold transition-colors">Ведение бухгалтерского учёта</a></li>
-        <li><a href="#" class="hover:text-gold transition-colors">Ведение кадрового учёта</a></li>
-        <li><a href="#" class="hover:text-gold transition-colors">Восстановление бухучёта</a></li>
-        <li><a href="#" class="hover:text-gold transition-colors">Ведение налогового учёта и возврат НДС</a></li>
+      <ul class="space-y-1">
+        <li class="service-item">Регистрация ООО</li>
+        <li class="service-item">Регистрация ЧП</li>
+        <li class="service-item">Ведение бухгалтерского учёта</li>
+        <li class="service-item">Ведение кадрового учёта</li>
+        <li class="service-item">Восстановление бухучёта</li>
+        <li class="service-item">Ведение налогового учёта и возврат НДС</li>
       </ul>
       <button id="services-toggle" class="text-gold text-xs font-semibold mt-3 hover:underline">Показать полный список услуг ↓</button>
       <ul id="services-more" class="space-y-1 mt-2 hidden">
@@ -962,6 +962,7 @@ async function renderNewsTool() {
       </div>
       <a href="https://t.me/MARKUS_JW" target="_blank" rel="noopener" class="bg-gold hover:bg-goldLight transition-colors text-noir text-sm font-semibold px-4 py-2 rounded-full whitespace-nowrap">Подписаться</a>
     </div>
+    <input id="news-search" type="text" placeholder="Поиск по новостям — например «аренда» или «НДС»" class="w-full border border-noir/15 rounded-lg px-4 py-3 text-sm mb-5">
     <div id="news-feed" class="space-y-4">
       <div class="text-center text-noir/40 text-sm py-8">Загружаем ленту…</div>
     </div>
@@ -974,20 +975,37 @@ async function renderNewsTool() {
       feed.innerHTML = `<div class="text-center text-noir/40 text-sm py-8">Не удалось загрузить ленту. <a href="https://t.me/MARKUS_JW" target="_blank" class="text-gold">Открыть канал напрямую →</a></div>`;
       return;
     }
-    feed.innerHTML = data.posts.map(p => {
-      const isLong = p.textHtml.length > 320;
-      return `
-      <div class="relative border border-noir/10 rounded-xl p-4 bg-stone overflow-hidden">
-        <p class="text-sm whitespace-pre-line mb-2 ${isLong ? 'max-h-24 overflow-hidden' : ''}">${p.textHtml}</p>
-        ${isLong ? `<div class="absolute bottom-8 left-0 right-0 h-10 bg-gradient-to-t from-stone to-transparent pointer-events-none"></div>
-        <a href="${p.link || 'https://t.me/MARKUS_JW'}" target="_blank" class="text-gold text-xs font-semibold relative">Читать полностью →</a><br>` : ''}
-        <div class="text-xs text-noir/40 ${isLong ? '' : 'mt-1'}">${p.date}</div>
-      </div>
-    `;
-    }).join('');
+    allNewsPosts = data.posts;
+    renderNewsList('');
+    document.getElementById('news-search').addEventListener('input', (e) => renderNewsList(e.target.value));
   } catch (err) {
     document.getElementById('news-feed').innerHTML = `<div class="text-center text-noir/40 text-sm py-8">Не удалось загрузить ленту. <a href="https://t.me/MARKUS_JW" target="_blank" class="text-gold">Открыть канал напрямую →</a></div>`;
   }
+}
+
+let allNewsPosts = [];
+function renderNewsList(query) {
+  const feed = document.getElementById('news-feed');
+  const q = query.trim().toLowerCase();
+  const plain = (html) => html.replace(/<[^>]*>/g, '');
+  const filtered = !q ? allNewsPosts : allNewsPosts.filter(p => plain(p.textHtml).toLowerCase().includes(q));
+
+  if (filtered.length === 0) {
+    feed.innerHTML = `<div class="text-center text-noir/40 text-sm py-8">По запросу «${query}» ничего не найдено в последних постах. <a href="https://t.me/s/MARKUS_JW" target="_blank" class="text-gold">Искать во всём канале →</a></div>`;
+    return;
+  }
+
+  feed.innerHTML = filtered.map(p => {
+    const isLong = p.textHtml.length > 320;
+    return `
+    <div class="relative border border-noir/10 rounded-xl p-4 bg-stone overflow-hidden">
+      <p class="text-sm whitespace-pre-line mb-2 ${isLong ? 'max-h-24 overflow-hidden' : ''}">${p.textHtml}</p>
+      ${isLong ? `<div class="absolute bottom-8 left-0 right-0 h-10 bg-gradient-to-t from-stone to-transparent pointer-events-none"></div>
+      <a href="${p.link || 'https://t.me/MARKUS_JW'}" target="_blank" class="text-gold text-xs font-semibold relative">Читать полностью →</a><br>` : ''}
+      <div class="text-xs text-noir/40 ${isLong ? '' : 'mt-1'}">${p.date}</div>
+    </div>
+  `;
+  }).join('');
 }
 
 /* ============================================================

@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     // Ищем блоки сообщений в публичной HTML-версии канала
     const messageBlocks = html.split('tgme_widget_message_wrap').slice(1);
 
-    const posts = messageBlocks.slice(-8).reverse().map(block => {
+    const posts = messageBlocks.slice(-25).reverse().map(block => {
       const textMatch = block.match(/<div class="tgme_widget_message_text[^"]*"[^>]*>([\s\S]*?)<\/div>/);
       const dateMatch = block.match(/<time datetime="([^"]+)"/);
       const linkMatch = block.match(/<a class="tgme_widget_message_date" href="([^"]+)"/);

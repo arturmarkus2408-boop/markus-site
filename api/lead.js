@@ -7,12 +7,46 @@
 // не был виден в коде сайта (иначе кто угодно сможет слать сообщения от имени бота).
 
 export default async function handler(req, res) {
+  const botToken = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+
+  // ДИАГНОСТИКА: открой /api/lead в браузере — покажет, что не так с настройкой бота
+  if (req.method === 'GET') {
+    const diag = {
+      TELEGRAM_BOT_TOKEN: botToken ? `есть (${botToken.slice(0, 10)}…, длина ${botToken.length})` : '❌ НЕ НАЙДЕН',
+      TELEGRAM_CHAT_ID: chatId ? `есть (${chatId})` : '❌ НЕ НАЙДЕН',
+    };
+    if (!botToken || !chatId) {
+      return res.status(200).json({ status: '❌ Переменные не настроены', diag });
+    }
+    try {
+      const check = await fetch(`https://api.telegram.org/bot${botToken}/getMe`);
+      const info = await check.json();
+      if (!info.ok) {
+        return res.status(200).json({ status: '❌ Токен бота неверный или отозван', diag, telegram: info });
+      }
+      const send = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text: '✅ Проверка связи с сайтом MARKUS — всё работает!' }),
+      });
+      const sendResult = await send.json();
+      if (!sendResult.ok) {
+        return res.status(200).json({
+          status: '❌ Бот найден, но не может отправить сообщение',
+          подсказка: 'Чаще всего причина: вы не нажали /start у бота, либо TELEGRAM_CHAT_ID указан неверно',
+          diag, bot: info.result.username, telegram: sendResult,
+        });
+      }
+      return res.status(200).json({ status: '✅ ВСЁ РАБОТАЕТ — проверьте Telegram, туда пришло тестовое сообщение', diag, bot: info.result.username });
+    } catch (err) {
+      return res.status(200).json({ status: '❌ Ошибка связи с Telegram', diag, error: err.message });
+    }
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Только POST-запросы' });
   }
-
-  const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
 
   if (!botToken || !chatId) {
     return res.status(500).json({
