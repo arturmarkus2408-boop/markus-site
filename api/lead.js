@@ -54,21 +54,29 @@ export default async function handler(req, res) {
     });
   }
 
-  const { name, phone, source, message, service } = req.body || {};
-  if (!phone) {
+  const { name, phone, source, message, service, contactMethod, contactValue } = req.body || {};
+  const isServiceQuestion = source === 'markus-site-service-question';
+
+  if (isServiceQuestion) {
+    if (!contactValue) {
+      return res.status(400).json({ error: 'Не передан контакт для связи' });
+    }
+  } else if (!phone) {
     return res.status(400).json({ error: 'Не передан телефон' });
   }
 
-  const isServiceQuestion = source === 'markus-site-service-question';
+  const methodLabels = { phone: 'Звонок / телефон', telegram: 'Telegram', whatsapp: 'WhatsApp', email: 'Email' };
   const header = isServiceQuestion ? '💬 Вопрос с сайта MARKUS (footer)' : '🆕 Новая заявка с сайта MARKUS';
   const lines = [header, ''];
   if (isServiceQuestion) {
     lines.push(`🏷️ Услуга: ${service || '—'}`);
     lines.push(`📝 Вопрос: ${message || '—'}`);
+    lines.push(`☎️ Способ связи: ${methodLabels[contactMethod] || contactMethod || '—'}`);
+    lines.push(`📇 Контакт: ${contactValue}`);
   } else {
     lines.push(`👤 Имя: ${name || '—'}`);
+    lines.push(`📞 Телефон: ${phone}`);
   }
-  lines.push(`📞 Телефон: ${phone}`);
   lines.push(`📍 Источник: markus-site (не сарафанное радио — это сайт)`);
   lines.push(`🕐 ${new Date().toLocaleString('ru-RU', { timeZone: 'Asia/Tashkent' })}`);
   const text = lines.join('\n');

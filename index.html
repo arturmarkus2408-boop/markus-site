@@ -101,6 +101,15 @@
   .service-item:hover { background-color: rgba(201,164,107,0.15); color: #DFC28E; }
   .tick-label:hover { color: #DFC28E; }
   .tick-label.active { color: #C9A46B; font-weight: 700; }
+  .method-btn.active-method { border-color: #C9A46B; background-color: rgba(201,164,107,0.14); color: #8A7550; font-weight: 700; }
+
+  /* ===== Виджет Google Translate — прячем стандартный вид, оставляем только наш переключатель ===== */
+  body { top: 0 !important; }
+  .goog-te-banner-frame.skiptranslate,
+  .goog-te-gadget-icon,
+  #goog-gt-tt, .goog-tooltip, .goog-tooltip:hover,
+  .goog-text-highlight { display: none !important; background: transparent !important; box-shadow: none !important; }
+  #google_translate_element { display: none !important; }
 </style>
 </head>
 <body class="bg-paper text-noir">
@@ -115,11 +124,40 @@
       <a href="#calculator" class="hover:text-gold transition-colors">Калькулятор</a>
       <a href="#contact" class="hover:text-gold transition-colors">Контакты</a>
     </nav>
-    <a href="#contact" class="bg-gold hover:bg-goldLight transition-colors text-noir text-sm font-semibold px-5 py-2.5 rounded-full">
-      Связаться с нами
-    </a>
+    <div class="flex items-center gap-3">
+      <div class="relative" id="lang-switcher">
+        <button id="lang-btn" type="button" class="flex items-center gap-1.5 text-paper/80 hover:text-gold hover:border-gold/50 transition-colors text-sm font-medium border border-white/15 rounded-full px-3 py-2">
+          🌐 <span id="lang-btn-label">RU</span>
+        </button>
+        <div id="lang-menu" class="hidden absolute right-0 mt-2 w-52 bg-noirCard border border-noirBorder rounded-xl shadow-xl overflow-hidden text-sm z-50">
+          <button type="button" class="lang-option w-full text-left px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="ru">🇷🇺 Русский</button>
+          <button type="button" class="lang-option w-full text-left px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="uz">🇺🇿 Oʻzbekcha</button>
+          <button type="button" class="lang-option w-full text-left px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="en">🇬🇧 English</button>
+          <button type="button" class="lang-option w-full text-left px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="tr">🇹🇷 Türkçe</button>
+          <button type="button" class="lang-option w-full text-left px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="zh-CN">🇨🇳 中文</button>
+          <button type="button" class="lang-option w-full text-left px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="de">🇩🇪 Deutsch</button>
+          <button type="button" class="lang-option w-full text-left px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="fr">🇫🇷 Français</button>
+          <button type="button" class="lang-option w-full text-left px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="ar">🇸🇦 العربية</button>
+        </div>
+      </div>
+      <a href="#contact" class="bg-gold hover:bg-goldLight transition-colors text-noir text-sm font-semibold px-5 py-2.5 rounded-full">
+        Связаться с нами
+      </a>
+    </div>
   </div>
 </header>
+
+<!-- ===== Виджет автоперевода страницы (Google Translate, бесплатно) ===== -->
+<div id="google_translate_element"></div>
+<script>
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement(
+      { pageLanguage: 'ru', includedLanguages: 'ru,uz,en,tr,zh-CN,de,fr,ar', autoDisplay: false },
+      'google_translate_element'
+    );
+  }
+</script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script>
 
 <!-- ===== ГЕРОЙ ===== -->
 <section id="top" class="bg-noir text-paper">
@@ -573,7 +611,7 @@
         <label class="block text-sm font-semibold mb-2">Ваш телефон</label>
         <div class="flex items-center border border-noir/15 rounded-lg overflow-hidden">
           <span class="px-3 py-3 bg-stone text-noir/60 font-mono text-sm border-r border-noir/10 select-none">+998</span>
-          <input id="lead-phone" type="tel" inputmode="numeric" maxlength="9" required placeholder="33 808 77 44" class="flex-1 px-3 py-3 outline-none font-mono">
+          <input id="lead-phone" type="tel" inputmode="numeric" maxlength="9" required placeholder="__ ___ __ __" class="flex-1 px-3 py-3 outline-none font-mono">
         </div>
         <p class="text-xs text-noir/40 mt-1">Введите 9 цифр без +998. Иностранный номер? <a href="https://t.me/DDR3128" target="_blank" class="text-gold">напишите в Telegram</a></p>
       </div>
@@ -589,10 +627,13 @@
 <!-- ===== ПОЛОСА ПРОГРЕССА ЧТЕНИЯ ===== -->
 <div id="scroll-progress" style="position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#C9A46B,#DFC28E);z-index:60;transition:width .1s linear"></div>
 
-<!-- ===== ПЛАВАЮЩАЯ КНОПКА «НАВЕРХ» ===== -->
-<button id="back-to-top" class="hidden fixed bottom-6 right-6 z-50 bg-noir/90 hover:bg-gold hover:text-noir text-paper border border-gold/40 rounded-full w-12 h-12 items-center justify-center transition-colors shadow-lg" title="Наверх">
-  ↑
-</button>
+<!-- ===== ПЛАВАЮЩАЯ КНОПКА «НАВЕРХ» / «ВЕРНУТЬСЯ ТУДА, ГДЕ ВЫ ОСТАНОВИЛИСЬ» ===== -->
+<div id="back-to-top-wrap" class="hidden fixed bottom-6 right-6 z-50 items-center gap-2">
+  <span id="back-to-top-label" class="bg-noir/95 text-paper text-xs font-medium px-3 py-2 rounded-full border border-gold/30 shadow-lg whitespace-nowrap">Наверх</span>
+  <button id="back-to-top" class="bg-noir/90 hover:bg-gold hover:text-noir text-paper border border-gold/40 rounded-full w-12 h-12 flex items-center justify-center transition-colors shadow-lg" aria-label="Наверх">
+    <span id="back-to-top-icon">↑</span>
+  </button>
+</div>
 
 <!-- ===== МОДАЛЬНОЕ ОКНО: ВОПРОС ПО УСЛУГЕ ===== -->
 <div id="service-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-5">
@@ -603,7 +644,15 @@
     </div>
     <p class="text-sm text-noir/50 mb-4">Опишите ситуацию — ответим в ближайшее время.</p>
     <textarea id="service-modal-text" rows="3" placeholder="Ваш вопрос..." class="w-full border border-noir/15 rounded-lg px-4 py-3 text-sm mb-3"></textarea>
-    <input id="service-modal-phone" type="tel" placeholder="Телефон для связи" required class="w-full border border-noir/15 rounded-lg px-4 py-3 text-sm mb-4">
+
+    <p class="text-xs font-semibold text-noir/60 mb-2">Удобный способ связи</p>
+    <div class="grid grid-cols-4 gap-2 mb-3">
+      <button type="button" data-method="phone" class="method-btn active-method border border-noir/15 rounded-lg py-2 text-xs font-medium transition-colors">📞 Звонок</button>
+      <button type="button" data-method="telegram" class="method-btn border border-noir/15 rounded-lg py-2 text-xs font-medium transition-colors">✈️ Telegram</button>
+      <button type="button" data-method="whatsapp" class="method-btn border border-noir/15 rounded-lg py-2 text-xs font-medium transition-colors">💬 WhatsApp</button>
+      <button type="button" data-method="email" class="method-btn border border-noir/15 rounded-lg py-2 text-xs font-medium transition-colors">✉️ Email</button>
+    </div>
+    <input id="service-modal-contact" type="tel" placeholder="Телефон для связи" required class="w-full border border-noir/15 rounded-lg px-4 py-3 text-sm mb-4">
     <button id="service-modal-submit" class="w-full bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-3 rounded-full">Отправить</button>
     <p id="service-modal-note" class="text-xs text-noir/40 text-center mt-2"></p>
   </div>
@@ -1062,6 +1111,8 @@ function exportAiChatPdf() {
    НОВОСТИ — реальная лента из Telegram-канала через серверную функцию
    ============================================================ */
 async function renderNewsTool() {
+  newsExpanded = false;
+  expandedPostKeys.clear();
   panelContent.innerHTML = `
     <div class="flex items-center justify-between mb-5">
       <div>
@@ -1092,6 +1143,9 @@ async function renderNewsTool() {
 }
 
 let allNewsPosts = [];
+let newsExpanded = false; // гармошка: показываем не всю ленту сразу, а по кнопке «Показать ещё»
+const expandedPostKeys = new Set(); // какие отдельные посты развёрнуты (сворачивание/разворачивание на месте)
+
 function renderNewsList(query) {
   const feed = document.getElementById('news-feed');
   const q = query.trim().toLowerCase();
@@ -1103,17 +1157,49 @@ function renderNewsList(query) {
     return;
   }
 
-  feed.innerHTML = filtered.map(p => {
+  // Гармошка: без поиска показываем 5 последних постов, остальные — по кнопке «Показать ещё»
+  const showAllPosts = newsExpanded || q.length > 0;
+  const visiblePosts = showAllPosts ? filtered : filtered.slice(0, 5);
+  const hiddenCount = filtered.length - visiblePosts.length;
+
+  const postsHtml = visiblePosts.map((p, i) => {
+    const key = p.link || String(i);
     const isLong = p.textHtml.length > 320;
+    const isPostOpen = expandedPostKeys.has(key);
     return `
     <div class="relative border border-noir/10 rounded-xl p-4 bg-stone overflow-hidden">
-      <p class="text-sm whitespace-pre-line mb-2 ${isLong ? 'max-h-24 overflow-hidden' : ''}">${p.textHtml}</p>
-      ${isLong ? `<div class="absolute bottom-8 left-0 right-0 h-10 bg-gradient-to-t from-stone to-transparent pointer-events-none"></div>
-      <a href="${p.link || 'https://t.me/MARKUS_JW'}" target="_blank" class="text-gold text-xs font-semibold relative">Читать полностью →</a><br>` : ''}
+      <p class="text-sm whitespace-pre-line mb-2 ${isLong && !isPostOpen ? 'max-h-24 overflow-hidden' : ''}">${p.textHtml}</p>
+      ${isLong ? `
+        ${!isPostOpen ? `<div class="absolute bottom-8 left-0 right-0 h-10 bg-gradient-to-t from-stone to-transparent pointer-events-none"></div>` : ''}
+        <button data-post-key="${key}" class="news-toggle text-gold text-xs font-semibold relative">${isPostOpen ? 'Свернуть ↑' : 'Читать полностью ↓'}</button><br>
+      ` : ''}
       <div class="text-xs text-noir/40 ${isLong ? '' : 'mt-1'}">${p.date}</div>
     </div>
   `;
   }).join('');
+
+  const moreHtml = hiddenCount > 0 ? `
+    <div class="relative -mt-2">
+      <div class="h-16 bg-gradient-to-b from-transparent to-white pointer-events-none absolute inset-x-0 -top-16"></div>
+      <button id="news-expand" class="w-full text-center text-gold text-sm font-semibold py-3 hover:underline">Показать ещё ${hiddenCount} ${hiddenCount === 1 ? 'новость' : 'новостей'} ↓</button>
+    </div>
+  ` : (newsExpanded && filtered.length > 5 ? `
+    <button id="news-collapse" class="w-full text-center text-noir/40 text-sm py-3 hover:underline">Свернуть ленту ↑</button>
+  ` : '');
+
+  feed.innerHTML = postsHtml + moreHtml;
+
+  document.querySelectorAll('.news-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.postKey;
+      if (expandedPostKeys.has(key)) expandedPostKeys.delete(key); else expandedPostKeys.add(key);
+      renderNewsList(query);
+    });
+  });
+  const expandBtn = document.getElementById('news-expand');
+  if (expandBtn) expandBtn.addEventListener('click', () => { newsExpanded = true; renderNewsList(query); });
+  const collapseBtn = document.getElementById('news-collapse');
+  if (collapseBtn) collapseBtn.addEventListener('click', () => { newsExpanded = false; renderNewsList(query); });
 }
 
 /* ============================================================
@@ -1182,6 +1268,7 @@ const panel = document.getElementById('tool-panel');
 const panelContent = document.getElementById('tool-panel-content');
 document.querySelectorAll('.tool-card').forEach(btn => {
   btn.addEventListener('click', () => {
+    jumpOrigin = window.scrollY; // запоминаем, откуда пользователя сейчас "перекинет" ниже
     const tool = btn.dataset.tool;
     if (tool === 'calc') {
       // Калькулятор уже есть ниже на этой же странице — просто прокручиваем, без отдельной панели
@@ -1239,6 +1326,40 @@ document.querySelectorAll('.tool-card').forEach(btn => {
   });
 });
 
+/* ============================================================
+   ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКОВ — через бесплатный виджет Google Translate.
+   Как работает: браузер запоминает выбранный язык в cookie, Google Translate
+   на лету переводит весь текст страницы. Меню — наше, оформленное под дизайн сайта,
+   стандартную серую панель Google прячем через CSS.
+   ============================================================ */
+(function () {
+  const langLabels = { ru: 'RU', uz: 'UZ', en: 'EN', tr: 'TR', 'zh-CN': 'ZH', de: 'DE', fr: 'FR', ar: 'AR' };
+  function getCurrentLang() {
+    const match = document.cookie.match(/googtrans=\/ru\/([a-zA-Z-]+)/);
+    return match ? match[1] : 'ru';
+  }
+  function setLanguage(lang) {
+    const domain = location.hostname;
+    if (lang === 'ru') {
+      document.cookie = 'googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+      document.cookie = `googtrans=; path=/; domain=.${domain}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+    } else {
+      document.cookie = `googtrans=/ru/${lang}; path=/`;
+      document.cookie = `googtrans=/ru/${lang}; path=/; domain=.${domain}`;
+    }
+    window.location.reload();
+  }
+  const langBtn = document.getElementById('lang-btn');
+  const langMenu = document.getElementById('lang-menu');
+  const langLabel = document.getElementById('lang-btn-label');
+  langLabel.textContent = langLabels[getCurrentLang()] || 'RU';
+  langBtn.addEventListener('click', (e) => { e.stopPropagation(); langMenu.classList.toggle('hidden'); });
+  document.addEventListener('click', () => langMenu.classList.add('hidden'));
+  document.querySelectorAll('.lang-option').forEach(btn => {
+    btn.addEventListener('click', (e) => { e.stopPropagation(); setLanguage(btn.dataset.lang); });
+  });
+})();
+
 document.getElementById('services-toggle').addEventListener('click', () => {
   const more = document.getElementById('services-more');
   const btn = document.getElementById('services-toggle');
@@ -1250,50 +1371,98 @@ document.getElementById('services-toggle').addEventListener('click', () => {
    НАВИГАЦИЯ: полоса прогресса + кнопка «Наверх»
    ============================================================ */
 const progressBar = document.getElementById('scroll-progress');
+const backToTopWrap = document.getElementById('back-to-top-wrap');
 const backToTop = document.getElementById('back-to-top');
+const backToTopLabel = document.getElementById('back-to-top-label');
+const backToTopIcon = document.getElementById('back-to-top-icon');
+// Сюда запоминаем, с какого места пользователя "перекинуло" вниз (клик по карточке инструмента).
+// Если это место есть и мы сейчас далеко от него — кнопка предлагает вернуться именно туда, а не наверх.
+let jumpOrigin = null;
+
+function isInReturnMode() {
+  return jumpOrigin !== null && Math.abs(window.scrollY - jumpOrigin) > 80;
+}
+function updateBackToTopButton() {
+  if (isInReturnMode()) {
+    backToTopLabel.textContent = 'Вернуться туда, где вы остановились?';
+    backToTopIcon.textContent = '↩';
+    backToTop.setAttribute('aria-label', 'Вернуться туда, где вы остановились');
+  } else {
+    backToTopLabel.textContent = 'Наверх';
+    backToTopIcon.textContent = '↑';
+    backToTop.setAttribute('aria-label', 'Наверх');
+  }
+}
 window.addEventListener('scroll', () => {
   const h = document.documentElement.scrollHeight - window.innerHeight;
   const pct = h > 0 ? (window.scrollY / h) * 100 : 0;
   progressBar.style.width = pct + '%';
   if (window.scrollY > 600) {
-    backToTop.classList.remove('hidden');
-    backToTop.classList.add('flex');
+    backToTopWrap.classList.remove('hidden');
+    backToTopWrap.classList.add('flex');
+    updateBackToTopButton();
   } else {
-    backToTop.classList.add('hidden');
-    backToTop.classList.remove('flex');
+    backToTopWrap.classList.add('hidden');
+    backToTopWrap.classList.remove('flex');
   }
 });
-backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+backToTop.addEventListener('click', () => {
+  if (isInReturnMode()) {
+    window.scrollTo({ top: jumpOrigin, behavior: 'smooth' });
+    jumpOrigin = null;
+  } else {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+});
 
 /* ============================================================
    МОДАЛЬНОЕ ОКНО «ВОПРОС ПО УСЛУГЕ» — клик по пункту в футере
    ============================================================ */
 const serviceModal = document.getElementById('service-modal');
 let currentServiceName = '';
+let currentContactMethod = 'phone';
+const contactMethodConfig = {
+  phone:    { placeholder: 'Телефон для связи', type: 'tel' },
+  telegram: { placeholder: '@username в Telegram', type: 'text' },
+  whatsapp: { placeholder: 'Номер WhatsApp, например +998 __ ___-__-__', type: 'tel' },
+  email:    { placeholder: 'Ваш email', type: 'email' },
+};
+function setContactMethod(method) {
+  currentContactMethod = method;
+  document.querySelectorAll('.method-btn').forEach(b => b.classList.toggle('active-method', b.dataset.method === method));
+  const input = document.getElementById('service-modal-contact');
+  input.type = contactMethodConfig[method].type;
+  input.placeholder = contactMethodConfig[method].placeholder;
+  input.value = '';
+}
+document.querySelectorAll('.method-btn').forEach(b => b.addEventListener('click', () => setContactMethod(b.dataset.method)));
+
 document.querySelectorAll('.service-item').forEach(li => {
   li.addEventListener('click', () => {
     currentServiceName = li.textContent.trim();
     document.getElementById('service-modal-title').textContent = currentServiceName;
     document.getElementById('service-modal-text').value = '';
-    document.getElementById('service-modal-phone').value = '';
-    document.getElementById('service-modal-note').textContent = '';
+    const note = document.getElementById('service-modal-note');
+    note.textContent = '';
+    note.classList.remove('text-red-600', 'text-gold');
+    setContactMethod('phone');
     serviceModal.classList.remove('hidden');
   });
 });
 document.getElementById('service-modal-close').addEventListener('click', () => serviceModal.classList.add('hidden'));
 serviceModal.addEventListener('click', (e) => { if (e.target === serviceModal) serviceModal.classList.add('hidden'); });
 document.getElementById('service-modal-submit').addEventListener('click', async () => {
-  const phone = document.getElementById('service-modal-phone').value.trim();
+  const contactValue = document.getElementById('service-modal-contact').value.trim();
   const message = document.getElementById('service-modal-text').value.trim();
   const note = document.getElementById('service-modal-note');
-  if (!phone) { note.textContent = 'Укажите телефон для связи'; note.classList.add('text-red-600'); return; }
+  if (!contactValue) { note.textContent = 'Укажите контакт для связи'; note.classList.add('text-red-600'); return; }
   const btn = document.getElementById('service-modal-submit');
   btn.disabled = true; btn.textContent = 'Отправляем…';
   try {
     const resp = await fetch('/api/lead', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: 'Вопрос с сайта', phone, message, service: currentServiceName, source: 'markus-site-service-question' }),
+      body: JSON.stringify({ name: 'Вопрос с сайта', contactMethod: currentContactMethod, contactValue, message, service: currentServiceName, source: 'markus-site-service-question' }),
     });
     if (resp.ok) {
       note.textContent = '✓ Отправлено! Мы свяжемся с вами.';
@@ -1321,7 +1490,7 @@ document.getElementById('lead-submit').addEventListener('click', async () => {
   const name = document.getElementById('lead-name').value.trim();
   const phoneDigits = document.getElementById('lead-phone').value.trim().replace(/\D/g, '');
   if (phoneDigits.length !== 9) {
-    note.textContent = '⚠️ Введите 9 цифр номера без +998 (например: 338087744)';
+    note.textContent = '⚠️ Введите 9 цифр номера без +998 (например: 901234567)';
     note.className = 'text-xs text-red-600 text-center';
     return;
   }

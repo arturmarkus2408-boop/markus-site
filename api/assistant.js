@@ -71,7 +71,7 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           contents: [{ parts: [{ text: dateContext + question }] }],
           systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          generationConfig: { maxOutputTokens: 1200 },
+          generationConfig: { maxOutputTokens: 3000 },
         }),
       });
 
