@@ -618,11 +618,8 @@
       </div>
       <div>
         <label class="block text-sm font-semibold mb-2">Ваш телефон</label>
-        <div class="flex items-center border border-noir/15 rounded-lg overflow-hidden">
-          <span class="px-3 py-3 bg-stone text-noir/60 font-mono text-sm border-r border-noir/10 select-none">+998</span>
-          <input id="lead-phone" type="tel" inputmode="numeric" maxlength="11" required placeholder="__ ___ __ __" class="flex-1 px-3 py-3 outline-none font-mono">
-        </div>
-        <p class="text-xs text-noir/40 mt-1">Введите 9 цифр без +998. Иностранный номер? <a href="https://t.me/MarkusJW_bot" target="_blank" class="text-gold">напишите в Telegram</a></p>
+        <input id="lead-phone" type="tel" inputmode="numeric" required placeholder="+998(__)-___-__-__" class="w-full border border-noir/15 rounded-lg px-4 py-3 font-mono outline-none">
+        <p class="text-xs text-noir/40 mt-1">Иностранный номер? <a href="https://t.me/MarkusJW_bot" target="_blank" class="text-gold">напишите в Telegram</a></p>
       </div>
       <button id="lead-submit" class="w-full bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-3.5 rounded-full">
         Отправить
@@ -1516,9 +1513,9 @@ let currentServiceName = '';
 let currentSource = 'markus-site-service-question';
 let currentContactMethod = 'phone';
 const contactMethodConfig = {
-  phone:    { placeholder: 'Телефон для связи', type: 'tel', maxlength: 11 },
+  phone:    { placeholder: '+998(__)-___-__-__', type: 'tel', maxlength: 20 },
   telegram: { placeholder: '@username в Telegram', type: 'text', maxlength: 33 },
-  whatsapp: { placeholder: 'Номер WhatsApp, например 90 123 45 67', type: 'tel', maxlength: 11 },
+  whatsapp: { placeholder: '+998(__)-___-__-__', type: 'tel', maxlength: 20 },
   email:    { placeholder: 'Ваш email', type: 'email', maxlength: 100 },
 };
 function setContactMethod(method) {
@@ -1528,7 +1525,7 @@ function setContactMethod(method) {
   input.type = contactMethodConfig[method].type;
   input.placeholder = contactMethodConfig[method].placeholder;
   input.maxLength = contactMethodConfig[method].maxlength;
-  input.value = '';
+  input.value = (method === 'phone' || method === 'whatsapp') ? '+998' : '';
 }
 document.querySelectorAll('.method-btn').forEach(b => b.addEventListener('click', () => setContactMethod(b.dataset.method)));
 
@@ -1589,16 +1586,29 @@ document.getElementById('calc-lead-btn').addEventListener('click', () => {
   serviceModal.classList.remove('hidden');
 });
 
-// Маска телефона: пока печатает — не даём ввести ничего, кроме цифр, и не больше 9 (без +998).
-// Используется и в форме заявки, и в окне "Вопрос по услуге" (для методов "Звонок" и "WhatsApp").
-function formatPhoneDigits(raw) {
-  const digits = raw.replace(/\D/g, '').slice(0, 9);
-  return [digits.slice(0, 2), digits.slice(2, 5), digits.slice(5, 7), digits.slice(7, 9)].filter(Boolean).join(' ');
+// Маска телефона: единая логика везде на сайте.
+// normalizePhoneDigits — достаёт ровно 9 "местных" цифр из любого ввода (сколько бы человек ни напечатал,
+// даже с +998, пробелами, скобками — лишнее отбрасывается, отсюда и не будет "недопечатанных" цифр).
+// formatPhoneMask — рисует это как +998(XX)-XXX-XX-XX по мере набора.
+function normalizePhoneDigits(raw) {
+  let digits = (raw || '').replace(/\D/g, '');
+  if (digits.startsWith('998')) digits = digits.slice(3);
+  return digits.slice(0, 9);
+}
+function formatPhoneMask(raw) {
+  const digits = normalizePhoneDigits(raw);
+  let out = '+998';
+  if (digits.length > 0) out += '(' + digits.slice(0, 2);
+  if (digits.length >= 2) out += ')';
+  if (digits.length > 2) out += '-' + digits.slice(2, 5);
+  if (digits.length > 5) out += '-' + digits.slice(5, 7);
+  if (digits.length > 7) out += '-' + digits.slice(7, 9);
+  return out;
 }
 
 document.getElementById('service-modal-contact').addEventListener('input', (e) => {
   if (currentContactMethod === 'phone' || currentContactMethod === 'whatsapp') {
-    e.target.value = formatPhoneDigits(e.target.value);
+    e.target.value = formatPhoneMask(e.target.value);
   }
 });
 
@@ -1613,9 +1623,9 @@ document.getElementById('service-modal-submit').addEventListener('click', async 
   if (!contactValue) { note.textContent = 'Укажите контакт для связи'; note.classList.add('text-red-600'); return; }
 
   if (currentContactMethod === 'phone' || currentContactMethod === 'whatsapp') {
-    const digits = contactValue.replace(/\D/g, '');
+    const digits = normalizePhoneDigits(contactValue);
     if (digits.length !== 9) {
-      note.textContent = '⚠️ Введите 9 цифр номера без +998 (например: 90 123 45 67)';
+      note.textContent = '⚠️ Введите полный номер: +998(90)-123-45-67';
       note.classList.add('text-red-600');
       return;
     }
@@ -1655,7 +1665,7 @@ document.getElementById('service-modal-submit').addEventListener('click', async 
    ФОРМА ЗАЯВКИ — теперь реально отправляется через /api/lead
    ============================================================ */
 document.getElementById('lead-phone').addEventListener('input', (e) => {
-  e.target.value = formatPhoneDigits(e.target.value);
+  e.target.value = formatPhoneMask(e.target.value);
 });
 document.getElementById('lead-submit').addEventListener('click', async () => {
   const form = document.getElementById('lead-form');
@@ -1663,9 +1673,9 @@ document.getElementById('lead-submit').addEventListener('click', async () => {
   const btn = document.getElementById('lead-submit');
   const note = document.getElementById('lead-note');
   const name = document.getElementById('lead-name').value.trim();
-  const phoneDigits = document.getElementById('lead-phone').value.trim().replace(/\D/g, '');
+  const phoneDigits = normalizePhoneDigits(document.getElementById('lead-phone').value);
   if (phoneDigits.length !== 9) {
-    note.textContent = '⚠️ Введите 9 цифр номера без +998 (например: 901234567)';
+    note.textContent = '⚠️ Введите полный номер: +998(90)-123-45-67';
     note.className = 'text-xs text-red-600 text-center';
     return;
   }
