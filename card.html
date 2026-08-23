@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ООО «MARKUS» — визитная карточка</title>
+<meta name="description" content="ООО «MARKUS» — бухгалтерское и юридическое сопровождение бизнеса в Ташкенте. Реквизиты, контакты, документы.">
+<meta name="theme-color" content="#0B0B0D">
+<link rel="icon" href="favicon.ico">
+<meta property="og:title" content="ООО «MARKUS» — визитная карточка">
+<meta property="og:description" content="Реквизиты, контакты и документы компании MARKUS. Сохраните контакт в один клик.">
+<meta property="og:image" content="og-image.png">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@700&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --noir:#0B0B0D; --noir-card:#17171A; --noir-soft:#202024;
+  --gold:#C9A46B; --gold-light:#DFC28E; --gold-deep:#A8834B;
+  --bronze:#8A7550; --bronze-dark:#2B2013;
+  --paper:#FAFAF8; --stone:#F4F3EF;
+  --radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Manrope',system-ui,sans-serif;
+  background:var(--stone);
+  color:var(--bronze-dark);
+  line-height:1.5;
+  overflow-x:hidden;
+}
+.wrap{max-width:560px;margin:0 auto;background:var(--paper);min-height:100vh;
+  box-shadow:0 0 60px rgba(11,11,13,.10)}
+
+/* ---------- шапка ---------- */
+.hero{position:relative;padding:34px 20px 26px;text-align:center;overflow:hidden;
+  background:
+    radial-gradient(120% 80% at 50% -10%, #2A2318 0%, transparent 60%),
+    linear-gradient(180deg,#0B0B0D 0%,#141318 55%,#0B0B0D 100%);
+}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;
+  background:linear-gradient(90deg,transparent,var(--gold-deep),var(--gold-light),var(--gold-deep),transparent);
+  background-size:200% 100%;animation:shine 7s linear infinite}
+@keyframes shine{0%{background-position:0% 0}100%{background-position:200% 0}}
+.glow{position:absolute;width:340px;height:340px;left:50%;top:-160px;transform:translateX(-50%);
+  background:radial-gradient(circle,rgba(201,164,107,.20) 0%,transparent 65%);pointer-events:none}
+.logo{width:86px;height:86px;margin:0 auto 14px;border-radius:50%;
+  display:grid;place-items:center;position:relative;
+  background:linear-gradient(150deg,#1D1B18,#0B0B0D);
+  border:2px solid transparent;
+  background-image:linear-gradient(150deg,#1D1B18,#0B0B0D),
+    linear-gradient(140deg,var(--gold-light),var(--gold-deep),var(--gold-light));
+  background-origin:border-box;background-clip:padding-box,border-box;
+  box-shadow:0 10px 30px rgba(201,164,107,.18)}
+.logo img{width:56px;height:56px;object-fit:contain}
+.logo span{font-family:'PT Serif',serif;font-size:44px;color:var(--gold-light);line-height:1}
+h1{font-family:'PT Serif',serif;font-size:27px;letter-spacing:.5px;
+  background:linear-gradient(100deg,var(--gold-light),#F1E0BE 45%,var(--gold-deep));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.tagline{margin-top:8px;font-size:12.5px;letter-spacing:2.4px;text-transform:uppercase;color:#9A9086}
+.since{margin-top:12px;display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;
+  letter-spacing:1px;color:var(--gold);border:1px solid rgba(201,164,107,.35);
+  border-radius:999px;padding:4px 12px}
+
+/* ---------- язык ---------- */
+.lang{position:fixed;top:12px;right:calc(50% - 268px);z-index:40;display:flex;gap:2px;
+  background:rgba(250,250,248,.92);backdrop-filter:blur(8px);border-radius:999px;padding:3px;
+  box-shadow:0 4px 16px rgba(11,11,13,.25)}
+@media(max-width:600px){.lang{right:12px}}
+.lang button{border:0;background:transparent;font:600 12px/1 'Manrope';letter-spacing:.6px;
+  color:var(--bronze);padding:7px 11px;border-radius:999px;cursor:pointer;transition:.25s}
+.lang button.on{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#0B0B0D}
+
+/* ---------- действия ---------- */
+.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;padding:20px 16px 0}
+.act{background:var(--stone);border:1px solid #E7E3D9;border-radius:14px;padding:13px 4px;
+  text-align:center;text-decoration:none;color:var(--bronze-dark);transition:.22s;display:block}
+.act:hover,.act:active{transform:translateY(-2px);border-color:var(--gold);
+  box-shadow:0 8px 20px rgba(201,164,107,.22)}
+.act svg{width:23px;height:23px;stroke:var(--gold-deep);fill:none;stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round}
+.act b{display:block;margin-top:6px;font-size:11.5px;font-weight:600}
+
+.save{margin:12px 16px 0;display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:16px;border-radius:15px;text-decoration:none;font-weight:700;font-size:15.5px;
+  color:#0B0B0D;border:0;width:calc(100% - 32px);cursor:pointer;font-family:'Manrope';
+  background:linear-gradient(115deg,var(--gold-deep),var(--gold-light) 45%,var(--gold));
+  background-size:200% 100%;box-shadow:0 10px 26px rgba(201,164,107,.35);transition:.3s}
+.save:hover{background-position:100% 0}
+.save svg{width:21px;height:21px;stroke:#0B0B0D;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- секции ---------- */
+section{padding:30px 16px 0}
+.title{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.title h2{font-size:12.5px;letter-spacing:2.6px;text-transform:uppercase;color:var(--gold-deep);font-weight:700;white-space:nowrap}
+.title i{flex:1;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,var(--gold),rgba(201,164,107,.05))}
+
+.row{display:flex;align-items:center;gap:10px;background:var(--stone);
+  border:1px solid #EAE6DC;border-radius:14px;padding:12px 14px;margin-bottom:9px;transition:.2s}
+.row:hover{border-color:rgba(201,164,107,.6)}
+.row .txt{flex:1;min-width:0}
+.row .k{font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--bronze);font-weight:600}
+.row .v{font-size:15px;font-weight:600;margin-top:3px;word-break:break-word}
+.row .v.mono{font-family:'IBM Plex Mono',monospace;font-weight:500;letter-spacing:.3px}
+.copy{flex-shrink:0;width:36px;height:36px;border-radius:10px;border:1px solid transparent;
+  background:transparent;display:grid;place-items:center;cursor:pointer;transition:.2s}
+.copy:hover{background:rgba(201,164,107,.14);border-color:rgba(201,164,107,.4)}
+.copy svg{width:17px;height:17px;stroke:var(--bronze);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.copy.done svg{stroke:#2E7D4F}
+
+/* ---------- банк (тёмная карта) ---------- */
+.bank{margin:0 16px;border-radius:22px;padding:22px 18px 20px;position:relative;overflow:hidden;
+  background:
+    radial-gradient(130% 90% at 15% 0%, #262024 0%, transparent 55%),
+    linear-gradient(160deg,#17171A 0%,#0B0B0D 60%,#151318 100%);
+  box-shadow:0 16px 40px rgba(11,11,13,.35)}
+.bank::before{content:"";position:absolute;inset:0;border-radius:22px;padding:1px;
+  background:linear-gradient(140deg,rgba(201,164,107,.75),rgba(201,164,107,.06) 45%,rgba(223,194,142,.55));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.bank .title h2{color:var(--gold-light)}
+.bank .title i{background:linear-gradient(90deg,var(--gold),rgba(201,164,107,.05))}
+.bank .row{background:rgba(255,255,255,.045);border-color:rgba(201,164,107,.16);color:var(--paper)}
+.bank .row:hover{border-color:rgba(201,164,107,.55);background:rgba(255,255,255,.07)}
+.bank .row .k{color:#9C9184}
+.bank .copy svg{stroke:var(--gold)}
+.bank .copy:hover{background:rgba(201,164,107,.18)}
+.copy-all{width:100%;margin-top:12px;padding:15px;border:0;border-radius:14px;cursor:pointer;
+  font:700 14.5px 'Manrope';color:#0B0B0D;display:flex;align-items:center;justify-content:center;gap:9px;
+  background:linear-gradient(115deg,var(--gold-deep),var(--gold-light) 50%,var(--gold));
+  background-size:200% 100%;transition:.3s}
+.copy-all:hover{background-position:100% 0}
+.copy-all svg{width:18px;height:18px;stroke:#0B0B0D;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- документ ---------- */
+.doc-preview{display:block;text-decoration:none;color:inherit;background:var(--stone);
+  border:1px solid #EAE6DC;border-radius:18px;overflow:hidden;transition:.25s}
+.doc-preview:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 14px 30px rgba(201,164,107,.22)}
+.doc-thumb{position:relative;background:
+    repeating-linear-gradient(135deg,#EDEAE1 0 14px,#F4F3EF 14px 28px)}
+.doc-thumb img{display:block;width:100%;max-height:340px;object-fit:cover;object-position:top;
+  filter:saturate(.92) contrast(1.02)}
+.doc-thumb::after{content:"";position:absolute;left:0;right:0;bottom:0;height:56%;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(11,11,13,.55) 100%)}
+.doc-zoom{position:absolute;left:14px;bottom:14px;z-index:2;display:flex;align-items:center;gap:8px;
+  background:rgba(11,11,13,.72);backdrop-filter:blur(6px);color:var(--gold-light);
+  padding:8px 14px;border-radius:999px;font-size:12.5px;font-weight:700;border:1px solid rgba(201,164,107,.4)}
+.doc-zoom svg{width:15px;height:15px;stroke:var(--gold-light);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.doc-cap{padding:13px 15px}
+.doc-cap b{display:block;font-size:14.5px}
+.doc-cap small{display:block;margin-top:3px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--bronze)}
+
+/* ---------- QR ---------- */
+.qr-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.qr-card{background:var(--stone);border:1px solid #EAE6DC;border-radius:16px;padding:12px;text-align:center}
+.qr-card img{width:100%;border-radius:10px;display:block}
+.qr-card b{display:block;margin-top:9px;font-size:12px;letter-spacing:.2px}
+.qr-card a{display:inline-block;margin-top:6px;font-size:11px;color:var(--gold-deep);text-decoration:none;border-bottom:1px dashed var(--gold)}
+
+/* ---------- футер ---------- */
+footer{margin-top:34px;padding:28px 20px 34px;text-align:center;color:#B9B0A4;
+  background:linear-gradient(180deg,#0B0B0D,#17171A)}
+footer h3{font-family:'PT Serif',serif;font-size:19px;color:var(--gold-light);letter-spacing:1px}
+footer p{font-size:12.5px;margin-top:9px;line-height:1.6}
+footer .mono{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--bronze);margin-top:10px}
+footer a{color:var(--gold);text-decoration:none}
+
+#toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);z-index:60;
+  background:#0B0B0D;color:var(--gold-light);border:1px solid rgba(201,164,107,.45);
+  padding:11px 20px;border-radius:999px;font-size:13px;font-weight:600;
+  opacity:0;pointer-events:none;transition:.28s}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<div class="lang">
+  <button data-l="ru" class="on">RU</button>
+  <button data-l="uz">UZ</button>
+  <button data-l="en">EN</button>
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="glow"></div>
+    <div class="logo"><img src="logo-m.png" alt="MARKUS" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'M'}))"></div>
+    <h1>ООО «MARKUS»</h1>
+    <div class="tagline" data-t="tagline">Бухгалтерия · Налоги · Право</div>
+    <div class="since" data-t="since">Ташкент · с 2024 года</div>
+  </div>
+
+  <div class="actions">
+    <a class="act" href="tel:+998330801070">
+      <svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
+      <b data-t="call">Позвонить</b></a>
+    <a class="act" href="https://t.me/MarkusJW_bot" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
+      <b>Telegram</b></a>
+    <a class="act" href="mailto:arturusalt@gmail.com">
+      <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+      <b data-t="mail">Почта</b></a>
+    <a class="act" href="https://markus.uz" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/></svg>
+      <b data-t="site">Сайт</b></a>
+  </div>
+
+  <a class="save" href="markus.vcf" download="MARKUS.vcf">
+    <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+    <span data-t="save">Сохранить контакт в телефон</span>
+  </a>
+
+  <section>
+    <div class="title"><h2 data-t="h_req">Реквизиты компании</h2><i></i></div>
+
+    <div class="row"><div class="txt"><div class="k" data-t="k_name">Полное наименование</div>
+      <div class="v" data-c>ООО «MARKUS»</div></div><button class="copy"></button></div>
+
+    <div class="row"><div class="txt"><div class="k">ИНН</div>
+      <div class="v mono" data-c="311283164">311 283 164</div></div><button class="copy"></button></div>
+
+    <div class="row"><div class="txt"><div class="k" data-t="k_oked">ОКЭД</div>
+      <div class="v mono" data-c>69.20.1</div></div><button class="copy"></button></div>
+
+    <div class="row"><div class="txt"><div class="k" data-t="k_addr">Адрес</div>
+      <div class="v" data-c>г. Ташкент, Юнусабадский район, МСГ Кашкар, проспект Амира Темура, 25</div></div><button class="copy"></button></div>
+
+    <div class="row"><div class="txt"><div class="k" data-t="k_phone">Телефон</div>
+      <div class="v mono" data-c="+998330801070">+998 33 080-10-70</div></div><button class="copy"></button></div>
+
+    <div class="row"><div class="txt"><div class="k">WhatsApp</div>
+      <div class="v mono" data-c="+998338087744">+998 33 808-77-44</div></div><button class="copy"></button></div>
+
+    <div class="row"><div class="txt"><div class="k" data-t="k_mail">Электронная почта</div>
+      <div class="v" data-c>arturusalt@gmail.com</div></div><button class="copy"></button></div>
+
+    <div class="row"><div class="txt"><div class="k" data-t="k_site">Сайт</div>
+      <div class="v" data-c>markus.uz</div></div><button class="copy"></button></div>
+
+    <div class="row"><div class="txt"><div class="k" data-t="k_bot">Telegram для обращений</div>
+      <div class="v" data-c>@MarkusJW_bot</div></div><button class="copy"></button></div>
+
+    <div class="row"><div class="txt"><div class="k" data-t="k_chan">Telegram-канал</div>
+      <div class="v" data-c>@MARKUS_JW</div></div><button class="copy"></button></div>
+
+    <div class="row"><div class="txt"><div class="k" data-t="k_pers">Личный Telegram</div>
+      <div class="v" data-c>@DDR3128</div></div><button class="copy"></button></div>
+  </section>
+
+  <section>
+    <div class="bank">
+      <div class="title"><h2 data-t="h_bank">Банковские реквизиты</h2><i></i></div>
+
+      <div class="row"><div class="txt"><div class="k" data-t="k_bank">Банк</div>
+        <div class="v" data-c>Ташкентский городской региональный ОБУ АКБ «Узпромстройбанк»</div></div><button class="copy"></button></div>
+
+      <div class="row"><div class="txt"><div class="k">МФО</div>
+        <div class="v mono" data-c>00440</div></div><button class="copy"></button></div>
+
+      <div class="row"><div class="txt"><div class="k" data-t="k_acc">Расчётный счёт</div>
+        <div class="v mono" data-c="20208000407056723001">20208 000 4070 5672 3001</div></div><button class="copy"></button></div>
+
+      <div class="row" style="margin-bottom:0"><div class="txt"><div class="k">ИНН</div>
+        <div class="v mono" data-c="311283164">311 283 164</div></div><button class="copy"></button></div>
+
+      <button class="copy-all" id="all">
+        <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span data-t="copyall">Скопировать все реквизиты</span></button>
+    </div>
+  </section>
+
+  <section>
+    <div class="title"><h2 data-t="h_doc">Документы</h2><i></i></div>
+    <a class="doc-preview" href="documents/svidetelstvo-markus.pdf" target="_blank" rel="noopener">
+      <div class="doc-thumb">
+        <img src="documents/svidetelstvo-preview.png" alt="Свидетельство о государственной регистрации ООО «MARKUS»" loading="lazy">
+        <span class="doc-zoom">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <b data-t="open">Открыть</b>
+        </span>
+      </div>
+      <div class="doc-cap">
+        <b data-t="doc_name">Свидетельство о государственной регистрации</b>
+        <small>№ 2449854 · 29.04.2024</small>
+      </div>
+    </a>
+  </section>
+
+  <section>
+    <div class="title"><h2 data-t="h_qr">QR-коды</h2><i></i></div>
+    <div class="qr-grid">
+      <div class="qr-card"><img src="qr-markus-info.png" alt="QR — визитка MARKUS" loading="lazy">
+        <b data-t="qr1">Визитка компании</b>
+        <a href="qr-markus-info.png" download data-t="dl">Скачать</a></div>
+      <div class="qr-card"><img src="qr-markus-contact.png" alt="QR — контакт MARKUS" loading="lazy">
+        <b data-t="qr2">Контакт в телефон</b>
+        <a href="qr-markus-contact.png" download data-t="dl">Скачать</a></div>
+    </div>
+  </section>
+
+  <footer>
+    <h3>MARKUS</h3>
+    <p data-t="foot">Бухгалтерское и юридическое сопровождение бизнеса<br>в Республике Узбекистан</p>
+    <p class="mono">ИНН 311 283 164 · <a href="https://markus.uz" target="_blank" rel="noopener">markus.uz</a></p>
+  </footer>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ---- перевод подписей ---- */
+const T={
+ ru:{tagline:"Бухгалтерия · Налоги · Право",since:"Ташкент · с 2024 года",call:"Позвонить",mail:"Почта",site:"Сайт",
+     save:"Сохранить контакт в телефон",h_req:"Реквизиты компании",k_name:"Полное наименование",k_oked:"ОКЭД",
+     k_addr:"Адрес",k_phone:"Телефон",k_mail:"Электронная почта",k_site:"Сайт",k_bot:"Telegram для обращений",
+     k_chan:"Telegram-канал",k_pers:"Личный Telegram",h_bank:"Банковские реквизиты",k_bank:"Банк",k_acc:"Расчётный счёт",
+     copyall:"Скопировать все реквизиты",h_doc:"Документы",doc_name:"Свидетельство о государственной регистрации",open:"Открыть",
+     h_qr:"QR-коды",qr1:"Визитка компании",qr2:"Контакт в телефон",dl:"Скачать",
+     foot:"Бухгалтерское и юридическое сопровождение бизнеса<br>в Республике Узбекистан",
+     copied:"Скопировано",copiedAll:"Все реквизиты скопированы"},
+ uz:{tagline:"Buxgalteriya · Soliq · Huquq",since:"Toshkent · 2024 yildan",call:"Qo'ng'iroq",mail:"Pochta",site:"Sayt",
+     save:"Kontaktni telefonga saqlash",h_req:"Kompaniya rekvizitlari",k_name:"To'liq nomi",k_oked:"IFUT",
+     k_addr:"Manzil",k_phone:"Telefon",k_mail:"Elektron pochta",k_site:"Sayt",k_bot:"Murojaat uchun Telegram",
+     k_chan:"Telegram kanal",k_pers:"Shaxsiy Telegram",h_bank:"Bank rekvizitlari",k_bank:"Bank",k_acc:"Hisob raqami",
+     copyall:"Barcha rekvizitlarni nusxalash",h_doc:"Hujjatlar",doc_name:"Davlat ro'yxatidan o'tganlik guvohnomasi",open:"Ochish",
+     h_qr:"QR-kodlar",qr1:"Kompaniya vizitkasi",qr2:"Telefonga kontakt",dl:"Yuklab olish",
+     foot:"O'zbekiston Respublikasida biznesning buxgalteriya<br>va yuridik ta'minoti",
+     copied:"Nusxalandi",copiedAll:"Barcha rekvizitlar nusxalandi"},
+ en:{tagline:"Accounting · Tax · Law",since:"Tashkent · since 2024",call:"Call",mail:"E-mail",site:"Website",
+     save:"Save contact to phone",h_req:"Company details",k_name:"Full legal name",k_oked:"Activity code",
+     k_addr:"Address",k_phone:"Phone",k_mail:"E-mail",k_site:"Website",k_bot:"Telegram for enquiries",
+     k_chan:"Telegram channel",k_pers:"Personal Telegram",h_bank:"Bank details",k_bank:"Bank",k_acc:"Account number",
+     copyall:"Copy all bank details",h_doc:"Documents",doc_name:"Certificate of state registration",open:"Open",
+     h_qr:"QR codes",qr1:"Company card",qr2:"Contact card",dl:"Download",
+     foot:"Accounting and legal support for business<br>in the Republic of Uzbekistan",
+     copied:"Copied",copiedAll:"All details copied"}
+};
+let lang="ru";
+function setLang(l){
+  lang=l;
+  document.querySelectorAll("[data-t]").forEach(function(el){
+    var v=T[l][el.dataset.t]; if(v) el.innerHTML=v;
+  });
+  document.querySelectorAll(".lang button").forEach(function(b){b.classList.toggle("on",b.dataset.l===l)});
+  document.documentElement.lang=l;
+}
+document.querySelectorAll(".lang button").forEach(function(b){
+  b.onclick=function(){setLang(b.dataset.l)}
+});
+
+/* ---- копирование ---- */
+var toast=document.getElementById("toast"),tm;
+function say(msg){toast.textContent=msg;toast.classList.add("on");clearTimeout(tm);
+  tm=setTimeout(function(){toast.classList.remove("on")},1800)}
+
+function copyText(text){
+  if(navigator.clipboard && window.isSecureContext){return navigator.clipboard.writeText(text)}
+  return new Promise(function(res){
+    var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity=0;
+    document.body.appendChild(ta);ta.select();try{document.execCommand("copy")}catch(e){}
+    document.body.removeChild(ta);res();
+  });
+}
+var COPY_ICON='<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+var OK_ICON='<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>';
+
+document.querySelectorAll(".copy").forEach(function(btn){
+  btn.innerHTML=COPY_ICON;
+  btn.setAttribute("aria-label","Копировать");
+  btn.onclick=function(){
+    var val=btn.closest(".row").querySelector("[data-c]");
+    var text=val.dataset.c || val.textContent.trim();
+    copyText(text).then(function(){
+      btn.innerHTML=OK_ICON;btn.classList.add("done");say(T[lang].copied);
+      setTimeout(function(){btn.innerHTML=COPY_ICON;btn.classList.remove("done")},1600);
+    });
+  };
+});
+
+document.getElementById("all").onclick=function(){
+  var t=[
+    'ООО «MARKUS»',
+    'ИНН: 311283164',
+    'ОКЭД: 69.20.1',
+    'Адрес: г. Ташкент, Юнусабадский район, МСГ Кашкар, проспект Амира Темура, 25',
+    'Банк: Ташкентский городской региональный ОБУ АКБ «Узпромстройбанк»',
+    'МФО: 00440',
+    'р/с: 20208000407056723001',
+    'Тел.: +998 33 080-10-70, +998 33 808-77-44',
+    'Почта: arturusalt@gmail.com',
+    'Сайт: markus.uz'
+  ].join("\n");
+  copyText(t).then(function(){say(T[lang].copiedAll)});
+};
+</script>
+</body>
+</html>

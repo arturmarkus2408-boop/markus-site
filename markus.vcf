@@ -1,0 +1,13 @@
+BEGIN:VCARD
+VERSION:3.0
+N:MARKUS;ООО;;;
+FN:MARKUS — бухгалтерия
+ORG:ООО «MARKUS»
+TITLE:Бухгалтерские и юридические услуги
+TEL;TYPE=WORK,VOICE:+998330801070
+TEL;TYPE=CELL:+998338087744
+EMAIL;TYPE=INTERNET:arturusalt@gmail.com
+URL:https://markus.uz
+ADR;TYPE=WORK:;;пр. Амира Темура 25;Ташкент;;;Узбекистан
+NOTE:ИНН 311283164, ОКЭД 69.20.1, Telegram @MarkusJW_bot, канал @MARKUS_JW
+END:VCARD
