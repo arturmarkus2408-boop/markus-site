@@ -203,7 +203,10 @@
 
 <!-- ===== ГЕРОЙ ===== -->
 <section id="top" class="bg-noir text-paper">
-  <div class="max-w-6xl mx-auto px-5 md:px-8 pt-16 pb-14 md:pt-24 md:pb-20">
+  <div class="max-w-6xl mx-auto px-5 md:px-8 pt-16 pb-14 md:pt-24 md:pb-20 relative">
+    <img src="/seal-real-gold.png" alt="" aria-hidden="true"
+         class="hidden lg:block absolute pointer-events-none select-none"
+         style="right:-24px; top:96px; width:190px; opacity:0.9; filter:drop-shadow(0 14px 30px rgba(0,0,0,.45));">
     <span class="inline-block bg-gold/15 text-gold text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full mb-6">MARKUS</span>
     <h1 class="font-serif text-4xl md:text-6xl font-bold leading-[1.1] max-w-2xl">
       Бухгалтерские услуги в Узбекистане, которым доверяют
@@ -647,6 +650,15 @@
       <a href="https://t.me/MarkusJW_bot" target="_blank" rel="noopener" class="inline-block bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-8 py-4 rounded-full">
         Написать в Telegram →
       </a>
+
+      <div class="mt-10 bg-noirCard border border-noirBorder rounded-2xl p-5 flex items-center gap-5 max-w-md">
+        <img src="/qr-markus-contact.png" alt="QR-код для сохранения контакта MARKUS" class="w-[72px] h-[72px] rounded-lg flex-shrink-0" loading="lazy">
+        <div>
+          <p class="font-serif text-base font-bold text-paper mb-1">Сохраните нашу визитку</p>
+          <p class="text-paper/55 text-sm leading-relaxed">Наведите камеру телефона на код — контакт и реквизиты сохранятся сами.</p>
+          <a href="/card.html" class="inline-block mt-2 text-gold text-sm font-semibold hover:text-goldLight transition-colors">Открыть визитку →</a>
+        </div>
+      </div>
     </div>
     <form id="lead-form" class="bg-white text-noir rounded-2xl p-7 space-y-4" onsubmit="return false;">
       <div>
@@ -799,6 +811,7 @@
       <p class="mb-2"><a href="tel:+998330801070" class="hover:text-gold transition-colors">+998 33 080-10-70</a></p>
       <p class="mb-2"><a href="tel:+998330801070" class="hover:text-gold transition-colors">Заказать звонок</a></p>
       <p class="mb-2"><a href="https://t.me/MarkusJW_bot" target="_blank" rel="noopener" class="hover:text-gold transition-colors">@MarkusJW_bot — написать в Telegram</a></p>
+      <p class="mb-2"><a href="/card.html" class="hover:text-gold transition-colors">Визитка компании (QR + реквизиты) →</a></p>
       <p>Узбекистан, г. Ташкент, Юнусабадский район</p>
     </div>
   </div>
@@ -1782,7 +1795,10 @@ document.getElementById('lead-submit').addEventListener('click', async () => {
     <h1 style="font-size: 22px; font-weight: bold; margin-bottom: 4px;">MARKUS — переписка с AI-ассистентом</h1>
     <p style="color:#666; font-size:13px; margin-bottom:24px;" id="print-ai-date"></p>
     <div id="print-ai-rows" style="font-family: Arial, sans-serif;"></div>
-    <p style="margin-top:24px; font-size:12px; color:#888;">Справочная информация, не является юридической консультацией.<br>+998 33 080-10-70 · Telegram: @MarkusJW_bot</p>
+    <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-top:24px;">
+      <p style="font-size:12px; color:#888; max-width:360px;">Справочная информация, не является юридической консультацией.<br>+998 33 080-10-70 · Telegram: @MarkusJW_bot</p>
+      <img src="/seal-real-gold.png" alt="" style="width:104px; height:auto; opacity:0.92; flex-shrink:0;">
+    </div>
   </div>
 </div>
 
@@ -1816,7 +1832,10 @@ document.getElementById('lead-submit').addEventListener('click', async () => {
       </table>
     </div>
 
-    <p style="margin-top:24px; font-size:12px; color:#888;">Стоимость является предварительной. Конечная стоимость определяется после общения со специалистом компании MARKUS.<br>+998 33 080-10-70 · Telegram: @MarkusJW_bot</p>
+    <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-top:24px;">
+      <p style="font-size:12px; color:#888; max-width:360px;">Стоимость является предварительной. Конечная стоимость определяется после общения со специалистом компании MARKUS.<br>+998 33 080-10-70 · Telegram: @MarkusJW_bot</p>
+      <img src="/seal-real-gold.png" alt="" style="width:104px; height:auto; opacity:0.92; flex-shrink:0;">
+    </div>
   </div>
 </div>
 
