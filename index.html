@@ -155,7 +155,10 @@
 <!-- ===== ШАПКА ===== -->
 <header class="sticky top-0 z-50 bg-noir/95 backdrop-blur border-b border-white/10">
   <div class="max-w-6xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
-    <a href="#top" class="font-serif text-xl font-bold tracking-tight text-paper">MARKUS</a>
+    <a href="#top" class="flex items-center gap-2.5 font-serif text-xl font-bold tracking-tight text-paper">
+      <img src="/logo-m.png" alt="MARKUS" class="h-9 w-auto">
+      MARKUS
+    </a>
     <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-paper/80">
       <a href="#tools" class="hover:text-gold transition-colors">Инструменты</a>
       <a href="#about" class="hover:text-gold transition-colors">О нас</a>
@@ -166,17 +169,17 @@
     <div class="flex items-center gap-3">
       <div class="relative" id="lang-switcher">
         <button id="lang-btn" type="button" class="flex items-center gap-1.5 text-paper/80 hover:text-gold hover:border-gold/50 transition-colors text-sm font-medium border border-white/15 rounded-full px-3 py-2">
-          <img id="lang-btn-flag" src="https://flagcdn.com/20x15/ru.png" width="20" height="15" alt="" class="rounded-sm"> <span id="lang-btn-label">RU</span>
+          <span id="lang-btn-flag" class="inline-block align-middle rounded-sm overflow-hidden" style="width:20px;height:15px"></span> <span id="lang-btn-label">RU</span>
         </button>
         <div id="lang-menu" class="hidden absolute right-0 mt-2 w-32 bg-noirCard border border-noirBorder rounded-xl shadow-xl overflow-hidden text-sm z-50">
-          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="ru" data-flag="ru"><img src="https://flagcdn.com/20x15/ru.png" width="20" height="15" alt="" class="rounded-sm"> <span>RU</span></button>
-          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="uz" data-flag="uz"><img src="https://flagcdn.com/20x15/uz.png" width="20" height="15" alt="" class="rounded-sm"> <span>UZ</span></button>
-          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="en" data-flag="gb"><img src="https://flagcdn.com/20x15/gb.png" width="20" height="15" alt="" class="rounded-sm"> <span>EN</span></button>
-          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="tr" data-flag="tr"><img src="https://flagcdn.com/20x15/tr.png" width="20" height="15" alt="" class="rounded-sm"> <span>TR</span></button>
-          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="zh-CN" data-flag="cn"><img src="https://flagcdn.com/20x15/cn.png" width="20" height="15" alt="" class="rounded-sm"> <span>CN</span></button>
-          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="de" data-flag="de"><img src="https://flagcdn.com/20x15/de.png" width="20" height="15" alt="" class="rounded-sm"> <span>DE</span></button>
-          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="fr" data-flag="fr"><img src="https://flagcdn.com/20x15/fr.png" width="20" height="15" alt="" class="rounded-sm"> <span>FR</span></button>
-          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="ar" data-flag="sa"><img src="https://flagcdn.com/20x15/sa.png" width="20" height="15" alt="" class="rounded-sm"> <span>SA</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="ru" data-flag="ru"><span class="flag-icon inline-block rounded-sm overflow-hidden" style="width:20px;height:15px"></span> <span>RU</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="uz" data-flag="uz"><span class="flag-icon inline-block rounded-sm overflow-hidden" style="width:20px;height:15px"></span> <span>UZ</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="en" data-flag="gb"><span class="flag-icon inline-block rounded-sm overflow-hidden" style="width:20px;height:15px"></span> <span>EN</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="tr" data-flag="tr"><span class="flag-icon inline-block rounded-sm overflow-hidden" style="width:20px;height:15px"></span> <span>TR</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="zh-CN" data-flag="cn"><span class="flag-icon inline-block rounded-sm overflow-hidden" style="width:20px;height:15px"></span> <span>CN</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="de" data-flag="de"><span class="flag-icon inline-block rounded-sm overflow-hidden" style="width:20px;height:15px"></span> <span>DE</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="fr" data-flag="fr"><span class="flag-icon inline-block rounded-sm overflow-hidden" style="width:20px;height:15px"></span> <span>FR</span></button>
+          <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="ar" data-flag="sa"><span class="flag-icon inline-block rounded-sm overflow-hidden" style="width:20px;height:15px"></span> <span>SA</span></button>
         </div>
       </div>
       <a href="#contact" class="bg-gold hover:bg-goldLight transition-colors text-noir text-sm font-semibold px-5 py-2.5 rounded-full">
@@ -735,7 +738,10 @@
 <footer class="bg-noir text-paper/60 border-t border-white/10">
   <div class="max-w-6xl mx-auto px-5 md:px-8 py-14 grid md:grid-cols-4 gap-10 text-sm">
     <div>
-      <div class="font-serif text-paper text-lg font-bold mb-3">MARKUS</div>
+      <div class="flex items-center gap-2 font-serif text-paper text-lg font-bold mb-3">
+        <img src="/logo-m.png" alt="" class="h-6 w-auto">
+        MARKUS
+      </div>
       <p class="leading-relaxed mb-4">Бухгалтерские и консалтинговые услуги для бизнеса любого масштаба в Республике Узбекистан.</p>
       <div class="flex gap-2">
         <a href="https://t.me/MarkusJW_bot" target="_blank" rel="noopener" class="border border-white/15 hover:border-gold transition-colors rounded-full px-3 py-1.5 text-xs">Telegram</a>
@@ -1417,6 +1423,23 @@ document.querySelectorAll('.tool-card').forEach(btn => {
   new MutationObserver(resetBodyOffset).observe(document.body, { attributes: true, attributeFilter: ['style'] });
   resetBodyOffset();
 
+  // Флаги нарисованы прямо в коде (SVG), а не загружаются с внешнего сайта —
+  // так они гарантированно видны везде, даже если браузер (например Яндекс с "Защитой от трекеров")
+  // блокирует картинки со сторонних CDN.
+  const FLAG_SVGS = {
+    ru: '<svg viewBox="0 0 20 15" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="15" fill="#fff"/><rect y="5" width="20" height="5" fill="#0039A6"/><rect y="10" width="20" height="5" fill="#D52B1E"/></svg>',
+    uz: '<svg viewBox="0 0 20 15" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="15" fill="#1EB53A"/><rect width="20" height="6.7" fill="#0099B5"/><rect y="6.7" width="20" height="0.6" fill="#CE1126"/><rect y="7.3" width="20" height="0.4" fill="#fff"/><rect y="7.7" width="20" height="0.6" fill="#CE1126"/><circle cx="3.3" cy="3" r="1.6" fill="#fff"/><circle cx="3.9" cy="3" r="1.6" fill="#0099B5"/></svg>',
+    gb: '<svg viewBox="0 0 20 15" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="15" fill="#00247D"/><path d="M0,0 L20,15 M20,0 L0,15" stroke="#fff" stroke-width="3"/><path d="M0,0 L20,15 M20,0 L0,15" stroke="#CF142B" stroke-width="1"/><rect x="8" width="4" height="15" fill="#fff"/><rect y="5.5" width="20" height="4" fill="#fff"/><rect x="8.7" width="2.6" height="15" fill="#CF142B"/><rect y="6.2" width="20" height="2.6" fill="#CF142B"/></svg>',
+    tr: '<svg viewBox="0 0 20 15" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="15" fill="#E30A17"/><circle cx="7.5" cy="7.5" r="4" fill="#fff"/><circle cx="8.7" cy="7.5" r="3.2" fill="#E30A17"/><circle cx="12" cy="7.5" r="1.3" fill="#fff"/></svg>',
+    cn: '<svg viewBox="0 0 20 15" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="15" fill="#DE2910"/><polygon points="4,2.2 4.7,4.3 6.8,4.3 5.1,5.6 5.7,7.7 4,6.4 2.3,7.7 2.9,5.6 1.2,4.3 3.3,4.3" fill="#FFDE00"/><circle cx="7.6" cy="1.8" r="0.5" fill="#FFDE00"/><circle cx="8.8" cy="3.3" r="0.5" fill="#FFDE00"/><circle cx="8.8" cy="5.5" r="0.5" fill="#FFDE00"/><circle cx="7.5" cy="6.8" r="0.5" fill="#FFDE00"/></svg>',
+    de: '<svg viewBox="0 0 20 15" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="5" fill="#000"/><rect y="5" width="20" height="5" fill="#DD0000"/><rect y="10" width="20" height="5" fill="#FFCE00"/></svg>',
+    fr: '<svg viewBox="0 0 20 15" xmlns="http://www.w3.org/2000/svg"><rect width="6.67" height="15" fill="#0055A4"/><rect x="6.67" width="6.67" height="15" fill="#fff"/><rect x="13.33" width="6.67" height="15" fill="#EF4135"/></svg>',
+    sa: '<svg viewBox="0 0 20 15" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="15" fill="#006C35"/><rect x="2" y="10.5" width="16" height="1.3" fill="#fff"/><rect x="2" y="9.3" width="2" height="2.6" fill="#fff"/></svg>',
+  };
+  function setFlagIcon(el, code) {
+    if (el) el.innerHTML = FLAG_SVGS[code] || '';
+  }
+
   const langLabels = { ru: 'RU', uz: 'UZ', en: 'EN', tr: 'TR', 'zh-CN': 'ZH', de: 'DE', fr: 'FR', ar: 'AR' };
   function getCurrentLang() {
     const match = document.cookie.match(/googtrans=\/ru\/([a-zA-Z-]+)/);
@@ -1440,7 +1463,10 @@ document.querySelectorAll('.tool-card').forEach(btn => {
   const langFlags = { ru: 'ru', uz: 'uz', en: 'gb', tr: 'tr', 'zh-CN': 'cn', de: 'de', fr: 'fr', ar: 'sa' };
   const curLang = getCurrentLang();
   langLabel.textContent = langLabels[curLang] || 'RU';
-  langFlag.src = `https://flagcdn.com/20x15/${langFlags[curLang] || 'ru'}.png`;
+  setFlagIcon(langFlag, langFlags[curLang] || 'ru');
+  document.querySelectorAll('.lang-option').forEach(btn => {
+    setFlagIcon(btn.querySelector('.flag-icon'), btn.dataset.flag);
+  });
   langBtn.addEventListener('click', (e) => { e.stopPropagation(); langMenu.classList.toggle('hidden'); });
   document.addEventListener('click', () => langMenu.classList.add('hidden'));
   document.querySelectorAll('.lang-option').forEach(btn => {
