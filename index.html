@@ -309,26 +309,30 @@
       <p class="text-noir/60 max-w-md">Есть идея, но не знаете, с чего начать? Поможем выбрать оптимальную форму и сопроводим на всех этапах оформления.</p>
     </div>
     <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
-      <div class="bg-white rounded-2xl p-6 border border-noir/10">
+      <button type="button" class="service-request-card text-left card-hover bg-white rounded-2xl p-6 border border-noir/10 relative" data-service="Регистрация ООО">
         <div class="w-9 h-9 rounded-full border border-gold/40 text-gold flex items-center justify-center mb-4">✓</div>
         <h3 class="font-serif font-bold text-lg mb-2">Регистрация ООО</h3>
-        <p class="text-sm text-noir/55 leading-relaxed">Форма бизнеса, где учредители несут ответственность в пределах своих вкладов в уставной капитал. Подходит для малого и среднего бизнеса.</p>
-      </div>
-      <div class="bg-white rounded-2xl p-6 border border-noir/10">
+        <p class="text-sm text-noir/55 leading-relaxed mb-4">Форма бизнеса, где учредители несут ответственность в пределах своих вкладов в уставной капитал. Подходит для малого и среднего бизнеса.</p>
+        <span class="inline-flex items-center gap-1 text-sm font-semibold text-gold">Оставить заявку →</span>
+      </button>
+      <button type="button" class="service-request-card text-left card-hover bg-white rounded-2xl p-6 border border-noir/10 relative" data-service="Регистрация СП ООО">
         <div class="w-9 h-9 rounded-full border border-gold/40 text-gold flex items-center justify-center mb-4">✓</div>
         <h3 class="font-serif font-bold text-lg mb-2">Регистрация СП ООО</h3>
-        <p class="text-sm text-noir/55 leading-relaxed">Организация, созданная совместно с иностранными или местными партнёрами. Идеально для реализации совместных проектов.</p>
-      </div>
-      <div class="bg-white rounded-2xl p-6 border border-noir/10">
+        <p class="text-sm text-noir/55 leading-relaxed mb-4">Организация, созданная совместно с иностранными или местными партнёрами. Идеально для реализации совместных проектов.</p>
+        <span class="inline-flex items-center gap-1 text-sm font-semibold text-gold">Оставить заявку →</span>
+      </button>
+      <button type="button" class="service-request-card text-left card-hover bg-white rounded-2xl p-6 border border-noir/10 relative" data-service="Регистрация ИП ООО">
         <div class="w-9 h-9 rounded-full border border-gold/40 text-gold flex items-center justify-center mb-4">✓</div>
         <h3 class="font-serif font-bold text-lg mb-2">Регистрация ИП ООО</h3>
-        <p class="text-sm text-noir/55 leading-relaxed">Компания с иностранными инвестициями, работающая на основе законодательства страны. Выгодна для иностранных инвесторов.</p>
-      </div>
-      <div class="bg-white rounded-2xl p-6 border border-noir/10">
+        <p class="text-sm text-noir/55 leading-relaxed mb-4">Компания с иностранными инвестициями, работающая на основе законодательства страны. Выгодна для иностранных инвесторов.</p>
+        <span class="inline-flex items-center gap-1 text-sm font-semibold text-gold">Оставить заявку →</span>
+      </button>
+      <button type="button" class="service-request-card text-left card-hover bg-white rounded-2xl p-6 border border-noir/10 relative" data-service="Регистрация ЧП">
         <div class="w-9 h-9 rounded-full border border-gold/40 text-gold flex items-center justify-center mb-4">✓</div>
         <h3 class="font-serif font-bold text-lg mb-2">Регистрация ЧП</h3>
-        <p class="text-sm text-noir/55 leading-relaxed">Бизнес, полностью принадлежащий одному владельцу, который самостоятельно управляет деятельностью и несёт ответственность.</p>
-      </div>
+        <p class="text-sm text-noir/55 leading-relaxed mb-4">Бизнес, полностью принадлежащий одному владельцу, который самостоятельно управляет деятельностью и несёт ответственность.</p>
+        <span class="inline-flex items-center gap-1 text-sm font-semibold text-gold">Оставить заявку →</span>
+      </button>
     </div>
   </div>
 </section>
@@ -1664,6 +1668,22 @@ document.querySelectorAll('.service-item').forEach(li => {
   li.addEventListener('click', () => {
     currentServiceName = li.textContent.trim();
     currentSource = 'markus-site-service-question';
+    document.getElementById('service-modal-title').textContent = currentServiceName;
+    document.getElementById('service-modal-text').value = '';
+    const note = document.getElementById('service-modal-note');
+    note.textContent = '';
+    note.classList.remove('text-red-600', 'text-gold');
+    setContactMethod('phone');
+    serviceModal.classList.remove('hidden');
+  });
+});
+
+// Карточки "Открытие бизнеса" (Регистрация ООО/СП ООО/ИП ООО/ЧП) — тот же принцип,
+// но название услуги берём из data-service, а не из всего текста карточки.
+document.querySelectorAll('.service-request-card').forEach(card => {
+  card.addEventListener('click', () => {
+    currentServiceName = card.dataset.service;
+    currentSource = 'markus-site-service-card';
     document.getElementById('service-modal-title').textContent = currentServiceName;
     document.getElementById('service-modal-text').value = '';
     const note = document.getElementById('service-modal-note');
