@@ -154,19 +154,19 @@
 
 <!-- ===== ШАПКА ===== -->
 <header class="sticky top-0 z-50 bg-noir/95 backdrop-blur border-b border-white/10">
-  <div class="max-w-6xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
-    <a href="#top" class="flex items-center gap-2.5 font-serif text-xl font-bold tracking-tight text-paper">
-      <img src="/logo-m.png" alt="MARKUS" class="h-9 w-auto">
+  <div class="max-w-6xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between gap-3">
+    <a href="#top" class="flex items-center gap-2 sm:gap-2.5 font-serif text-lg sm:text-xl font-bold tracking-tight text-paper flex-shrink-0">
+      <img src="/logo-m.png" alt="MARKUS" class="h-8 sm:h-9 w-auto">
       MARKUS
     </a>
-    <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-paper/80">
+    <nav class="hidden lg:flex items-center gap-8 text-sm font-medium text-paper/80">
       <a href="#tools" class="hover:text-gold transition-colors">Инструменты</a>
-      <a href="#about" class="hover:text-gold transition-colors">О нас</a>
       <a href="#services" class="hover:text-gold transition-colors">Услуги</a>
       <a href="#calculator" class="hover:text-gold transition-colors">Калькулятор</a>
+      <a href="#about" class="hover:text-gold transition-colors">О нас</a>
       <a href="#contact" class="hover:text-gold transition-colors">Контакты</a>
     </nav>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2 sm:gap-3">
       <div class="relative" id="lang-switcher">
         <button id="lang-btn" type="button" class="flex items-center gap-1.5 text-paper/80 hover:text-gold hover:border-gold/50 transition-colors text-sm font-medium border border-white/15 rounded-full px-3 py-2">
           <span id="lang-btn-flag" class="inline-block align-middle rounded-sm overflow-hidden" style="width:20px;height:15px"></span> <span id="lang-btn-label">RU</span>
@@ -182,10 +182,26 @@
           <button type="button" class="lang-option w-full flex items-center gap-2 px-4 py-2.5 hover:bg-white/5 text-paper/90 transition-colors" data-lang="ar" data-flag="sa"><span class="flag-icon inline-block rounded-sm overflow-hidden" style="width:20px;height:15px"></span> <span>SA</span></button>
         </div>
       </div>
-      <a href="#contact" class="bg-gold hover:bg-goldLight transition-colors text-noir text-sm font-semibold px-5 py-2.5 rounded-full">
+      <a href="#contact" class="hidden sm:inline-block bg-gold hover:bg-goldLight transition-colors text-noir text-sm font-semibold px-5 py-2.5 rounded-full">
         Связаться с нами
       </a>
+      <button id="burger-btn" type="button" aria-label="Открыть меню" aria-expanded="false"
+              class="lg:hidden flex items-center justify-center w-10 h-10 rounded-full border border-white/15 text-paper hover:border-gold/50 hover:text-gold transition-colors flex-shrink-0">
+        <svg id="burger-icon-open" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        <svg id="burger-icon-close" class="hidden w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
     </div>
+  </div>
+
+  <div id="mobile-menu" class="hidden lg:hidden border-t border-white/10 bg-noir">
+    <nav class="max-w-6xl mx-auto px-5 md:px-8 py-3 flex flex-col gap-1 text-[15px] font-medium text-paper/85">
+      <a href="#tools" class="mobile-nav-link px-2 py-2.5 rounded-lg hover:bg-white/5 hover:text-gold transition-colors">Инструменты</a>
+      <a href="#services" class="mobile-nav-link px-2 py-2.5 rounded-lg hover:bg-white/5 hover:text-gold transition-colors">Услуги</a>
+      <a href="#calculator" class="mobile-nav-link px-2 py-2.5 rounded-lg hover:bg-white/5 hover:text-gold transition-colors">Калькулятор</a>
+      <a href="#about" class="mobile-nav-link px-2 py-2.5 rounded-lg hover:bg-white/5 hover:text-gold transition-colors">О нас</a>
+      <a href="#contact" class="mobile-nav-link px-2 py-2.5 rounded-lg hover:bg-white/5 hover:text-gold transition-colors">Контакты</a>
+      <a href="#contact" class="mobile-nav-link sm:hidden mt-2 text-center bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-3 rounded-full">Связаться с нами</a>
+    </nav>
   </div>
 </header>
 
@@ -683,7 +699,7 @@
 <div id="scroll-progress" style="position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#C9A46B,#DFC28E);z-index:60;transition:width .1s linear"></div>
 
 <!-- ===== БОКОВОЙ НАВИГАТОР ПО РАЗДЕЛАМ СТРАНИЦЫ ===== -->
-<nav id="section-nav" class="hidden md:block fixed left-6 top-1/2 -translate-y-1/2 z-40" style="filter: drop-shadow(0 1px 3px rgba(0,0,0,.55)) drop-shadow(0 1px 8px rgba(0,0,0,.35))">
+<nav id="section-nav" class="hidden 2xl:block fixed left-6 top-1/2 -translate-y-1/2 z-40" style="filter: drop-shadow(0 1px 3px rgba(0,0,0,.55)) drop-shadow(0 1px 8px rgba(0,0,0,.35))">
   <div class="relative flex flex-col gap-6 py-2">
     <div class="absolute left-[3px] top-1 bottom-1 w-px bg-gold/30"></div>
     <div id="section-nav-progress" class="absolute left-[3px] top-1 w-px bg-gold transition-all duration-300 ease-out" style="height:0%"></div>
@@ -1483,6 +1499,39 @@ document.querySelectorAll('.tool-card').forEach(btn => {
   document.querySelectorAll('.lang-option').forEach(btn => {
     btn.addEventListener('click', (e) => { e.stopPropagation(); setLanguage(btn.dataset.lang); });
   });
+})();
+
+/* ============================================================
+   БУРГЕР-МЕНЮ (мобильная/планшетная навигация до 1024px)
+   ============================================================ */
+(function () {
+  const burgerBtn = document.getElementById('burger-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const iconOpen = document.getElementById('burger-icon-open');
+  const iconClose = document.getElementById('burger-icon-close');
+  if (!burgerBtn || !mobileMenu) return;
+
+  function closeMenu() {
+    mobileMenu.classList.add('hidden');
+    iconOpen.classList.remove('hidden');
+    iconClose.classList.add('hidden');
+    burgerBtn.setAttribute('aria-expanded', 'false');
+  }
+  function openMenu() {
+    mobileMenu.classList.remove('hidden');
+    iconOpen.classList.add('hidden');
+    iconClose.classList.remove('hidden');
+    burgerBtn.setAttribute('aria-expanded', 'true');
+  }
+  burgerBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    mobileMenu.classList.contains('hidden') ? openMenu() : closeMenu();
+  });
+  // закрывать при клике на пункт меню и при переходе на широкий экран
+  mobileMenu.querySelectorAll('.mobile-nav-link').forEach(link => {
+    link.addEventListener('click', closeMenu);
+  });
+  window.addEventListener('resize', () => { if (window.innerWidth >= 1024) closeMenu(); });
 })();
 
 document.getElementById('services-toggle').addEventListener('click', () => {
