@@ -132,8 +132,10 @@
     cursor: pointer; user-select: none; padding: 2px 4px; border-radius: 4px;
     transition: color .15s ease, font-weight .15s ease;
   }
-  .service-item { cursor: pointer; padding: 4px 8px; margin: 0 -8px; border-radius: 6px; transition: background-color .15s, color .15s; }
+  .service-item { cursor: pointer; padding: 4px 26px 4px 8px; margin: 0 -8px; border-radius: 6px; position: relative; transition: background-color .15s, color .15s; }
+  .service-item::after { content: "→"; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); opacity: .4; font-size: 12px; transition: opacity .15s, transform .15s; }
   .service-item:hover { background-color: rgba(201,164,107,0.15); color: #DFC28E; }
+  .service-item:hover::after { opacity: 1; transform: translate(2px,-50%); }
   .tick-label:hover { color: #DFC28E; }
   .tick-label.active { color: #C9A46B; font-weight: 700; }
   .method-btn.active-method { border-color: #C9A46B; background-color: rgba(201,164,107,0.14); color: #8A7550; font-weight: 700; }
@@ -241,7 +243,7 @@
 
     <div class="mt-14 grid sm:grid-cols-3 gap-5">
       <div class="bg-noirCard border border-noirBorder rounded-2xl p-6">
-        <div class="font-serif text-3xl font-bold text-gold mb-1">500+</div>
+        <div class="font-serif text-3xl font-bold text-gold mb-1">70+</div>
         <p class="text-sm text-paper/60 leading-relaxed">Компаний доверяют нам ведение бухгалтерии и юридическое сопровождение</p>
       </div>
       <div class="bg-noirCard border border-noirBorder rounded-2xl p-6">
@@ -570,7 +572,7 @@
             <div class="flex justify-between"><span class="text-paper/50">Сотрудники <span id="bd-emp-count" class="text-paper/30">(0 чел.)</span></span><span id="bd-employees" class="font-mono">0</span></div>
             <div class="flex justify-between"><span class="text-paper/50">Экспортные операции <span id="bd-exp-count" class="text-paper/30">(0)</span></span><span id="bd-export" class="font-mono">0</span></div>
             <div class="flex justify-between"><span class="text-paper/50">Импортные операции <span id="bd-imp-count" class="text-paper/30">(0)</span></span><span id="bd-import" class="font-mono">0</span></div>
-            <div class="flex justify-between"><span class="text-paper/50">Документооборот</span><span id="bd-docs" class="font-mono">0</span></div>
+            <div class="flex justify-between"><span class="text-paper/50">Документооборот <span id="bd-doc-count" class="text-paper/30">(0)</span></span><span id="bd-docs" class="font-mono">0</span></div>
             <div class="flex justify-between"><span class="text-paper/50">Доп. услуги (месяц)</span><span id="bd-addons" class="font-mono">0</span></div>
             <div id="bd-addons-list" class="pl-3 space-y-1 text-xs text-paper/45"></div>
             <div class="flex justify-between" id="bd-discount-row" style="display:none"><span class="text-paper/50">Скидка за срок</span><span id="bd-discount" class="font-mono text-gold">0</span></div>
@@ -734,6 +736,14 @@
   </div>
 </nav>
 
+<!-- ===== ПЛАВАЮЩАЯ КНОПКА «БЫСТРО В РАЗДЕЛ» (мобильная замена боковой навигации) ===== -->
+<div id="quick-nav-wrap" class="hidden 2xl:hidden fixed bottom-24 right-6 z-50 items-center gap-2">
+  <span id="quick-nav-label" class="bg-noir/95 text-paper text-xs font-medium px-3 py-2 rounded-full border border-gold/30 shadow-lg whitespace-nowrap">Разделы</span>
+  <button id="quick-nav-btn" type="button" class="bg-noir/90 hover:bg-gold hover:text-noir text-paper border border-gold/40 rounded-full w-12 h-12 flex items-center justify-center transition-colors shadow-lg" aria-label="Быстрый переход в раздел">
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+</div>
+
 <!-- ===== ПЛАВАЮЩАЯ КНОПКА «НАВЕРХ» / «ВЕРНУТЬСЯ ТУДА, ГДЕ ВЫ ОСТАНОВИЛИСЬ» ===== -->
 <div id="back-to-top-wrap" class="hidden fixed bottom-6 right-6 z-50 items-center gap-2">
   <span id="back-to-top-label" class="bg-noir/95 text-paper text-xs font-medium px-3 py-2 rounded-full border border-gold/30 shadow-lg whitespace-nowrap">Наверх</span>
@@ -780,6 +790,7 @@
     </div>
     <div>
       <h4 class="text-paper font-semibold mb-3">Услуги</h4>
+      <p class="text-paper/35 text-xs mb-3 leading-relaxed">Нажмите на услугу — отправим заявку по ней</p>
       <ul class="space-y-1">
         <li class="service-item">Регистрация ООО</li>
         <li class="service-item">Регистрация ЧП</li>
@@ -1003,6 +1014,7 @@ function calcTotal() {
   document.getElementById('bd-exp-count').textContent = `(${expVal})`;
   document.getElementById('bd-import').textContent = fmt(impPrice);
   document.getElementById('bd-imp-count').textContent = `(${impVal})`;
+  document.getElementById('bd-doc-count').textContent = `(${docVal})`;
   document.getElementById('bd-docs').textContent = fmt(docPrice);
   document.getElementById('bd-addons').textContent = fmt(addonsMonthly);
 
@@ -1103,18 +1115,21 @@ function saveAiHistory() { sessionStorage.setItem('markus_ai_chat', JSON.stringi
 
 function renderAiTool() {
   return `
-    <div class="bg-noir text-paper rounded-2xl p-5 flex items-center justify-between gap-3 mb-4">
+    <div class="bg-noir text-paper rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-full bg-gold text-noir font-serif font-bold flex items-center justify-center">M</div>
+        <div class="w-9 h-9 rounded-full bg-gold text-noir font-serif font-bold flex items-center justify-center flex-shrink-0">M</div>
         <div>
           <div class="font-semibold">Ассистент Markus</div>
           <div class="text-xs text-paper/50">НК, НСБУ, ТК Республики Узбекистан</div>
         </div>
       </div>
-      <button id="ai-pdf-btn" class="text-xs border border-paper/20 hover:border-gold transition-colors px-3 py-1.5 rounded-full whitespace-nowrap">📄 PDF чата</button>
-      <button id="ai-clear-btn" class="text-xs border border-paper/20 hover:border-red-400 hover:text-red-400 transition-colors px-3 py-1.5 rounded-full whitespace-nowrap ml-2">🗑️ Очистить</button>
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="ai-pdf-btn" class="text-xs border border-paper/20 hover:border-gold transition-colors px-3 py-1.5 rounded-full whitespace-nowrap">📄 PDF чата</button>
+        <button id="ai-expand-btn" class="text-xs border border-paper/20 hover:border-gold transition-colors px-3 py-1.5 rounded-full whitespace-nowrap" aria-expanded="false">⤢ Развернуть</button>
+        <button id="ai-clear-btn" class="text-xs border border-paper/20 hover:border-red-400 hover:text-red-400 transition-colors px-3 py-1.5 rounded-full whitespace-nowrap">🗑️ Очистить</button>
+      </div>
     </div>
-    <div id="ai-chat" class="border border-noir/10 rounded-2xl p-5 h-64 overflow-y-auto mb-4 space-y-3 bg-stone"></div>
+    <div id="ai-chat" class="border border-noir/10 rounded-2xl p-5 h-64 overflow-y-auto mb-4 space-y-3 bg-stone resize-y" style="min-height:16rem;"></div>
     <div class="flex flex-wrap gap-2 mb-4">
       ${aiQuickQuestions.map(q => `<button class="ai-chip bg-stone border border-noir/10 hover:border-gold transition-colors text-sm px-3 py-1.5 rounded-full">${q}</button>`).join('')}
     </div>
@@ -1218,6 +1233,33 @@ function exportAiChatPdf() {
   document.body.classList.remove('printing-ai-chat');
 }
 
+// Сохраняем в PDF именно то, что клиент сейчас видит в ленте новостей —
+// с учётом поискового запроса (если он что-то искал, в PDF попадут только
+// подходящие посты, а не вся лента). Текст берём полностью, без обрезки
+// "Читать полностью", в отличие от карточек на странице.
+function exportNewsPdf() {
+  const query = (document.getElementById('news-search')?.value || '').trim();
+  const plain = (html) => html.replace(/<[^>]*>/g, '');
+  const q = query.toLowerCase();
+  const filtered = !q ? allNewsPosts : allNewsPosts.filter(p => plain(p.textHtml).toLowerCase().includes(q));
+
+  if (filtered.length === 0) { alert('Нет новостей для сохранения — измените или очистите поиск.'); return; }
+
+  const printEl = document.getElementById('print-news');
+  const rowsHtml = filtered.map(p => `
+    <div style="margin-bottom:18px; padding-bottom:16px; border-bottom:1px solid #eee;">
+      <div style="font-size:11px; color:#999; margin-bottom:5px;">${p.date}</div>
+      <div style="font-size:14px; white-space:pre-line;">${p.textHtml}</div>
+    </div>
+  `).join('');
+  printEl.querySelector('#print-news-rows').innerHTML = rowsHtml;
+  printEl.querySelector('#print-news-date').textContent = 'Сформировано: ' + new Date().toLocaleDateString('ru-RU')
+    + (query ? ` · Поиск: «${query}»` : '');
+  document.body.classList.add('printing-news');
+  window.print();
+  document.body.classList.remove('printing-news');
+}
+
 /* ============================================================
    НОВОСТИ — реальная лента из Telegram-канала через серверную функцию
    ============================================================ */
@@ -1232,7 +1274,10 @@ async function renderNewsTool() {
       </div>
       <a href="https://t.me/MARKUS_JW" target="_blank" rel="noopener" class="bg-gold hover:bg-goldLight transition-colors text-noir text-sm font-semibold px-4 py-2 rounded-full whitespace-nowrap">Подписаться</a>
     </div>
-    <input id="news-search" type="text" placeholder="Поиск по новостям — например «аренда» или «НДС»" class="w-full border border-noir/15 rounded-lg px-4 py-3 text-sm mb-5">
+    <div class="flex items-center justify-between mb-4">
+      <input id="news-search" type="text" placeholder="Поиск по новостям — например «аренда» или «НДС»" class="flex-1 border border-noir/15 rounded-lg px-4 py-3 text-sm">
+      <button id="news-pdf-btn" class="ml-3 text-xs border border-noir/15 hover:border-gold transition-colors px-3 py-3 rounded-full whitespace-nowrap">📄 PDF</button>
+    </div>
     <div id="news-feed" class="space-y-4">
       <div class="text-center text-noir/40 text-sm py-8">Загружаем ленту…</div>
     </div>
@@ -1248,6 +1293,7 @@ async function renderNewsTool() {
     allNewsPosts = data.posts;
     renderNewsList('');
     document.getElementById('news-search').addEventListener('input', (e) => renderNewsList(e.target.value));
+    document.getElementById('news-pdf-btn').addEventListener('click', exportNewsPdf);
   } catch (err) {
     document.getElementById('news-feed').innerHTML = `<div class="text-center text-noir/40 text-sm py-8">Не удалось загрузить ленту. <a href="https://t.me/MARKUS_JW" target="_blank" class="text-gold">Открыть канал напрямую →</a></div>`;
   }
@@ -1422,6 +1468,24 @@ document.querySelectorAll('.tool-card').forEach(btn => {
         if (e.key === 'Enter') document.getElementById('ai-send').click();
       });
       document.getElementById('ai-pdf-btn').addEventListener('click', exportAiChatPdf);
+      const aiExpandBtn = document.getElementById('ai-expand-btn');
+      const aiChatBox = document.getElementById('ai-chat');
+      aiExpandBtn.addEventListener('click', () => {
+        const expanded = aiExpandBtn.getAttribute('aria-expanded') === 'true';
+        aiChatBox.style.height = ''; // сбрасываем ручной resize мышью, если он был, чтобы кнопка всегда побеждала
+        if (expanded) {
+          aiChatBox.classList.remove('h-[70vh]');
+          aiChatBox.classList.add('h-64');
+          aiExpandBtn.textContent = '⤢ Развернуть';
+          aiExpandBtn.setAttribute('aria-expanded', 'false');
+        } else {
+          aiChatBox.classList.remove('h-64');
+          aiChatBox.classList.add('h-[70vh]');
+          aiExpandBtn.textContent = '⤡ Свернуть';
+          aiExpandBtn.setAttribute('aria-expanded', 'true');
+          aiChatBox.scrollTop = aiChatBox.scrollHeight;
+        }
+      });
       document.getElementById('ai-clear-btn').addEventListener('click', () => {
         aiChatHistory = [];
         saveAiHistory();
@@ -1533,9 +1597,19 @@ document.querySelectorAll('.tool-card').forEach(btn => {
   });
   // закрывать при клике на пункт меню и при переходе на широкий экран
   mobileMenu.querySelectorAll('.mobile-nav-link').forEach(link => {
-    link.addEventListener('click', closeMenu);
+    link.addEventListener('click', () => {
+      // запоминаем, откуда пользователь ушёл — чтобы плавающая кнопка
+      // потом предложила вернуться именно сюда, а не просто "наверх"
+      if (typeof jumpOrigin !== 'undefined') jumpOrigin = window.scrollY;
+      closeMenu();
+    });
   });
   window.addEventListener('resize', () => { if (window.innerWidth >= 1024) closeMenu(); });
+
+  // Плавающая кнопка "Разделы" — мобильный аналог боковой точечной навигации:
+  // просто открывает то же самое меню, что и бургер в шапке.
+  const quickNavBtn = document.getElementById('quick-nav-btn');
+  if (quickNavBtn) quickNavBtn.addEventListener('click', () => burgerBtn.click());
 })();
 
 document.getElementById('services-toggle').addEventListener('click', () => {
@@ -1599,6 +1673,7 @@ const backToTopWrap = document.getElementById('back-to-top-wrap');
 const backToTop = document.getElementById('back-to-top');
 const backToTopLabel = document.getElementById('back-to-top-label');
 const backToTopIcon = document.getElementById('back-to-top-icon');
+const quickNavWrap = document.getElementById('quick-nav-wrap');
 // Сюда запоминаем, с какого места пользователя "перекинуло" вниз (клик по карточке инструмента).
 // Если это место есть и мы сейчас далеко от него — кнопка предлагает вернуться именно туда, а не наверх.
 let jumpOrigin = null;
@@ -1625,9 +1700,11 @@ window.addEventListener('scroll', () => {
     backToTopWrap.classList.remove('hidden');
     backToTopWrap.classList.add('flex');
     updateBackToTopButton();
+    if (quickNavWrap) { quickNavWrap.classList.remove('hidden'); quickNavWrap.classList.add('flex'); }
   } else {
     backToTopWrap.classList.add('hidden');
     backToTopWrap.classList.remove('flex');
+    if (quickNavWrap) { quickNavWrap.classList.add('hidden'); quickNavWrap.classList.remove('flex'); }
   }
 });
 backToTop.addEventListener('click', () => {
@@ -1871,6 +1948,19 @@ document.getElementById('lead-submit').addEventListener('click', async () => {
   </div>
 </div>
 
+<!-- ===== ПЕЧАТНАЯ ЛЕНТА НОВОСТЕЙ (для PDF) ===== -->
+<div id="print-news" class="hidden">
+  <div style="font-family: 'PT Serif', serif; padding: 30px;">
+    <h1 style="font-size: 22px; font-weight: bold; margin-bottom: 4px;">MARKUS — новости и изменения в законах</h1>
+    <p style="color:#666; font-size:13px; margin-bottom:24px;" id="print-news-date"></p>
+    <div id="print-news-rows" style="font-family: Arial, sans-serif;"></div>
+    <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-top:24px;">
+      <p style="font-size:12px; color:#888; max-width:360px;">Лента формируется автоматически из Telegram-канала @MARKUS_JW.<br>+998 33 080-10-70 · Telegram: @MarkusJW_bot</p>
+      <img src="/seal-real-gold.png" alt="" style="width:104px; height:auto; opacity:0.92; flex-shrink:0;">
+    </div>
+  </div>
+</div>
+
 <!-- ===== ПЕЧАТНАЯ СМЕТА (для PDF) ===== -->
 <div id="print-summary" class="hidden">
   <div style="font-family: 'PT Serif', serif; padding: 30px;">
@@ -1976,6 +2066,8 @@ document.getElementById('pdf-btn').addEventListener('click', () => {
     body.printing-summary #print-summary { display: block !important; }
     body.printing-ai-chat > *:not(#print-ai-chat) { display: none !important; }
     body.printing-ai-chat #print-ai-chat { display: block !important; }
+    body.printing-news > *:not(#print-news) { display: none !important; }
+    body.printing-news #print-news { display: block !important; }
   }
 </style>
 
