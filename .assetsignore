@@ -1,0 +1,15 @@
+node_modules
+api
+src
+worker.js
+index.js
+.git
+.wrangler
+.gitignore
+.assetsignore
+wrangler.jsonc
+package.json
+package-lock.json
+bun.lock
+yarn.lock
+markus-site-project.zip
