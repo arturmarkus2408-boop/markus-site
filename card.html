@@ -69,6 +69,13 @@ h1{font-family:'PT Serif',serif;font-size:27px;letter-spacing:.5px;
   background:rgba(250,250,248,.92);backdrop-filter:blur(8px);border-radius:999px;padding:3px;
   box-shadow:0 4px 16px rgba(11,11,13,.25)}
 @media(max-width:600px){.lang{right:12px}}
+.back-btn{position:fixed;top:12px;left:calc(50% - 268px);z-index:41;display:inline-flex;align-items:center;gap:6px;
+  background:rgba(250,250,248,.92);backdrop-filter:blur(8px);border:0;border-radius:999px;padding:8px 14px 8px 11px;
+  font:600 12.5px/1 'Manrope';color:var(--bronze-dark);cursor:pointer;text-decoration:none;
+  box-shadow:0 4px 16px rgba(11,11,13,.25);transition:.25s}
+.back-btn:hover{background:#fff;color:var(--gold-deep);transform:translateX(-2px)}
+.back-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:600px){.back-btn{left:12px;padding:8px 12px 8px 10px;font-size:12px}}
 .lang button{border:0;background:transparent;font:600 12px/1 'Manrope';letter-spacing:.6px;
   color:var(--bronze);padding:7px 11px;border-radius:999px;cursor:pointer;transition:.25s}
 .lang button.on{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#0B0B0D}
@@ -178,6 +185,11 @@ footer a{color:var(--gold);text-decoration:none}
 </style>
 </head>
 <body>
+
+<a class="back-btn" id="back-btn" href="/">
+  <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+  <span data-t="back">На сайт</span>
+</a>
 
 <div class="lang">
   <button data-l="ru" class="on">RU</button>
@@ -320,7 +332,7 @@ const T={
      k_addr:"Адрес",k_phone:"Телефон",k_mail:"Электронная почта",k_site:"Сайт",k_bot:"Telegram для обращений",
      k_chan:"Telegram-канал",k_pers:"Личный Telegram",h_bank:"Банковские реквизиты",k_bank:"Банк",k_acc:"Расчётный счёт",
      copyall:"Скопировать все реквизиты",h_doc:"Документы",doc_name:"Свидетельство о государственной регистрации",open:"Открыть",
-     h_qr:"QR-коды",qr1:"Визитка компании",qr2:"Контакт в телефон",dl:"Скачать",
+     h_qr:"QR-коды",qr1:"Визитка компании",qr2:"Контакт в телефон",dl:"Скачать",back:"На сайт",
      foot:"Бухгалтерское и юридическое сопровождение бизнеса<br>в Республике Узбекистан",
      copied:"Скопировано",copiedAll:"Все реквизиты скопированы"},
  uz:{tagline:"Buxgalteriya · Soliq · Huquq",since:"Toshkent · 2024 yildan",call:"Qo'ng'iroq",mail:"Pochta",site:"Sayt",
@@ -328,7 +340,7 @@ const T={
      k_addr:"Manzil",k_phone:"Telefon",k_mail:"Elektron pochta",k_site:"Sayt",k_bot:"Murojaat uchun Telegram",
      k_chan:"Telegram kanal",k_pers:"Shaxsiy Telegram",h_bank:"Bank rekvizitlari",k_bank:"Bank",k_acc:"Hisob raqami",
      copyall:"Barcha rekvizitlarni nusxalash",h_doc:"Hujjatlar",doc_name:"Davlat ro'yxatidan o'tganlik guvohnomasi",open:"Ochish",
-     h_qr:"QR-kodlar",qr1:"Kompaniya vizitkasi",qr2:"Telefonga kontakt",dl:"Yuklab olish",
+     h_qr:"QR-kodlar",qr1:"Kompaniya vizitkasi",qr2:"Telefonga kontakt",dl:"Yuklab olish",back:"Saytga",
      foot:"O'zbekiston Respublikasida biznesning buxgalteriya<br>va yuridik ta'minoti",
      copied:"Nusxalandi",copiedAll:"Barcha rekvizitlar nusxalandi"},
  en:{tagline:"Accounting · Tax · Law",since:"Tashkent · since 2024",call:"Call",mail:"E-mail",site:"Website",
@@ -336,7 +348,7 @@ const T={
      k_addr:"Address",k_phone:"Phone",k_mail:"E-mail",k_site:"Website",k_bot:"Telegram for enquiries",
      k_chan:"Telegram channel",k_pers:"Personal Telegram",h_bank:"Bank details",k_bank:"Bank",k_acc:"Account number",
      copyall:"Copy all bank details",h_doc:"Documents",doc_name:"Certificate of state registration",open:"Open",
-     h_qr:"QR codes",qr1:"Company card",qr2:"Contact card",dl:"Download",
+     h_qr:"QR codes",qr1:"Company card",qr2:"Contact card",dl:"Download",back:"Back to site",
      foot:"Accounting and legal support for business<br>in the Republic of Uzbekistan",
      copied:"Copied",copiedAll:"All details copied"}
 };
@@ -351,6 +363,14 @@ function setLang(l){
 }
 document.querySelectorAll(".lang button").forEach(function(b){
   b.onclick=function(){setLang(b.dataset.l)}
+});
+
+/* ---- кнопка «На сайт» ---- */
+// Если человек пришёл с нашего же сайта — возвращаем его ровно туда, где он был.
+// Если открыл визитку по QR-коду напрямую — история пуста, ведём на главную.
+document.getElementById("back-btn").addEventListener("click", function(e){
+  var sameSite = document.referrer && document.referrer.indexOf(location.origin) === 0;
+  if (sameSite && history.length > 1) { e.preventDefault(); history.back(); }
 });
 
 /* ---- копирование ---- */

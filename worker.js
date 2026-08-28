@@ -102,34 +102,136 @@ async function handleNews() {
 // Пробует провайдеров по очереди: сначала все модели Gemini,
 // если вся цепочка не ответила — Groq, потом OpenRouter.
 // Провайдер без ключа просто тихо пропускается, сайт не падает.
+const SYSTEM_PROMPT = `Ты — AI-ассистент бухгалтерско-юридической компании MARKUS (Ташкент, Узбекистан).
 
-const GEMINI_MODEL_CHAIN = [
-  'gemini-flash-latest',
-  'gemini-3.7-flash',
-  'gemini-3.6-flash',
-  'gemini-3.5-flash-lite',
-  'gemini-2.5-flash',
+КТО ТЫ
+Ты умный, эрудированный собеседник. Твоя специализация — налоги, бухучёт и право
+Узбекистана, но ты НЕ ограничен только ими. Ты свободно и содержательно
+разговариваешь на любые темы: бизнес и стратегия, переговоры, управление,
+финансы, маркетинг, кадры, документы, IT, общие вопросы и просто человеческий
+разговор. Отказывать в ответе только из-за того, что вопрос «не по теме», НЕЛЬЗЯ.
+
+РОЛИ
+Если пользователь просит побыть кем-то — переговорщиком, оппонентом по сделке,
+налоговым инспектором на репетиции проверки, придирчивым клиентом, инвестором,
+кадровиком на собеседовании — соглашайся и веди роль убедительно и до конца,
+пока тебя не попросят выйти из неё. В роли переговорщика: разбирай позиции и
+интересы сторон, предлагай варианты, называй уступки и красные линии, при
+просьбе — отыгрывай вторую сторону жёстко и реалистично, а не поддакивай.
+
+КАК ОТВЕЧАТЬ
+- Отвечай по существу и развёрнуто, без воды и без канцелярита.
+- Не подстраивайся под собеседника: если он неправ или план рискованный —
+  скажи прямо и объясни почему. Твоя ценность в честности, а не в вежливости.
+- Пиши обычным текстом, БЕЗ markdown-разметки: не используй звёздочки **,
+  решётки #, дефисы для списков. Только связные абзацы. Если нужен перечень —
+  пиши его словами: «Первое… Второе… Третье…».
+- Отвечай на языке собеседника (русский, узбекский или английский).
+
+КОГДА ВОПРОС ПРО ЗАКОНОДАТЕЛЬСТВО УЗБЕКИСТАНА
+- Указывай конкретные статьи (например: ст. 248 НК РУз, ст. 246 ТК РУз, НСБУ №21).
+- В конце добавляй строку: Источник: lex.uz — Налоговый кодекс РУз, ст. NNN
+- Если не уверен в номере статьи — честно скажи об этом. НИКОГДА не выдумывай
+  номера статей, суммы и ставки: лучше признать незнание, чем ввести в
+  заблуждение по деньгам и срокам.
+- Напоминай, что это справочная информация, а не юридическая консультация,
+  и что по сложным вопросам стоит обратиться к бухгалтеру Markus
+  (+998 33 080-10-70, Telegram @MarkusJW_bot).
+
+ЧЕГО НЕ ДЕЛАТЬ
+Не помогай уклоняться от налогов, подделывать документы и отчётность, обходить
+закон. Разница принципиальна: законная оптимизация налогов, выбор режима и
+использование льгот — это нормально и это твоя работа; сокрытие доходов и
+фальсификация — нет. В таком случае объясни риски и предложи законный путь.`;
+
+// ------------------------------------------------------------
+// СПИСОК ПРОВАЙДЕРОВ — по убыванию качества ответов.
+// ------------------------------------------------------------
+// Как это работает: идём сверху вниз. Провайдер, для которого не задан
+// ключ, молча пропускается. Внутри провайдера перебираются модели —
+// если одну отключили, подхватится следующая.
+// Чтобы подключить нового провайдера, достаточно добавить его ключ
+// в переменные Cloudflare. Менять код не нужно.
+const PROVIDERS = [
+  {
+    id: 'gemini',
+    keyEnv: 'GEMINI_API_KEY',
+    kind: 'gemini',
+    models: [
+      'gemini-flash-latest',
+      'gemini-3.7-flash',
+      'gemini-3.6-flash',
+      'gemini-3.5-flash-lite',
+      'gemini-2.5-flash',
+    ],
+  },
+  {
+    // GitHub Models — бесплатно для личных аккаунтов GitHub.
+    // Даёт доступ к сильным моделям (GPT-4.1/4o, DeepSeek, иногда Claude).
+    id: 'github',
+    keyEnv: 'GITHUB_MODELS_TOKEN',
+    kind: 'openai',
+    url: 'https://models.github.ai/inference/chat/completions',
+    models: [
+      'openai/gpt-4.1',
+      'openai/gpt-4o',
+      'deepseek/DeepSeek-V3-0324',
+      'deepseek/DeepSeek-R1',
+      'openai/gpt-4o-mini',
+    ],
+  },
+  {
+    // Mistral — очень щедрый бесплатный тариф, модели уровня Large.
+    id: 'mistral',
+    keyEnv: 'MISTRAL_API_KEY',
+    kind: 'openai',
+    url: 'https://api.mistral.ai/v1/chat/completions',
+    models: ['mistral-large-latest', 'mistral-medium-latest', 'mistral-small-latest'],
+  },
+  {
+    // Cerebras — большой дневной лимит, быстрые ответы.
+    id: 'cerebras',
+    keyEnv: 'CEREBRAS_API_KEY',
+    kind: 'openai',
+    url: 'https://api.cerebras.ai/v1/chat/completions',
+    models: ['llama-3.3-70b', 'qwen-3-235b-a22b-instruct', 'gpt-oss-120b'],
+  },
+  {
+    // Groq — быстрый, но модели послабее. Держим как подстраховку.
+    id: 'groq',
+    keyEnv: 'GROQ_API_KEY',
+    kind: 'openai',
+    url: 'https://api.groq.com/openai/v1/chat/completions',
+    models: [
+      'openai/gpt-oss-120b',
+      'openai/gpt-oss-20b',
+      'qwen/qwen3.6-27b',
+      'llama-3.3-70b-versatile',
+    ],
+  },
+  {
+    // OpenRouter — последний рубеж. "openrouter/free" сам подбирает
+    // любую живую бесплатную модель, поэтому не устаревает.
+    id: 'openrouter',
+    keyEnv: 'OPENROUTER_API_KEY',
+    kind: 'openai',
+    url: 'https://openrouter.ai/api/v1/chat/completions',
+    headers: { 'HTTP-Referer': 'https://markus.uz', 'X-Title': 'MARKUS AI Assistant' },
+    models: ['openrouter/free', 'openai/gpt-oss-120b:free', 'openai/gpt-oss-20b:free'],
+  },
 ];
-const GROQ_MODEL = 'llama-3.3-70b-versatile';
-const OPENROUTER_MODEL = 'meta-llama/llama-3.1-8b-instruct:free';
 
-const SYSTEM_PROMPT = `Ты — ассистент бухгалтерской компании MARKUS (Ташкент, Узбекистан).
-Отвечай на вопросы по Налоговому кодексу РУз, НСБУ (бухучёт), Трудовому кодексу РУз и корпоративному праву.
+// Порядок провайдеров всегда сохраняем по качеству — иначе сайт «залипнет»
+// на слабой модели. Вместо этого запоминаем ПРОВАЛЫ: если у провайдера
+// отклонён ключ, на 30 минут его пропускаем, чтобы не ждать впустую.
+// Через 30 минут он пробуется снова — поэтому, когда Google починит свою
+// сторону, Gemini вернётся сам, без правок и без обращения ко мне.
+const failedUntil = {};       // { gemini: времяКогдаМожноПробоватьСнова }
+const SKIP_MS = 30 * 60 * 1000;
 
-ФОРМАТ ОТВЕТА:
-- Давай развёрнутый, полный ответ — объясняй суть, ставки, порядок применения.
-- ОБЯЗАТЕЛЬНО указывай конкретные статьи нормативных актов, на которых основан ответ (например: "ст. 248 НК РУз", "ст. 246 ТК РУз", "НСБУ №21").
-- В конце ответа добавь строку со ссылкой на первоисточник в формате: Источник: lex.uz — Налоговый кодекс РУз, ст. NNN
-- Пиши обычным текстом, БЕЗ markdown-разметки: не используй звёздочки **, решётки #, дефисы для списков. Только связные абзацы.
-- Если не уверен в номере статьи — честно скажи об этом, не выдумывай номера.
-
-Если вопрос не по теме — вежливо скажи, что специализируешься только на налогах, бухучёте и трудовом праве Узбекистана.
-Ты даёшь справочную информацию, а не юридическую консультацию — в конце сложных ответов упомяни, что для точного решения стоит обратиться к бухгалтеру Markus.`;
-
-// Запоминаем, какая модель Gemini сейчас рабочая, пока воркер "тёплый".
-let cachedModel = null;
-let cachedAt = 0;
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+// Внутри провайдера помним удачную модель — это не влияет на качество,
+// но экономит время на переборе отключённых моделей.
+const lastGoodModel = {};     // { groq: 'openai/gpt-oss-120b' }
 
 async function callGemini(apiKey, model, question, dateContext) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
@@ -144,16 +246,16 @@ async function callGemini(apiKey, model, question, dateContext) {
   });
   if (!response.ok) {
     const errText = await response.text().catch(() => '');
-    throw new Error(`Gemini ${model}: HTTP ${response.status} ${errText.slice(0, 200)}`);
+    throw new Error(`HTTP ${response.status} ${errText.slice(0, 200)}`);
   }
   const data = await response.json();
   const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!answer) throw new Error(`Gemini ${model}: пустой ответ`);
+  if (!answer) throw new Error('пустой ответ');
   return answer;
 }
 
-// Groq и OpenRouter используют формат, совместимый с OpenAI —
-// поэтому для них одна общая функция, отличаются только адрес и ключ.
+// Groq, GitHub Models, Mistral, Cerebras и OpenRouter говорят на одном
+// языке (формат OpenAI), поэтому для них достаточно одной функции.
 async function callOpenAiCompatible(baseUrl, apiKey, model, question, dateContext, extraHeaders) {
   const response = await fetch(baseUrl, {
     method: 'POST',
@@ -173,12 +275,38 @@ async function callOpenAiCompatible(baseUrl, apiKey, model, question, dateContex
   });
   if (!response.ok) {
     const errText = await response.text().catch(() => '');
-    throw new Error(`${model}: HTTP ${response.status} ${errText.slice(0, 200)}`);
+    throw new Error(`HTTP ${response.status} ${errText.slice(0, 200)}`);
   }
   const data = await response.json();
   const answer = data?.choices?.[0]?.message?.content;
-  if (!answer) throw new Error(`${model}: пустой ответ`);
+  if (!answer) throw new Error('пустой ответ');
   return answer;
+}
+
+function callProvider(provider, apiKey, model, question, dateContext) {
+  if (provider.kind === 'gemini') {
+    return callGemini(apiKey, model, question, dateContext);
+  }
+  return callOpenAiCompatible(
+    provider.url,
+    apiKey,
+    model,
+    question,
+    dateContext,
+    provider.headers
+  );
+}
+
+// Ошибки, после которых перебирать остальные модели этого провайдера
+// бессмысленно — они отвалятся точно так же (проблема в ключе, а не в модели).
+function isKeyProblem(message) {
+  return (
+    message.includes('HTTP 401') ||
+    message.includes('HTTP 403') ||
+    message.includes('ACCESS_TOKEN_TYPE_UNSUPPORTED') ||
+    message.includes('API key not valid') ||
+    message.includes('Incorrect API key')
+  );
 }
 
 async function handleAssistant(request, env) {
@@ -195,67 +323,54 @@ async function handleAssistant(request, env) {
     ? `Сегодняшняя дата: ${today}. Используй только актуальное на эту дату законодательство, а не устаревшие данные из твоего обучения.\n\n`
     : '';
 
-  const geminiKey = env.GEMINI_API_KEY;
-  const groqKey = env.GROQ_API_KEY;
-  const openrouterKey = env.OPENROUTER_API_KEY;
+  // Провайдеры, у которых на сервере есть ключ
+  const configured = PROVIDERS.filter((p) => env[p.keyEnv]);
+
+  if (configured.length === 0) {
+    return json(
+      {
+        error:
+          'Ни один AI-провайдер не настроен. Добавьте в настройках Cloudflare хотя бы один ключ: ' +
+          PROVIDERS.map((p) => p.keyEnv).join(', '),
+      },
+      500
+    );
+  }
+
+  const now = Date.now();
+  // Порядок качества сохраняем; временно отставленных пропускаем
+  const chain = configured.filter((p) => !(failedUntil[p.id] > now));
+  // Если пропустить пришлось всех — пробуем всё равно, вдруг уже починилось
+  const finalChain = chain.length > 0 ? chain : configured;
 
   const errors = [];
 
-  // ---------- 1) Gemini ----------
-  if (geminiKey) {
-    let chain = GEMINI_MODEL_CHAIN;
-    if (cachedModel && Date.now() - cachedAt < CACHE_TTL_MS) {
-      chain = [cachedModel, ...GEMINI_MODEL_CHAIN.filter((m) => m !== cachedModel)];
+  for (const provider of finalChain) {
+    const apiKey = env[provider.keyEnv];
+
+    let models = provider.models;
+    const good = lastGoodModel[provider.id];
+    if (good && models.includes(good)) {
+      models = [good, ...models.filter((m) => m !== good)];
     }
-    for (const model of chain) {
+
+    for (const model of models) {
       try {
-        const answer = await callGemini(geminiKey, model, question, dateContext);
-        cachedModel = model;
-        cachedAt = Date.now();
-        return json({ answer, model: `gemini/${model}` });
+        const answer = await callProvider(provider, apiKey, model, question, dateContext);
+        lastGoodModel[provider.id] = model;
+        delete failedUntil[provider.id];
+        return json({ answer, model: `${provider.id}/${model}` });
       } catch (err) {
-        errors.push(err.message);
+        errors.push(`${provider.id} ${model}: ${err.message}`);
+        if (isKeyProblem(err.message)) {
+          // Ключ не принят — остальные модели откажут так же.
+          // Отставляем провайдера на 30 минут и идём дальше.
+          failedUntil[provider.id] = Date.now() + SKIP_MS;
+          errors.push(`${provider.id}: ключ отклонён, провайдер отложен на 30 мин`);
+          break;
+        }
       }
     }
-  } else {
-    errors.push('GEMINI_API_KEY не настроен на сервере');
-  }
-
-  // ---------- 2) Groq: подстраховка №1 ----------
-  if (groqKey) {
-    try {
-      const answer = await callOpenAiCompatible(
-        'https://api.groq.com/openai/v1/chat/completions',
-        groqKey,
-        GROQ_MODEL,
-        question,
-        dateContext
-      );
-      return json({ answer, model: `groq/${GROQ_MODEL}` });
-    } catch (err) {
-      errors.push(err.message);
-    }
-  } else {
-    errors.push('GROQ_API_KEY не настроен (подстраховка отключена)');
-  }
-
-  // ---------- 3) OpenRouter: подстраховка №2 ----------
-  if (openrouterKey) {
-    try {
-      const answer = await callOpenAiCompatible(
-        'https://openrouter.ai/api/v1/chat/completions',
-        openrouterKey,
-        OPENROUTER_MODEL,
-        question,
-        dateContext,
-        { 'HTTP-Referer': 'https://markus.uz', 'X-Title': 'MARKUS AI Assistant' }
-      );
-      return json({ answer, model: `openrouter/${OPENROUTER_MODEL}` });
-    } catch (err) {
-      errors.push(err.message);
-    }
-  } else {
-    errors.push('OPENROUTER_API_KEY не настроен (подстраховка отключена)');
   }
 
   return json(

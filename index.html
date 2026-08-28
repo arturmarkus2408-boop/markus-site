@@ -639,9 +639,16 @@
       <br><br>
       Наши специалисты — это эксперты, которые продолжают развиваться, повышать квалификацию и применять современные инструменты, чтобы предлагать клиентам только лучшее. Мы ценим доверие и строим сотрудничество на прозрачности, ответственности и внимании к каждой детали.
     </p>
-    <div class="bg-noir text-paper rounded-2xl p-8 text-center">
-      <div class="font-serif text-4xl font-bold text-gold mb-2">200+</div>
-      <p class="text-paper/60 text-sm">зарегистрированных компаний</p>
+    <div class="bg-noir text-paper rounded-2xl overflow-hidden">
+      <!-- Фото офиса/команды. Если файла нет — картинка просто исчезнет,
+           и блок станет таким же, каким был раньше. Ничего не сломается. -->
+      <img src="/office.jpg" alt="Команда MARKUS, Ташкент"
+           class="w-full h-56 md:h-64 object-cover"
+           loading="lazy" onerror="this.remove()">
+      <div class="p-8 text-center">
+        <div class="font-serif text-4xl font-bold text-gold mb-2">200+</div>
+        <p class="text-paper/60 text-sm">зарегистрированных компаний</p>
+      </div>
     </div>
   </div>
   <div class="grid md:grid-cols-3 gap-5">
@@ -1237,24 +1244,41 @@ function exportAiChatPdf() {
 // с учётом поискового запроса (если он что-то искал, в PDF попадут только
 // подходящие посты, а не вся лента). Текст берём полностью, без обрезки
 // "Читать полностью", в отличие от карточек на странице.
-function exportNewsPdf() {
+function exportNewsPdf(mode) {
   const query = (document.getElementById('news-search')?.value || '').trim();
   const plain = (html) => html.replace(/<[^>]*>/g, '');
   const q = query.toLowerCase();
-  const filtered = !q ? allNewsPosts : allNewsPosts.filter(p => plain(p.textHtml).toLowerCase().includes(q));
 
-  if (filtered.length === 0) { alert('Нет новостей для сохранения — измените или очистите поиск.'); return; }
+  let chosen, subtitle;
+
+  if (mode === 'selected') {
+    // Сохраняем ровно то, что клиент отметил галочками — независимо от поиска
+    chosen = allNewsPosts.filter((p, i) => selectedPostKeys.has(newsKey(p, i)));
+    if (chosen.length === 0) {
+      alert('Сначала отметьте галочками статьи, которые нужно сохранить.');
+      return;
+    }
+    subtitle = `Выбранные статьи: ${chosen.length}`;
+  } else {
+    // Вся лента (с учётом поиска, если он введён)
+    chosen = !q ? allNewsPosts : allNewsPosts.filter(p => plain(p.textHtml).toLowerCase().includes(q));
+    if (chosen.length === 0) {
+      alert('Нет новостей для сохранения — измените или очистите поиск.');
+      return;
+    }
+    subtitle = query ? `Поиск: «${query}»` : `Всего статей: ${chosen.length}`;
+  }
 
   const printEl = document.getElementById('print-news');
-  const rowsHtml = filtered.map(p => `
+  const rowsHtml = chosen.map(p => `
     <div style="margin-bottom:18px; padding-bottom:16px; border-bottom:1px solid #eee;">
       <div style="font-size:11px; color:#999; margin-bottom:5px;">${p.date}</div>
       <div style="font-size:14px; white-space:pre-line;">${p.textHtml}</div>
     </div>
   `).join('');
   printEl.querySelector('#print-news-rows').innerHTML = rowsHtml;
-  printEl.querySelector('#print-news-date').textContent = 'Сформировано: ' + new Date().toLocaleDateString('ru-RU')
-    + (query ? ` · Поиск: «${query}»` : '');
+  printEl.querySelector('#print-news-date').textContent =
+    'Сформировано: ' + new Date().toLocaleDateString('ru-RU') + ' · ' + subtitle;
   document.body.classList.add('printing-news');
   window.print();
   document.body.classList.remove('printing-news');
@@ -1274,9 +1298,11 @@ async function renderNewsTool() {
       </div>
       <a href="https://t.me/MARKUS_JW" target="_blank" rel="noopener" class="bg-gold hover:bg-goldLight transition-colors text-noir text-sm font-semibold px-4 py-2 rounded-full whitespace-nowrap">Подписаться</a>
     </div>
-    <div class="flex items-center justify-between mb-4">
-      <input id="news-search" type="text" placeholder="Поиск по новостям — например «аренда» или «НДС»" class="flex-1 border border-noir/15 rounded-lg px-4 py-3 text-sm">
-      <button id="news-pdf-btn" class="ml-3 text-xs border border-noir/15 hover:border-gold transition-colors px-3 py-3 rounded-full whitespace-nowrap">📄 PDF</button>
+    <input id="news-search" type="text" placeholder="Поиск по новостям — например «аренда» или «НДС»" class="w-full border border-noir/15 rounded-lg px-4 py-3 text-sm mb-3">
+    <div class="flex flex-wrap items-center gap-2 mb-4">
+      <span id="news-sel-count" class="text-xs text-noir/50 mr-auto">Отметьте галочками нужные статьи</span>
+      <button id="news-pdf-sel" class="text-xs border border-noir/15 hover:border-gold transition-colors px-3 py-2 rounded-full whitespace-nowrap disabled:opacity-40 disabled:hover:border-noir/15" disabled>📄 Сохранить отмеченные</button>
+      <button id="news-pdf-all" class="text-xs border border-noir/15 hover:border-gold transition-colors px-3 py-2 rounded-full whitespace-nowrap">📄 Всю ленту</button>
     </div>
     <div id="news-feed" class="space-y-4">
       <div class="text-center text-noir/40 text-sm py-8">Загружаем ленту…</div>
@@ -1293,7 +1319,8 @@ async function renderNewsTool() {
     allNewsPosts = data.posts;
     renderNewsList('');
     document.getElementById('news-search').addEventListener('input', (e) => renderNewsList(e.target.value));
-    document.getElementById('news-pdf-btn').addEventListener('click', exportNewsPdf);
+    document.getElementById('news-pdf-all').addEventListener('click', () => exportNewsPdf('all'));
+    document.getElementById('news-pdf-sel').addEventListener('click', () => exportNewsPdf('selected'));
   } catch (err) {
     document.getElementById('news-feed').innerHTML = `<div class="text-center text-noir/40 text-sm py-8">Не удалось загрузить ленту. <a href="https://t.me/MARKUS_JW" target="_blank" class="text-gold">Открыть канал напрямую →</a></div>`;
   }
@@ -1302,6 +1329,24 @@ async function renderNewsTool() {
 let allNewsPosts = [];
 let newsExpanded = false; // гармошка: показываем не всю ленту сразу, а по кнопке «Показать ещё»
 const expandedPostKeys = new Set(); // какие отдельные посты развёрнуты (сворачивание/разворачивание на месте)
+const selectedPostKeys = new Set(); // какие статьи клиент отметил для сохранения в PDF
+
+// Ключ статьи. Ссылка есть не всегда, поэтому запасной вариант — дата + начало текста:
+// порядковый номер не годится, он съезжает при поиске и сортировке.
+function newsKey(p, i) {
+  return p.link || (p.date + '|' + p.textHtml.slice(0, 60));
+}
+
+function updateNewsSelectionUI() {
+  const n = selectedPostKeys.size;
+  const label = document.getElementById('news-sel-count');
+  const btn = document.getElementById('news-pdf-sel');
+  if (!label || !btn) return;
+  label.textContent = n === 0
+    ? 'Отметьте галочками нужные статьи'
+    : `Отмечено: ${n}`;
+  btn.disabled = n === 0;
+}
 
 function renderNewsList(query) {
   const feed = document.getElementById('news-feed');
@@ -1320,11 +1365,16 @@ function renderNewsList(query) {
   const hiddenCount = filtered.length - visiblePosts.length;
 
   const postsHtml = visiblePosts.map((p, i) => {
-    const key = p.link || String(i);
+    const key = newsKey(p, i);
     const isLong = p.textHtml.length > 320;
     const isPostOpen = expandedPostKeys.has(key);
+    const isChecked = selectedPostKeys.has(key);
     return `
-    <div class="relative border border-noir/10 rounded-xl p-4 bg-stone overflow-hidden">
+    <div class="relative border ${isChecked ? 'border-gold' : 'border-noir/10'} rounded-xl p-4 bg-stone overflow-hidden transition-colors">
+      <label class="flex items-center gap-2 mb-2 cursor-pointer select-none w-fit">
+        <input type="checkbox" class="news-select w-4 h-4 accent-[#C9A46B] cursor-pointer" data-post-key="${key}" ${isChecked ? 'checked' : ''}>
+        <span class="text-xs ${isChecked ? 'text-gold font-semibold' : 'text-noir/45'}">${isChecked ? 'Отмечено для сохранения' : 'Отметить для сохранения'}</span>
+      </label>
       <p class="text-sm whitespace-pre-line mb-2 ${isLong && !isPostOpen ? 'max-h-24 overflow-hidden' : ''}">${p.textHtml}</p>
       ${isLong ? `
         ${!isPostOpen ? `<div class="absolute bottom-8 left-0 right-0 h-10 bg-gradient-to-t from-stone to-transparent pointer-events-none"></div>` : ''}
@@ -1345,6 +1395,15 @@ function renderNewsList(query) {
   ` : '');
 
   feed.innerHTML = postsHtml + moreHtml;
+
+  document.querySelectorAll('.news-select').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const key = cb.dataset.postKey;
+      if (cb.checked) selectedPostKeys.add(key); else selectedPostKeys.delete(key);
+      renderNewsList(query);
+    });
+  });
+  updateNewsSelectionUI();
 
   document.querySelectorAll('.news-toggle').forEach(btn => {
     btn.addEventListener('click', () => {
