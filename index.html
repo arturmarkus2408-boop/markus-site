@@ -103,6 +103,31 @@
   .card-hover { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
   .card-hover:hover { transform: translateY(-3px); border-color: #C9A46B; }
 
+  /* ===== Подсветка карточки в центре экрана (только телефоны) =====
+     На телефоне нет наведения мышкой, поэтому непонятно, что карточку
+     можно нажать. Та карточка, что оказалась по центру экрана при
+     прокрутке, мягко подсвечивается золотом и показывает стрелку. */
+  @media (hover: none) and (max-width: 1023px) {
+    .tap-focus.in-focus {
+      border-color: #C9A46B;
+      box-shadow: 0 0 0 1px rgba(201,164,107,.30), 0 10px 34px rgba(201,164,107,.26);
+      transform: translateY(-2px);
+    }
+    .tool-card.in-focus::after {
+      content: "Нажмите →";
+      position: absolute;
+      right: 18px; bottom: 14px;
+      font-size: 12px; font-weight: 700; letter-spacing: .02em;
+      color: #C9A46B;
+      animation: tapHint .45s ease both;
+    }
+    @keyframes tapHint { from { opacity: 0; transform: translateX(-4px); } to { opacity: .95; transform: none; } }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tap-focus.in-focus { transform: none; }
+    .tool-card.in-focus::after { animation: none; opacity: .95; }
+  }
+
   /* ===== Кастомные слайдеры ===== */
   .mslider { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 999px; background: #2A2A2E; outline: none; }
   .mslider::-webkit-slider-thumb {
@@ -132,6 +157,10 @@
     cursor: pointer; user-select: none; padding: 2px 4px; border-radius: 4px;
     transition: color .15s ease, font-weight .15s ease;
   }
+  /* Крайние подписи прижимаем внутрь: иначе на узких экранах (320px)
+     половина последней подписи вылезала за край и страница ездила вбок. */
+  .tick-label:first-child { transform: translateX(0); }
+  .tick-label:last-child  { transform: translateX(-100%); }
   .service-item { cursor: pointer; padding: 4px 26px 4px 8px; margin: 0 -8px; border-radius: 6px; position: relative; transition: background-color .15s, color .15s; }
   .service-item::after { content: "→"; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); opacity: .4; font-size: 12px; transition: opacity .15s, transform .15s; }
   .service-item:hover { background-color: rgba(201,164,107,0.15); color: #DFC28E; }
@@ -224,7 +253,7 @@
   <div class="max-w-6xl mx-auto px-5 md:px-8 pt-16 pb-14 md:pt-24 md:pb-20 relative">
     <img src="/seal-real-gold.png" alt="" aria-hidden="true"
          class="hidden lg:block absolute pointer-events-none select-none"
-         style="right:-24px; top:96px; width:190px; opacity:0.9; filter:drop-shadow(0 14px 30px rgba(0,0,0,.45));">
+         style="right:0; top:96px; width:190px; opacity:0.9; filter:drop-shadow(0 14px 30px rgba(0,0,0,.45));">
     <span class="inline-block bg-gold/15 text-gold text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full mb-6">MARKUS</span>
     <h1 class="font-serif text-4xl md:text-6xl font-bold leading-[1.1] max-w-2xl">
       Бухгалтерские услуги в Узбекистане, которым доверяют
@@ -689,15 +718,22 @@
         </div>
       </div>
     </div>
-    <form id="lead-form" class="bg-white text-noir rounded-2xl p-7 space-y-4" onsubmit="return false;">
+    <form id="lead-form" class="bg-white text-noir rounded-2xl p-5 sm:p-7 space-y-4 min-w-0" onsubmit="return false;">
       <div>
         <label class="block text-sm font-semibold mb-2">Ваше имя</label>
         <input id="lead-name" type="text" required class="w-full border border-noir/15 rounded-lg px-4 py-3">
       </div>
       <div>
         <label class="block text-sm font-semibold mb-2">Ваш телефон</label>
-        <input id="lead-phone" type="tel" inputmode="numeric" required placeholder="+998(__)-___-__-__" class="w-full border border-noir/15 rounded-lg px-4 py-3 font-mono outline-none">
-        <p class="text-xs text-noir/40 mt-1">Иностранный номер? <a href="https://t.me/MarkusJW_bot" target="_blank" class="text-gold">напишите в Telegram</a></p>
+        <div class="flex gap-2">
+          <select id="lead-cc" class="border border-noir/15 rounded-lg px-1.5 py-3 font-mono text-xs sm:text-sm outline-none bg-white shrink-0 max-w-[7.5rem]">
+            <option value="998">🇺🇿 +998</option>
+            <option value="7">🇷🇺 +7</option>
+            <option value="other">🌍 Другая</option>
+          </select>
+          <input id="lead-phone" type="tel" inputmode="numeric" required size="1" placeholder="(__)-___-__-__" class="flex-1 min-w-0 w-full border border-noir/15 rounded-lg px-3 sm:px-4 py-3 font-mono outline-none">
+        </div>
+        <p id="lead-phone-hint" class="text-xs text-noir/40 mt-1">Другая страна? Выберите «🌍 Другая» и введите номер с кодом страны.</p>
       </div>
       <button id="lead-submit" class="w-full bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-3.5 rounded-full">
         Отправить
@@ -776,7 +812,7 @@
       <button type="button" data-method="whatsapp" class="method-btn border border-noir/15 rounded-lg py-2 text-xs font-medium transition-colors">💬 WhatsApp</button>
       <button type="button" data-method="email" class="method-btn border border-noir/15 rounded-lg py-2 text-xs font-medium transition-colors">✉️ Email</button>
     </div>
-    <input id="service-modal-contact" type="tel" placeholder="Телефон для связи" required class="w-full border border-noir/15 rounded-lg px-4 py-3 text-sm mb-4">
+    <div class="flex gap-2 mb-4" id="service-modal-contact-row"><select id="service-modal-cc" class="border border-noir/15 rounded-lg px-1.5 py-3 font-mono text-xs sm:text-sm outline-none bg-white shrink-0 max-w-[7.5rem] hidden"><option value="998">🇺🇿 +998</option><option value="7">🇷🇺 +7</option><option value="other">🌍 Другая</option></select><input id="service-modal-contact" type="tel" placeholder="Телефон для связи" required size="1" class="flex-1 min-w-0 w-full border border-noir/15 rounded-lg px-3 sm:px-4 py-3 text-sm"></div>
     <button id="service-modal-submit" class="w-full bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-3 rounded-full">Отправить</button>
     <p id="service-modal-note" class="text-xs text-noir/40 text-center mt-2"></p>
   </div>
@@ -1629,6 +1665,67 @@ document.querySelectorAll('.tool-card').forEach(btn => {
 })();
 
 /* ============================================================
+   ПОДСВЕТКА КАРТОЧКИ В ЦЕНТРЕ ЭКРАНА (только телефоны)
+   ============================================================
+   Зачем: на телефоне нет наведения мышкой, и клиент не понимает,
+   что карточки «Ассистент», «Новости» и прочие можно нажать.
+   Решение: та карточка, что при прокрутке оказалась по центру
+   экрана, мягко подсвечивается и показывает подсказку «Нажмите →».
+   На компьютере не включается — там работает обычное наведение. */
+(function () {
+  // Только для устройств без мышки
+  if (!window.matchMedia('(hover: none)').matches) return;
+
+  const cards = Array.from(document.querySelectorAll('.tool-card, .service-request-card'));
+  if (!cards.length) return;
+  cards.forEach(c => c.classList.add('tap-focus'));
+
+  let scheduled = false;
+  let current = null;
+
+  function clearCurrent() {
+    if (current) { current.classList.remove('in-focus'); current = null; }
+  }
+
+  function update() {
+    scheduled = false;
+    // На широком экране подсветка не нужна (например, планшет повернули)
+    if (window.innerWidth >= 1024) { clearCurrent(); return; }
+
+    const middle = window.innerHeight / 2;
+    // Подсвечиваем только если карточка действительно близко к центру,
+    // иначе подсветка «прыгала» бы между далёкими блоками.
+    const maxDistance = window.innerHeight * 0.32;
+    let best = null, bestDistance = Infinity;
+
+    for (const card of cards) {
+      const r = card.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > window.innerHeight) continue;  // за пределами экрана
+      if (r.height === 0) continue;                              // скрытая карточка
+      const distance = Math.abs((r.top + r.bottom) / 2 - middle);
+      if (distance < bestDistance && distance < maxDistance) {
+        bestDistance = distance;
+        best = card;
+      }
+    }
+
+    if (best !== current) {
+      clearCurrent();
+      if (best) { best.classList.add('in-focus'); current = best; }
+    }
+  }
+
+  // Пересчитываем не чаще одного раза на кадр — чтобы прокрутка не тормозила
+  function onScroll() {
+    if (!scheduled) { scheduled = true; requestAnimationFrame(update); }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  update();
+})();
+
+/* ============================================================
    БУРГЕР-МЕНЮ (мобильная/планшетная навигация до 1024px)
    ============================================================ */
 (function () {
@@ -1796,7 +1893,14 @@ function setContactMethod(method) {
   input.type = contactMethodConfig[method].type;
   input.placeholder = contactMethodConfig[method].placeholder;
   input.maxLength = contactMethodConfig[method].maxlength;
-  input.value = (method === 'phone' || method === 'whatsapp') ? '+998' : '';
+  const cc = document.getElementById('service-modal-cc');
+  const isPhone = (method === 'phone' || method === 'whatsapp');
+  cc.classList.toggle('hidden', !isPhone);
+  input.value = '';
+  if (isPhone) {
+    cc.value = '998';
+    applyCountryCode(cc, input, null);
+  }
 }
 document.querySelectorAll('.method-btn').forEach(b => b.addEventListener('click', () => setContactMethod(b.dataset.method)));
 
@@ -1874,28 +1978,86 @@ document.getElementById('calc-lead-btn').addEventListener('click', () => {
 });
 
 // Маска телефона: единая логика везде на сайте.
-// normalizePhoneDigits — достаёт ровно 9 "местных" цифр из любого ввода (сколько бы человек ни напечатал,
-// даже с +998, пробелами, скобками — лишнее отбрасывается, отсюда и не будет "недопечатанных" цифр).
-// formatPhoneMask — рисует это как +998(XX)-XXX-XX-XX по мере набора.
-function normalizePhoneDigits(raw) {
+// Поддерживаем три режима — Узбекистан (+998), Россия (+7) и «другая страна»
+// со свободным вводом. Раньше было жёстко зашито +998, из-за чего клиенты
+// с иностранными номерами не могли отправить заявку вообще.
+const PHONE_RULES = {
+  '998': { len: 9,  groups: [2,3,2,2], placeholder: '(__)-___-__-__',  example: '+998(90)-123-45-67' },
+  '7':   { len: 10, groups: [3,3,2,2], placeholder: '(___)-___-__-__', example: '+7(912)-345-67-89' },
+};
+
+// Достаём "местные" цифры: отбрасываем код страны, если человек его напечатал.
+function normalizePhoneDigits(raw, cc) {
+  cc = cc || '998';
+  if (cc === 'other') return (raw || '').replace(/[^\d]/g, '').slice(0, 15);
+  const rule = PHONE_RULES[cc];
   let digits = (raw || '').replace(/\D/g, '');
-  if (digits.startsWith('998')) digits = digits.slice(3);
-  return digits.slice(0, 9);
+  if (digits.startsWith(cc)) digits = digits.slice(cc.length);
+  return digits.slice(0, rule.len);
 }
-function formatPhoneMask(raw) {
-  const digits = normalizePhoneDigits(raw);
-  let out = '+998';
-  if (digits.length > 0) out += '(' + digits.slice(0, 2);
-  if (digits.length >= 2) out += ')';
-  if (digits.length > 2) out += '-' + digits.slice(2, 5);
-  if (digits.length > 5) out += '-' + digits.slice(5, 7);
-  if (digits.length > 7) out += '-' + digits.slice(7, 9);
+
+// Рисуем номер по мере набора: (XX)-XXX-XX-XX и т.п.
+function formatPhoneMask(raw, cc) {
+  cc = cc || '998';
+  if (cc === 'other') {
+    // свободный ввод: оставляем только цифры, плюс и пробелы
+    let v = (raw || '').replace(/[^\d+ ]/g, '');
+    if (v && !v.startsWith('+')) v = '+' + v.replace(/\+/g, '');
+    return v.slice(0, 20);
+  }
+  const digits = normalizePhoneDigits(raw, cc);
+  const g = PHONE_RULES[cc].groups;
+  let out = '', pos = 0;
+  if (digits.length > 0) out += '(' + digits.slice(0, g[0]);
+  if (digits.length >= g[0]) out += ')';
+  pos = g[0];
+  for (let k = 1; k < g.length; k++) {
+    if (digits.length > pos) out += '-' + digits.slice(pos, pos + g[k]);
+    pos += g[k];
+  }
   return out;
 }
 
+// Проверка перед отправкой. Возвращает готовый номер или null с текстом ошибки.
+function buildPhone(raw, cc) {
+  if (cc === 'other') {
+    const digits = (raw || '').replace(/\D/g, '');
+    if (digits.length < 7 || digits.length > 15) {
+      return { error: '⚠️ Введите номер с кодом страны, например +49 170 1234567' };
+    }
+    return { phone: '+' + digits };
+  }
+  const rule = PHONE_RULES[cc];
+  const digits = normalizePhoneDigits(raw, cc);
+  if (digits.length !== rule.len) {
+    return { error: '⚠️ Введите полный номер: ' + rule.example };
+  }
+  return { phone: '+' + cc + digits };
+}
+
+// Переключение кода страны: меняем подсказку и очищаем поле,
+// чтобы цифры от прежнего формата не остались висеть.
+function applyCountryCode(selectEl, inputEl, hintEl) {
+  const cc = selectEl.value;
+  inputEl.value = '';
+  if (cc === 'other') {
+    inputEl.placeholder = '+49 170 1234567';
+    inputEl.inputMode = 'text';
+    if (hintEl) hintEl.textContent = 'Введите номер полностью, с кодом страны.';
+  } else {
+    inputEl.placeholder = PHONE_RULES[cc].placeholder;
+    inputEl.inputMode = 'numeric';
+    if (hintEl) hintEl.textContent = 'Другая страна? Выберите «🌍 Другая» и введите номер с кодом страны.';
+  }
+}
+
+document.getElementById('service-modal-cc').addEventListener('change', () => {
+  applyCountryCode(document.getElementById('service-modal-cc'),
+                   document.getElementById('service-modal-contact'), null);
+});
 document.getElementById('service-modal-contact').addEventListener('input', (e) => {
   if (currentContactMethod === 'phone' || currentContactMethod === 'whatsapp') {
-    e.target.value = formatPhoneMask(e.target.value);
+    e.target.value = formatPhoneMask(e.target.value, document.getElementById('service-modal-cc').value);
   }
 });
 
@@ -1910,13 +2072,13 @@ document.getElementById('service-modal-submit').addEventListener('click', async 
   if (!contactValue) { note.textContent = 'Укажите контакт для связи'; note.classList.add('text-red-600'); return; }
 
   if (currentContactMethod === 'phone' || currentContactMethod === 'whatsapp') {
-    const digits = normalizePhoneDigits(contactValue);
-    if (digits.length !== 9) {
-      note.textContent = '⚠️ Введите полный номер: +998(90)-123-45-67';
+    const built = buildPhone(contactValue, document.getElementById('service-modal-cc').value);
+    if (built.error) {
+      note.textContent = built.error;
       note.classList.add('text-red-600');
       return;
     }
-    contactValue = '+998' + digits;
+    contactValue = built.phone;
   } else if (currentContactMethod === 'email') {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactValue)) {
       note.textContent = '⚠️ Проверьте формат email (например: name@mail.com)';
@@ -1951,8 +2113,12 @@ document.getElementById('service-modal-submit').addEventListener('click', async 
 /* ============================================================
    ФОРМА ЗАЯВКИ — теперь реально отправляется через /api/lead
    ============================================================ */
-document.getElementById('lead-phone').addEventListener('input', (e) => {
-  e.target.value = formatPhoneMask(e.target.value);
+const leadCC = document.getElementById('lead-cc');
+const leadPhoneInput = document.getElementById('lead-phone');
+const leadHint = document.getElementById('lead-phone-hint');
+leadCC.addEventListener('change', () => applyCountryCode(leadCC, leadPhoneInput, leadHint));
+leadPhoneInput.addEventListener('input', (e) => {
+  e.target.value = formatPhoneMask(e.target.value, leadCC.value);
 });
 document.getElementById('lead-submit').addEventListener('click', async () => {
   const form = document.getElementById('lead-form');
@@ -1960,13 +2126,13 @@ document.getElementById('lead-submit').addEventListener('click', async () => {
   const btn = document.getElementById('lead-submit');
   const note = document.getElementById('lead-note');
   const name = document.getElementById('lead-name').value.trim();
-  const phoneDigits = normalizePhoneDigits(document.getElementById('lead-phone').value);
-  if (phoneDigits.length !== 9) {
-    note.textContent = '⚠️ Введите полный номер: +998(90)-123-45-67';
+  const built = buildPhone(leadPhoneInput.value, leadCC.value);
+  if (built.error) {
+    note.textContent = built.error;
     note.className = 'text-xs text-red-600 text-center';
     return;
   }
-  const phone = '+998' + phoneDigits;
+  const phone = built.phone;
 
   btn.disabled = true;
   btn.textContent = 'Отправляем…';
