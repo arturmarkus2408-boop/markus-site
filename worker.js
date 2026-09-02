@@ -140,6 +140,14 @@ const SYSTEM_PROMPT = `Ты — AI-ассистент бухгалтерско-�
 - ҚҚС (қўшилган қиймат солиғи) = НДС.
 - ЖШДС (жисмоний шахслардан олинадиган даромад солиғи) = НДФЛ.
 - СТИР (солиқ тўловчининг идентификация рақами) = ИНН.
+- ИНПС = индивидуальный накопительный пенсионный счёт гражданина. Обязательный взнос —
+  0,1% от дохода, облагаемого НДФЛ, и он НЕ является дополнительной нагрузкой на
+  работодателя: сумма удерживается из уже начисленного НДФЛ и перечисляется на счёт
+  работника в Народном банке. Основание — Закон «О накопительном пенсионном обеспечении
+  граждан» №702-II от 02.12.2004 и п.5 ПП-4086 от 26.12.2018.
+- ИФУТ (иқтисодий фаолият турлари таснифи) = ОКЭД, классификатор видов деятельности.
+- ЭЧФ / ЭСФ = электронная счёт-фактура.
+- ГНК / Солиқ қўмитаси = Налоговый комитет.
 Если сокращение незнакомо — честно уточни у клиента, что оно означает, вместо догадки.
 
 КОГДА ВОПРОС ПРО ЗАКОНОДАТЕЛЬСТВО УЗБЕКИСТАНА
@@ -247,10 +255,16 @@ const SKIP_MS = 30 * 60 * 1000;
 // но экономит время на переборе отключённых моделей.
 const lastGoodModel = {};     // { groq: 'openai/gpt-oss-120b' }
 
+// Ни один запрос к провайдеру не должен висеть дольше этого времени.
+// Без ограничения один зависший провайдер задерживал весь ответ, браузер
+// не дожидался, и клиент видел «Не удалось связаться с сервером».
+const CALL_TIMEOUT_MS = 15000;
+
 async function callGemini(apiKey, model, question, dateContext) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
   const response = await fetch(url, {
     method: 'POST',
+    signal: AbortSignal.timeout(CALL_TIMEOUT_MS),
     headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
     body: JSON.stringify({
       contents: [{ parts: [{ text: dateContext + question }] }],
@@ -273,6 +287,7 @@ async function callGemini(apiKey, model, question, dateContext) {
 async function callOpenAiCompatible(baseUrl, apiKey, model, question, dateContext, extraHeaders) {
   const response = await fetch(baseUrl, {
     method: 'POST',
+    signal: AbortSignal.timeout(CALL_TIMEOUT_MS),
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
@@ -323,6 +338,27 @@ function isKeyProblem(message) {
   );
 }
 
+// «Слишком часто» и сбои самого провайдера. Перебирать остальные его модели
+// бесполезно — лимит считается на весь аккаунт, а не на модель.
+function isProviderBusy(message) {
+  return (
+    message.includes('HTTP 429') ||
+    message.includes('rate limit') ||
+    message.includes('RateLimit') ||
+    message.includes('HTTP 500') ||
+    message.includes('HTTP 502') ||
+    message.includes('HTTP 503') ||
+    message.includes('HTTP 529') ||
+    message.includes('timed out') ||
+    message.includes('aborted') ||
+    message.includes('The operation was aborted')
+  );
+}
+
+const BUSY_MS = 3 * 60 * 1000;   // лимит частоты сбрасывается быстро — ждём 3 минуты
+const TOTAL_BUDGET_MS = 38000;   // весь ответ обязан уложиться в это время
+const MAX_ATTEMPTS = 7;          // и не более стольких попыток
+
 async function handleAssistant(request, env) {
   if (request.method !== 'POST') {
     return json({ error: 'Только POST-запросы' }, 405);
@@ -358,7 +394,10 @@ async function handleAssistant(request, env) {
   const finalChain = chain.length > 0 ? chain : configured;
 
   const errors = [];
+  const startedAt = Date.now();
+  let attempts = 0;
 
+  outer:
   for (const provider of finalChain) {
     const apiKey = env[provider.keyEnv];
 
@@ -369,27 +408,50 @@ async function handleAssistant(request, env) {
     }
 
     for (const model of models) {
+      // Держим общее время ответа в разумных рамках: лучше честно сказать
+      // «занято, попробуйте ещё раз», чем заставлять человека ждать минуту
+      // и в итоге показать «нет связи с сервером».
+      if (Date.now() - startedAt > TOTAL_BUDGET_MS || attempts >= MAX_ATTEMPTS) {
+        errors.push('превышено время ожидания, перебор остановлен');
+        break outer;
+      }
+      attempts++;
+
       try {
         const answer = await callProvider(provider, apiKey, model, question, dateContext);
         lastGoodModel[provider.id] = model;
         delete failedUntil[provider.id];
         return json({ answer, model: `${provider.id}/${model}` });
       } catch (err) {
-        errors.push(`${provider.id} ${model}: ${err.message}`);
-        if (isKeyProblem(err.message)) {
-          // Ключ не принят — остальные модели откажут так же.
-          // Отставляем провайдера на 30 минут и идём дальше.
+        const msg = err && err.message ? err.message : String(err);
+        errors.push(`${provider.id} ${model}: ${msg}`);
+
+        if (isKeyProblem(msg)) {
+          // Ключ не принят — остальные модели откажут так же
           failedUntil[provider.id] = Date.now() + SKIP_MS;
-          errors.push(`${provider.id}: ключ отклонён, провайдер отложен на 30 мин`);
+          errors.push(`${provider.id}: ключ отклонён, отложен на 30 мин`);
+          break;
+        }
+        if (isProviderBusy(msg)) {
+          // Лимит частоты или сбой провайдера — считается на весь аккаунт,
+          // перебирать остальные его модели бессмысленно
+          failedUntil[provider.id] = Date.now() + BUSY_MS;
+          errors.push(`${provider.id}: занят или лимит запросов, отложен на 3 мин`);
           break;
         }
       }
     }
   }
 
+  // Человеку показываем понятную фразу, подробности прячем в отдельное поле —
+  // они нужны только для разбора, а не для клиента.
   return json(
-    { error: 'Все AI-провайдеры недоступны. Подробности: ' + errors.join(' | ') },
-    502
+    {
+      error: 'Ассистент сейчас перегружен. Попробуйте повторить вопрос через минуту — ' +
+             'или напишите бухгалтеру: t.me/MarkusJW_bot',
+      details: errors.join(' | '),
+    },
+    503
   );
 }
 
