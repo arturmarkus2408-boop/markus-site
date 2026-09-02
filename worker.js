@@ -216,7 +216,10 @@ const PROVIDERS = [
     keyEnv: 'CEREBRAS_API_KEY',
     kind: 'openai',
     url: 'https://api.cerebras.ai/v1/chat/completions',
-    models: ['llama-3.3-70b', 'qwen-3-235b-a22b-instruct', 'gpt-oss-120b'],
+    // На бесплатном доступе Cerebras оставил только эти две модели.
+    // Прежние llama-3.3-70b и qwen-3-235b сняты — обращения к ним
+    // впустую тратили попытки.
+    models: ['gpt-oss-120b', 'gemma-4-31b'],
   },
   {
     // Groq — быстрый, но модели послабее. Держим как подстраховку.
@@ -355,11 +358,57 @@ function isProviderBusy(message) {
   );
 }
 
-const BUSY_MS = 3 * 60 * 1000;   // лимит частоты сбрасывается быстро — ждём 3 минуты
-const TOTAL_BUDGET_MS = 38000;   // весь ответ обязан уложиться в это время
-const MAX_ATTEMPTS = 7;          // и не более стольких попыток
+const BUSY_MS = 3 * 60 * 1000;      // лимит частоты сбрасывается быстро — ждём 3 минуты
+const TOTAL_BUDGET_MS = 38000;      // весь ответ обязан уложиться в это время
+const MAX_PER_PROVIDER = 2;         // не более 2 моделей у одного провайдера
+// Раньше стоял общий предел попыток. Из-за него сбойные провайдеры
+// выбирали весь лимит, и до заведомо рабочих очередь не доходила.
+
+// ДИАГНОСТИКА: откройте /api/assistant в браузере — страница по очереди
+// опросит каждого провайдера коротким вопросом и честно покажет, кто отвечает,
+// а кто отказывает и почему. Нужна, чтобы не гадать при сбоях.
+async function diagnoseProviders(env) {
+  const report = [];
+  for (const provider of PROVIDERS) {
+    const apiKey = env[provider.keyEnv];
+    if (!apiKey) {
+      report.push({ провайдер: provider.id, статус: '— ключ не задан', переменная: provider.keyEnv });
+      continue;
+    }
+    const models = [];
+    for (const model of provider.models) {
+      const t0 = Date.now();
+      try {
+        await callProvider(provider, apiKey, model, 'Ответь одним словом: тест', '');
+        models.push({ модель: model, статус: '✅ отвечает', мс: Date.now() - t0 });
+        break; // первой рабочей достаточно
+      } catch (err) {
+        models.push({
+          модель: model,
+          статус: '❌ ' + String(err && err.message || err).slice(0, 160),
+          мс: Date.now() - t0,
+        });
+      }
+    }
+    const ok = models.some((m) => m.статус.startsWith('✅'));
+    report.push({
+      провайдер: provider.id,
+      статус: ok ? '✅ РАБОТАЕТ' : '❌ не отвечает',
+      ключ: `есть (${apiKey.slice(0, 6)}…, длина ${apiKey.length})`,
+      модели: models,
+    });
+  }
+  const working = report.filter((r) => r.статус === '✅ РАБОТАЕТ').map((r) => r.провайдер);
+  return json({
+    итог: working.length
+      ? `✅ Работают: ${working.join(', ')}`
+      : '❌ Ни один провайдер не отвечает — смотрите подробности ниже',
+    подробности: report,
+  });
+}
 
 async function handleAssistant(request, env) {
+  if (request.method === 'GET') return diagnoseProviders(env);
   if (request.method !== 'POST') {
     return json({ error: 'Только POST-запросы' }, 405);
   }
@@ -395,10 +444,10 @@ async function handleAssistant(request, env) {
 
   const errors = [];
   const startedAt = Date.now();
-  let attempts = 0;
 
   outer:
   for (const provider of finalChain) {
+    let triedHere = 0;
     const apiKey = env[provider.keyEnv];
 
     let models = provider.models;
@@ -411,11 +460,14 @@ async function handleAssistant(request, env) {
       // Держим общее время ответа в разумных рамках: лучше честно сказать
       // «занято, попробуйте ещё раз», чем заставлять человека ждать минуту
       // и в итоге показать «нет связи с сервером».
-      if (Date.now() - startedAt > TOTAL_BUDGET_MS || attempts >= MAX_ATTEMPTS) {
-        errors.push('превышено время ожидания, перебор остановлен');
+      if (Date.now() - startedAt > TOTAL_BUDGET_MS) {
+        errors.push('превышено общее время ожидания, перебор остановлен');
         break outer;
       }
-      attempts++;
+      // У одного провайдера пробуем максимум 2 модели, дальше — к следующему.
+      // Так каждый провайдер в цепочке гарантированно получает свой шанс.
+      if (triedHere >= MAX_PER_PROVIDER) break;
+      triedHere++;
 
       try {
         const answer = await callProvider(provider, apiKey, model, question, dateContext);
