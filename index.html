@@ -2198,7 +2198,7 @@ document.getElementById('lead-submit').addEventListener('click', async () => {
       <tfoot>
         <tr style="border-top: 2px solid #000;">
           <td style="padding:10px 0; font-weight:bold;">Итого в месяц</td>
-          <td style="padding:10px 0; font-weight:bold; text-align:right;" id="print-total"></td>
+          <td style="padding:10px 0; font-weight:bold; text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums;" id="print-total"></td>
         </tr>
       </tfoot>
     </table>
@@ -2210,20 +2210,57 @@ document.getElementById('lead-submit').addEventListener('click', async () => {
         <tfoot>
           <tr style="border-top: 2px solid #000;">
             <td style="padding:10px 0; font-weight:bold;">Итого разово</td>
-            <td style="padding:10px 0; font-weight:bold; text-align:right;" id="print-onetime-total"></td>
+            <td style="padding:10px 0; font-weight:bold; text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums;" id="print-onetime-total"></td>
           </tr>
         </tfoot>
       </table>
     </div>
 
-    <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-top:24px;">
-      <p style="font-size:12px; color:#888; max-width:360px;">Стоимость является предварительной. Конечная стоимость определяется после общения со специалистом компании MARKUS.<br>+998 33 080-10-70 · Telegram: @MarkusJW_bot</p>
-      <img src="/seal-real-gold.png" alt="" style="width:104px; height:auto; opacity:0.92; flex-shrink:0;">
+    <!-- Печать намеренно заходит краем на строку итога — как на настоящем
+         заверенном документе. Поэтому блок position:relative, а печать
+         поднята отрицательным отступом сверху. -->
+    <div style="position:relative; margin-top:18px;">
+      <img src="/seal-real-gold.png" alt="" style="position:absolute; right:-4px; top:-44px; width:104px; height:auto; opacity:0.72; transform:rotate(-7deg);">
+      <p style="font-size:11.5px; line-height:1.55; color:#8a8a8a; max-width:58%; margin:0;">
+        Стоимость является предварительной. Конечная стоимость определяется после общения со специалистом компании MARKUS.<br>
+        +998 33 080-10-70 &middot; Telegram: @MarkusJW_bot
+      </p>
     </div>
   </div>
 </div>
 
 <script>
+// Достаём из карточки услуги отдельно НАЗВАНИЕ и отдельно ОПИСАНИЕ.
+// В разметке они разделены тегом <br>, а он не даёт текстового символа —
+// поэтому обычный textContent склеивал их в одно слово
+// («Кадровый учётP&L, движение...»). Берём первый текстовый узел как
+// название, вложенный <span> — как описание.
+function splitOptionLabel(wrapEl) {
+  if (!wrapEl) return { name: '', desc: '' };
+  const descEl = wrapEl.querySelector('span');
+  const desc = descEl ? descEl.textContent.trim() : '';
+  let name = '';
+  for (const node of wrapEl.childNodes) {
+    if (node.nodeType === Node.TEXT_NODE) name += node.textContent;
+    else if (node === descEl) break;
+  }
+  name = name.trim();
+  if (!name) name = wrapEl.textContent.replace(desc, '').trim();
+  return { name, desc };
+}
+
+function escapeHtml(t) {
+  return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Название, под ним — описание в скобках мелким серым.
+// Единый вид для всех строк сметы.
+function labelWithDesc(name, desc) {
+  const n = escapeHtml(name);
+  if (!desc) return n;
+  return n + '<br><span style="color:#9a9a9a; font-size:11.5px;">(' + escapeHtml(desc) + ')</span>';
+}
+
 document.getElementById('pdf-btn').addEventListener('click', () => {
   const rows = [];
   rows.push(['Режим налогообложения', document.querySelector('input[name="regime"]:checked').value === 'osn' ? 'ОСН' : 'УСН (4%)']);
@@ -2241,15 +2278,20 @@ document.getElementById('pdf-btn').addEventListener('click', () => {
   rows.push(['Стоимость документооборота', document.getElementById('bd-docs').textContent + ' сум']);
   // Только ежемесячные допуслуги — восстановление сюда не входит, оно разовое
   document.querySelectorAll('.addon:checked').forEach(el => {
-    const label = el.closest('label').querySelector('span > span').textContent.split('\n')[0];
-    rows.push([label.trim(), fmt(parseFloat(el.dataset.price)) + ' сум']);
+    const { name, desc } = splitOptionLabel(el.closest('label').querySelector('span > span'));
+    rows.push([labelWithDesc(name, desc), fmt(parseFloat(el.dataset.price)) + ' сум']);
   });
-  const termLabel = document.querySelector('input[name="term"]:checked').closest('label').querySelector('span').textContent.trim();
-  rows.push(['Срок оплаты', termLabel.split(/\s{2,}/)[0]]);
+  // Срок оплаты: скидку показываем в скобках рядом, она короткая
+  const termWrap = document.querySelector('input[name="term"]:checked').closest('label').querySelector('span');
+  const term = splitOptionLabel(termWrap);
+  rows.push(['Срок оплаты', escapeHtml(term.name) + (term.desc ? ' (' + escapeHtml(term.desc.toLowerCase()) + ')' : '')]);
 
-  document.getElementById('print-rows').innerHTML = rows.map(r =>
-    `<tr style="border-bottom:1px solid #eee;"><td style="padding:6px 0; color:#444;">${r[0]}</td><td style="padding:6px 0; text-align:right;">${r[1]}</td></tr>`
-  ).join('');
+  const rowHtml = r =>
+    `<tr style="border-bottom:1px solid #ececec;">` +
+    `<td style="padding:8px 12px 8px 0; color:#333; line-height:1.45; vertical-align:top;">${r[0]}</td>` +
+    `<td style="padding:8px 0; text-align:right; white-space:nowrap; vertical-align:top; font-variant-numeric:tabular-nums;">${r[1]}</td>` +
+    `</tr>`;
+  document.getElementById('print-rows').innerHTML = rows.map(rowHtml).join('');
   document.getElementById('print-total').textContent = document.getElementById('total-result').textContent + ' сум';
   document.getElementById('print-date').textContent = 'Сформировано: ' + new Date().toLocaleDateString('ru-RU');
 
@@ -2263,16 +2305,14 @@ document.getElementById('pdf-btn').addEventListener('click', () => {
     onetimeRows.push(['Восстановление учёта (' + restoreMonths + ' мес.)', fmt(restoreTotal) + ' сум']);
   }
   document.querySelectorAll('.addon-onetime:checked').forEach(el => {
-    const label = el.closest('label').querySelector('span > span').textContent.split('\n')[0];
-    onetimeRows.push([label.trim(), fmt(parseFloat(el.dataset.price)) + ' сум']);
+    const { name, desc } = splitOptionLabel(el.closest('label').querySelector('span > span'));
+    onetimeRows.push([labelWithDesc(name, desc), fmt(parseFloat(el.dataset.price)) + ' сум']);
   });
 
   const onetimeSection = document.getElementById('print-onetime-section');
   if (onetimeRows.length > 0) {
     onetimeSection.style.display = 'block';
-    document.getElementById('print-onetime-rows').innerHTML = onetimeRows.map(r =>
-      `<tr style="border-bottom:1px solid #eee;"><td style="padding:6px 0; color:#444;">${r[0]}</td><td style="padding:6px 0; text-align:right;">${r[1]}</td></tr>`
-    ).join('');
+    document.getElementById('print-onetime-rows').innerHTML = onetimeRows.map(rowHtml).join('');
     const onetimeSum = onetimeRows.reduce((sum, r) => sum + parseInt(r[1].replace(/\D/g, '')), 0);
     document.getElementById('print-onetime-total').textContent = fmt(onetimeSum) + ' сум';
   } else {
