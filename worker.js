@@ -194,12 +194,14 @@ const PROVIDERS = [
     keyEnv: 'GITHUB_MODELS_TOKEN',
     kind: 'openai',
     url: 'https://models.github.ai/inference/chat/completions',
+    // Лимиты у GitHub считаются ОТДЕЛЬНО на каждую модель:
+    // gpt-4.1 — 50 запросов в сутки, gpt-4o-mini — 150. Поэтому mini идёт
+    // вторым: когда сильная модель исчерпана, у mini ещё остаётся запас.
     models: [
       'openai/gpt-4.1',
+      'openai/gpt-4o-mini',
       'openai/gpt-4o',
       'deepseek/DeepSeek-V3-0324',
-      'deepseek/DeepSeek-R1',
-      'openai/gpt-4o-mini',
     ],
   },
   {
@@ -272,7 +274,7 @@ async function callGemini(apiKey, model, question, dateContext) {
     body: JSON.stringify({
       contents: [{ parts: [{ text: dateContext + question }] }],
       systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-      generationConfig: { maxOutputTokens: 3000 },
+      generationConfig: { maxOutputTokens: 1400 },
     }),
   });
   if (!response.ok) {
@@ -302,7 +304,7 @@ async function callOpenAiCompatible(baseUrl, apiKey, model, question, dateContex
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: dateContext + question },
       ],
-      max_tokens: 3000,
+      max_tokens: 1400,
     }),
   });
   if (!response.ok) {
@@ -360,7 +362,7 @@ function isProviderBusy(message) {
 
 const BUSY_MS = 3 * 60 * 1000;      // лимит частоты сбрасывается быстро — ждём 3 минуты
 const TOTAL_BUDGET_MS = 38000;      // весь ответ обязан уложиться в это время
-const MAX_PER_PROVIDER = 2;         // не более 2 моделей у одного провайдера
+const MAX_PER_PROVIDER = 3;         // не более 3 моделей у одного провайдера
 // Раньше стоял общий предел попыток. Из-за него сбойные провайдеры
 // выбирали весь лимит, и до заведомо рабочих очередь не доходила.
 
@@ -448,6 +450,7 @@ async function handleAssistant(request, env) {
   outer:
   for (const provider of finalChain) {
     let triedHere = 0;
+    let busyHere = 0;
     const apiKey = env[provider.keyEnv];
 
     let models = provider.models;
@@ -485,11 +488,16 @@ async function handleAssistant(request, env) {
           break;
         }
         if (isProviderBusy(msg)) {
-          // Лимит частоты или сбой провайдера — считается на весь аккаунт,
-          // перебирать остальные его модели бессмысленно
-          failedUntil[provider.id] = Date.now() + BUSY_MS;
-          errors.push(`${provider.id}: занят или лимит запросов, отложен на 3 мин`);
-          break;
+          // Лимит у многих провайдеров считается на КАЖДУЮ модель отдельно,
+          // поэтому сначала пробуем следующую модель этого же провайдера.
+          // И только если исчерпали разрешённые попытки — откладываем его.
+          busyHere++;
+          if (busyHere >= MAX_PER_PROVIDER || triedHere >= MAX_PER_PROVIDER) {
+            failedUntil[provider.id] = Date.now() + BUSY_MS;
+            errors.push(`${provider.id}: лимит запросов, отложен на 3 мин`);
+            break;
+          }
+          continue;
         }
       }
     }
