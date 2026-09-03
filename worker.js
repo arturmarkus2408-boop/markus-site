@@ -1,36 +1,54 @@
 // ============================================================
 // СЕРВЕРНАЯ ЧАСТЬ САЙТА MARKUS ДЛЯ CLOUDFLARE WORKERS
+// Версия 03.09.2026
 // ============================================================
-// Что это: то же самое, что раньше делали 4 файла в папке /api,
-// но в формате, который понимает Cloudflare (там другой способ
-// описания серверных функций, чем на Vercel).
-//
-// Папку /api УДАЛЯТЬ НЕ НУЖНО — она продолжает обслуживать Vercel.
-// Этот файл обслуживает Cloudflare. Логика внутри одинаковая.
-//
 // Что обслуживает:
 //   /api/news       — лента новостей из Telegram-канала
-//   /api/assistant  — AI-ассистент по Налоговому кодексу
+//   /api/assistant  — AI-ассистент
 //   /api/lead       — отправка заявок с сайта в Telegram
 //   /api/bot        — ответы бота на сообщения клиентов
 //   всё остальное   — обычные файлы сайта (index.html, картинки и т.д.)
+//
+// ГЛАВНОЕ ОТЛИЧИЕ ОТ ПРЕДЫДУЩЕЙ ВЕРСИИ
+// Раньше список моделей был вписан в код руками, и когда провайдер
+// снимал модель — ассистент замолкал до тех пор, пока список не
+// поправят. Теперь код сам спрашивает у каждого провайдера, какие
+// модели у него сейчас живые, и выбирает лучшую. Список в коде
+// остался только как аварийный запас на случай, если сам опрос
+// не прошёл. Больше устаревать нечему.
+//
+// Папку /api УДАЛЯТЬ НЕ НУЖНО — она продолжает обслуживать Vercel.
 
 // ---------- вспомогательное ----------
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-store',
+    },
   });
 
-// Безопасно читаем тело запроса: если его нет или оно битое — вернём пустой объект,
-// чтобы функция не падала с ошибкой сервера.
+// Безопасно читаем тело запроса: если его нет или оно битое — вернём пустой
+// объект, чтобы функция не падала с ошибкой сервера.
 async function readBody(request) {
   try {
     return await request.json();
   } catch {
     return {};
   }
+}
+
+// Сравнение секретов без утечки времени. Обычное === на длинных строках
+// отвечает чуть быстрее при несовпадении первого символа, и по этой
+// разнице теоретически можно подбирать секрет по буквам.
+function safeEqual(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
 }
 
 // ============================================================
@@ -44,6 +62,7 @@ const CHANNEL = 'MARKUS_JW';
 async function handleNews() {
   try {
     const response = await fetch(`https://t.me/s/${CHANNEL}`, {
+      signal: AbortSignal.timeout(10000),
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; MarkusSiteBot/1.0)' },
     });
 
@@ -99,9 +118,7 @@ async function handleNews() {
 // ============================================================
 // 2) AI-АССИСТЕНТ
 // ============================================================
-// Пробует провайдеров по очереди: сначала все модели Gemini,
-// если вся цепочка не ответила — Groq, потом OpenRouter.
-// Провайдер без ключа просто тихо пропускается, сайт не падает.
+
 const SYSTEM_PROMPT = `Ты — AI-ассистент бухгалтерско-юридической компании MARKUS (Ташкент, Узбекистан).
 
 КТО ТЫ
@@ -121,6 +138,9 @@ const SYSTEM_PROMPT = `Ты — AI-ассистент бухгалтерско-�
 
 КАК ОТВЕЧАТЬ
 - Отвечай по существу и развёрнуто, без воды и без канцелярита.
+- Помни, о чём шла речь выше в этом же разговоре. Если человек говорит
+  «а если наоборот?» или «посчитай для пяти сотрудников» — он продолжает
+  предыдущую тему, а не начинает новую. Не переспрашивай то, что уже сказано.
 - Не подстраивайся под собеседника: если он неправ или план рискованный —
   скажи прямо и объясни почему. Твоя ценность в честности, а не в вежливости.
 - Пиши обычным текстом, БЕЗ markdown-разметки: не используй звёздочки **,
@@ -167,132 +187,285 @@ const SYSTEM_PROMPT = `Ты — AI-ассистент бухгалтерско-�
 фальсификация — нет. В таком случае объясни риски и предложи законный путь.`;
 
 // ------------------------------------------------------------
-// СПИСОК ПРОВАЙДЕРОВ — по убыванию качества ответов.
+// ПРОВАЙДЕРЫ — по убыванию качества ответов.
 // ------------------------------------------------------------
-// Как это работает: идём сверху вниз. Провайдер, для которого не задан
-// ключ, молча пропускается. Внутри провайдера перебираются модели —
-// если одну отключили, подхватится следующая.
-// Чтобы подключить нового провайдера, достаточно добавить его ключ
-// в переменные Cloudflare. Менять код не нужно.
+// Провайдер без ключа молча пропускается. Чтобы подключить нового —
+// достаточно добавить его ключ в переменные Cloudflare, код не трогать.
+//
+// listUrl — адрес, по которому провайдер САМ сообщает список своих живых
+//           моделей. Благодаря ему список ниже не устаревает.
+// fallback — аварийный список на случай, если опрос не прошёл.
 const PROVIDERS = [
   {
     id: 'gemini',
     keyEnv: 'GEMINI_API_KEY',
     kind: 'gemini',
-    models: [
-      'gemini-flash-latest',
-      'gemini-3.7-flash',
-      'gemini-3.6-flash',
-      'gemini-3.5-flash-lite',
-      'gemini-2.5-flash',
-    ],
+    listUrl: 'https://generativelanguage.googleapis.com/v1beta/models',
+    prefer: [/flash-latest/i, /flash(?!-lite)/i, /flash-lite/i, /pro/i],
+    fallback: ['gemini-flash-latest', 'gemini-3.5-flash', 'gemini-2.5-flash'],
   },
   {
-    // GitHub Models — бесплатно для личных аккаунтов GitHub.
-    // Даёт доступ к сильным моделям (GPT-4.1/4o, DeepSeek, иногда Claude).
-    id: 'github',
-    keyEnv: 'GITHUB_MODELS_TOKEN',
+    // GEMINI ОКОЛЬНЫМ ПУТЁМ. Если Google отказал (а он отказывает ключам
+    // нового формата на части аккаунтов), те же самые модели Gemini
+    // берутся через OpenRouter — бесплатно и по обычному ключу
+    // OPENROUTER_API_KEY. Отдельного ключа не нужно.
+    // Благодаря этому качество ответов не падает до Groq, даже когда
+    // прямой доступ к Google сломан.
+    id: 'gemini-via-openrouter',
+    keyEnv: 'OPENROUTER_API_KEY',
     kind: 'openai',
-    url: 'https://models.github.ai/inference/chat/completions',
-    // Лимиты у GitHub считаются ОТДЕЛЬНО на каждую модель:
-    // gpt-4.1 — 50 запросов в сутки, gpt-4o-mini — 150. Поэтому mini идёт
-    // вторым: когда сильная модель исчерпана, у mini ещё остаётся запас.
-    models: [
-      'openai/gpt-4.1',
-      'openai/gpt-4o-mini',
-      'openai/gpt-4o',
-      'deepseek/DeepSeek-V3-0324',
-    ],
+    url: 'https://openrouter.ai/api/v1/chat/completions',
+    listUrl: 'https://openrouter.ai/api/v1/models',
+    freeOnly: true,
+    onlyMatch: /^google\/gemini/i,
+    headers: { 'HTTP-Referer': 'https://markus.uz', 'X-Title': 'MARKUS AI Assistant' },
+    prefer: [/flash(?!-lite)/i, /pro/i, /flash-lite/i],
+    fallback: ['google/gemini-2.5-flash:free', 'google/gemini-2.0-flash-exp:free'],
   },
   {
-    // Mistral — очень щедрый бесплатный тариф, модели уровня Large.
+    // Mistral — щедрый бесплатный тариф, модели уровня Large.
     id: 'mistral',
     keyEnv: 'MISTRAL_API_KEY',
     kind: 'openai',
     url: 'https://api.mistral.ai/v1/chat/completions',
-    models: ['mistral-large-latest', 'mistral-medium-latest', 'mistral-small-latest'],
+    listUrl: 'https://api.mistral.ai/v1/models',
+    prefer: [/large-latest/i, /medium-latest/i, /small-latest/i],
+    fallback: ['mistral-large-latest', 'mistral-medium-latest', 'mistral-small-latest'],
   },
   {
-    // Cerebras — большой дневной лимит, быстрые ответы.
+    // Cerebras — большой дневной лимит, очень быстрые ответы.
     id: 'cerebras',
     keyEnv: 'CEREBRAS_API_KEY',
     kind: 'openai',
     url: 'https://api.cerebras.ai/v1/chat/completions',
-    // На бесплатном доступе Cerebras оставил только эти две модели.
-    // Прежние llama-3.3-70b и qwen-3-235b сняты — обращения к ним
-    // впустую тратили попытки.
-    models: ['gpt-oss-120b', 'gemma-4-31b'],
+    listUrl: 'https://api.cerebras.ai/v1/models',
+    prefer: [/gpt-oss/i, /gemma/i, /qwen/i, /llama/i],
+    fallback: ['gpt-oss-120b', 'gemma-4-31b'],
   },
   {
-    // Groq — быстрый, но модели послабее. Держим как подстраховку.
+    // Groq — быстрый и стабильный, рабочая лошадка.
     id: 'groq',
     keyEnv: 'GROQ_API_KEY',
     kind: 'openai',
     url: 'https://api.groq.com/openai/v1/chat/completions',
-    models: [
-      'openai/gpt-oss-120b',
-      'openai/gpt-oss-20b',
-      'qwen/qwen3.6-27b',
-      'llama-3.3-70b-versatile',
-    ],
+    listUrl: 'https://api.groq.com/openai/v1/models',
+    prefer: [/gpt-oss-120b/i, /70b/i, /gpt-oss/i, /qwen/i, /llama/i],
+    fallback: ['openai/gpt-oss-120b', 'openai/gpt-oss-20b', 'llama-3.3-70b-versatile'],
   },
   {
-    // OpenRouter — последний рубеж. "openrouter/free" сам подбирает
-    // любую живую бесплатную модель, поэтому не устаревает.
+    // NVIDIA NIM — бесплатные кредиты, формат OpenAI. Ключ необязателен:
+    // без него провайдер просто не участвует.
+    id: 'nvidia',
+    keyEnv: 'NVIDIA_API_KEY',
+    kind: 'openai',
+    url: 'https://integrate.api.nvidia.com/v1/chat/completions',
+    listUrl: 'https://integrate.api.nvidia.com/v1/models',
+    prefer: [/llama-3\.[13]-70b/i, /70b/i, /gpt-oss/i, /qwen/i, /mistral/i],
+    fallback: ['meta/llama-3.3-70b-instruct', 'openai/gpt-oss-120b'],
+  },
+  {
+    // OpenRouter — последний рубеж. Умеет отдавать чужие модели, включая
+    // бесплатные Gemini, поэтому годится и как обходной путь для Gemini.
     id: 'openrouter',
     keyEnv: 'OPENROUTER_API_KEY',
     kind: 'openai',
     url: 'https://openrouter.ai/api/v1/chat/completions',
+    listUrl: 'https://openrouter.ai/api/v1/models',
+    freeOnly: true, // из общего списка берём только бесплатные модели
     headers: { 'HTTP-Referer': 'https://markus.uz', 'X-Title': 'MARKUS AI Assistant' },
-    models: ['openrouter/free', 'openai/gpt-oss-120b:free', 'openai/gpt-oss-20b:free'],
+    prefer: [/gemini.*:free/i, /120b.*:free/i, /70b.*:free/i, /:free/i],
+    fallback: ['openrouter/free', 'openai/gpt-oss-120b:free', 'openai/gpt-oss-20b:free'],
+  },
+  {
+    // Запасное гнездо на будущее: любой провайдер формата OpenAI
+    // подключается тремя переменными, без правки кода.
+    id: 'extra',
+    keyEnv: 'EXTRA_AI_KEY',
+    kind: 'openai',
+    urlEnv: 'EXTRA_AI_URL',
+    modelEnv: 'EXTRA_AI_MODEL',
+    fallback: [],
   },
 ];
 
-// Порядок провайдеров всегда сохраняем по качеству — иначе сайт «залипнет»
-// на слабой модели. Вместо этого запоминаем ПРОВАЛЫ: если у провайдера
-// отклонён ключ, на 30 минут его пропускаем, чтобы не ждать впустую.
-// Через 30 минут он пробуется снова — поэтому, когда Google починит свою
-// сторону, Gemini вернётся сам, без правок и без обращения ко мне.
-const failedUntil = {};       // { gemini: времяКогдаМожноПробоватьСнова }
-const SKIP_MS = 30 * 60 * 1000;
+// ------------------------------------------------------------
+// ВЫБОР МОДЕЛЕЙ: спрашиваем провайдера, что у него живое
+// ------------------------------------------------------------
+// Список моделей у провайдеров меняется без предупреждения (Groq снимал
+// llama-3.3-70b, Cerebras — llama и qwen, GitHub Models закрылся целиком).
+// Поэтому список не хранится в коде, а запрашивается у самого провайдера
+// и держится в памяти 6 часов.
+const MODEL_CACHE_MS = 6 * 60 * 60 * 1000;
+const modelCache = {};        // { groq: { at: время, models: [...] } }
+const MAX_MODELS_KEPT = 4;    // больше четырёх перебирать смысла нет
 
-// Внутри провайдера помним удачную модель — это не влияет на качество,
-// но экономит время на переборе отключённых моделей.
-const lastGoodModel = {};     // { groq: 'openai/gpt-oss-120b' }
+// Не чат-модели: картинки, звук, эмбеддинги, фильтры безопасности.
+const NOT_A_CHAT_MODEL =
+  /embed|embedding|whisper|tts|speech|audio|voice|guard|moderat|rerank|imagen|image|vision|veo|video|ocr|aqa|bison|gecko|distil|safety|sonar-deep|-thinking-|deep-research/i;
 
-// Ни один запрос к провайдеру не должен висеть дольше этого времени.
-// Без ограничения один зависший провайдер задерживал весь ответ, браузер
-// не дожидался, и клиент видел «Не удалось связаться с сервером».
-const CALL_TIMEOUT_MS = 15000;
-
-async function callGemini(apiKey, model, question, dateContext) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-  const response = await fetch(url, {
-    method: 'POST',
-    signal: AbortSignal.timeout(CALL_TIMEOUT_MS),
-    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: dateContext + question }] }],
-      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-      generationConfig: { maxOutputTokens: 1400 },
-    }),
-  });
-  if (!response.ok) {
-    const errText = await response.text().catch(() => '');
-    throw new Error(`HTTP ${response.status} ${errText.slice(0, 200)}`);
+// Из двух живых моделей лучше та, что крупнее и новее. Размер («120b»,
+// «70b») почти всегда важнее версии, поэтому у него больший вес.
+function scoreModel(name, provider) {
+  let score = 0;
+  const prefer = provider.prefer || [];
+  for (let i = 0; i < prefer.length; i++) {
+    if (prefer[i].test(name)) {
+      score += (prefer.length - i) * 1000;
+      break;
+    }
   }
-  const data = await response.json();
-  const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!answer) throw new Error('пустой ответ');
-  return answer;
+  const size = name.match(/(\d+(?:\.\d+)?)\s*b(?![a-z0-9])/i);
+  if (size) score += Math.min(parseFloat(size[1]), 700) * 3;
+  const ver = name.match(/(\d+(?:\.\d+)?)/);
+  if (ver) score += Math.min(parseFloat(ver[1]), 100);
+  if (/preview|exp|experimental|alpha|beta|rc\d/i.test(name)) score -= 400;
+  if (/lite|mini|nano|tiny|small|8b|4b|1b/i.test(name)) score -= 300;
+  if (/latest/i.test(name)) score += 200;
+  return score;
 }
 
-// Groq, GitHub Models, Mistral, Cerebras и OpenRouter говорят на одном
-// языке (формат OpenAI), поэтому для них достаточно одной функции.
-async function callOpenAiCompatible(baseUrl, apiKey, model, question, dateContext, extraHeaders) {
+// Спрашиваем у провайдера список моделей. Любая ошибка здесь не страшна:
+// вернём пустой список, и в дело пойдёт аварийный список из кода.
+async function fetchModelList(provider, apiKey, env) {
+  const listUrl = provider.listUrl;
+  if (!listUrl) return [];
+  try {
+    const headers =
+      provider.kind === 'gemini'
+        ? { 'x-goog-api-key': apiKey }
+        : { Authorization: `Bearer ${apiKey}`, ...(provider.headers || {}) };
+
+    const resp = await fetch(listUrl, {
+      headers,
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!resp.ok) return [];
+    const data = await resp.json();
+
+    let names = [];
+    if (provider.kind === 'gemini') {
+      names = (data.models || [])
+        .filter((m) =>
+          !m.supportedGenerationMethods ||
+          m.supportedGenerationMethods.includes('generateContent')
+        )
+        .map((m) => String(m.name || '').replace(/^models\//, ''));
+    } else {
+      let items = data.data || data.models || [];
+      if (provider.freeOnly) {
+        items = items.filter((m) => {
+          const p = m.pricing || {};
+          const free = parseFloat(p.prompt || '0') === 0 && parseFloat(p.completion || '0') === 0;
+          return free || /:free$/.test(String(m.id || ''));
+        });
+      }
+      names = items.map((m) => String(m.id || m.name || ''));
+    }
+
+    return names
+      .filter((n) => n && !NOT_A_CHAT_MODEL.test(n))
+      .filter((n) => !provider.onlyMatch || provider.onlyMatch.test(n))
+      .sort((a, b) => scoreModel(b, provider) - scoreModel(a, provider))
+      .slice(0, MAX_MODELS_KEPT);
+  } catch {
+    return [];
+  }
+}
+
+async function modelsFor(provider, apiKey, env) {
+  // Ручная настройка запасного гнезда перевешивает всё остальное
+  if (provider.modelEnv && env[provider.modelEnv]) {
+    return env[provider.modelEnv].split(',').map((s) => s.trim()).filter(Boolean);
+  }
+  const cached = modelCache[provider.id];
+  if (cached && Date.now() - cached.at < MODEL_CACHE_MS && cached.models.length) {
+    return cached.models;
+  }
+  const live = await fetchModelList(provider, apiKey, env);
+  if (live.length) {
+    modelCache[provider.id] = { at: Date.now(), models: live };
+    return live;
+  }
+  return provider.fallback || [];
+}
+
+// ------------------------------------------------------------
+// ВЫЗОВ МОДЕЛИ
+// ------------------------------------------------------------
+
+const BASE_CALL_TIMEOUT_MS = 12000;  // ни одно обращение не висит дольше
+const HARD_DEADLINE_MS = 36000;      // весь ответ обязан уложиться в это время
+
+function buildMessages(question, dateContext, history) {
+  const msgs = [{ role: 'system', content: SYSTEM_PROMPT }];
+  // Память разговора: последние 8 реплик. Без них ассистент отвечал на
+  // «а если наоборот?» как на первый вопрос — отсюда и жалобы на качество.
+  for (const h of (history || []).slice(-8)) {
+    if (!h || !h.text) continue;
+    msgs.push({ role: h.role === 'user' ? 'user' : 'assistant', content: String(h.text).slice(0, 4000) });
+  }
+  msgs.push({ role: 'user', content: dateContext + question });
+  return msgs;
+}
+
+// Google принимает ключ в заголовке x-goog-api-key. Ключи нового формата
+// «AQ.…» на некоторых аккаунтах отвечают 401 ACCESS_TOKEN_TYPE_UNSUPPORTED —
+// в этом случае пробуем тот же ключ как Bearer-токен: часть аккаунтов
+// принимает именно так. Стоит это одной лишней попытки и только при отказе.
+async function callGemini(apiKey, model, question, dateContext, history, timeoutMs) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+  const contents = [];
+  for (const h of (history || []).slice(-8)) {
+    if (!h || !h.text) continue;
+    contents.push({
+      role: h.role === 'user' ? 'user' : 'model',
+      parts: [{ text: String(h.text).slice(0, 4000) }],
+    });
+  }
+  contents.push({ role: 'user', parts: [{ text: dateContext + question }] });
+
+  const body = JSON.stringify({
+    contents,
+    systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+    generationConfig: { maxOutputTokens: 2000 },
+  });
+
+  const attempts = [
+    { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+    { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+  ];
+
+  let lastErr = '';
+  for (let i = 0; i < attempts.length; i++) {
+    const response = await fetch(url, {
+      method: 'POST',
+      signal: AbortSignal.timeout(timeoutMs),
+      headers: attempts[i],
+      body,
+    });
+    if (response.ok) {
+      const data = await response.json();
+      const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!answer) throw new Error('пустой ответ');
+      return answer;
+    }
+    const errText = await response.text().catch(() => '');
+    lastErr = `HTTP ${response.status} ${errText.slice(0, 200)}`;
+    // Вторую попытку делаем только если дело именно в типе ключа
+    const worthRetry =
+      response.status === 401 &&
+      /ACCESS_TOKEN_TYPE_UNSUPPORTED|Expected OAuth 2|invalid authentication/i.test(errText);
+    if (!worthRetry) break;
+  }
+  throw new Error(lastErr || 'HTTP ошибка');
+}
+
+// Groq, Mistral, Cerebras, NVIDIA и OpenRouter говорят на одном языке
+// (формат OpenAI), поэтому для них достаточно одной функции.
+async function callOpenAiCompatible(baseUrl, apiKey, model, question, dateContext, extraHeaders, history, timeoutMs) {
   const response = await fetch(baseUrl, {
     method: 'POST',
-    signal: AbortSignal.timeout(CALL_TIMEOUT_MS),
+    signal: AbortSignal.timeout(timeoutMs),
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
@@ -300,11 +473,8 @@ async function callOpenAiCompatible(baseUrl, apiKey, model, question, dateContex
     },
     body: JSON.stringify({
       model,
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: dateContext + question },
-      ],
-      max_tokens: 1400,
+      messages: buildMessages(question, dateContext, history),
+      max_tokens: 2000,
     }),
   });
   if (!response.ok) {
@@ -317,34 +487,33 @@ async function callOpenAiCompatible(baseUrl, apiKey, model, question, dateContex
   return answer;
 }
 
-function callProvider(provider, apiKey, model, question, dateContext) {
+function callProvider(provider, apiKey, model, question, dateContext, env, history, timeoutMs) {
+  const ms = Math.max(2000, Math.min(timeoutMs || BASE_CALL_TIMEOUT_MS, BASE_CALL_TIMEOUT_MS));
   if (provider.kind === 'gemini') {
-    return callGemini(apiKey, model, question, dateContext);
+    return callGemini(apiKey, model, question, dateContext, history, ms);
   }
-  return callOpenAiCompatible(
-    provider.url,
-    apiKey,
-    model,
-    question,
-    dateContext,
-    provider.headers
-  );
+  const url = provider.urlEnv ? env[provider.urlEnv] : provider.url;
+  if (!url) return Promise.reject(new Error('не задан адрес провайдера'));
+  return callOpenAiCompatible(url, apiKey, model, question, dateContext, provider.headers, history, ms);
 }
 
-// Ошибки, после которых перебирать остальные модели этого провайдера
-// бессмысленно — они отвалятся точно так же (проблема в ключе, а не в модели).
+// ------------------------------------------------------------
+// РАЗБОР ОШИБОК
+// ------------------------------------------------------------
+
+// Проблема в ключе, а не в модели — остальные модели откажут так же.
 function isKeyProblem(message) {
   return (
     message.includes('HTTP 401') ||
     message.includes('HTTP 403') ||
     message.includes('ACCESS_TOKEN_TYPE_UNSUPPORTED') ||
+    message.includes('API_KEY_SERVICE_BLOCKED') ||
     message.includes('API key not valid') ||
     message.includes('Incorrect API key')
   );
 }
 
-// «Слишком часто» и сбои самого провайдера. Перебирать остальные его модели
-// бесполезно — лимит считается на весь аккаунт, а не на модель.
+// «Слишком часто» и временные сбои самого провайдера.
 function isProviderBusy(message) {
   return (
     message.includes('HTTP 429') ||
@@ -360,15 +529,60 @@ function isProviderBusy(message) {
   );
 }
 
-const BUSY_MS = 3 * 60 * 1000;      // лимит частоты сбрасывается быстро — ждём 3 минуты
-const TOTAL_BUDGET_MS = 38000;      // весь ответ обязан уложиться в это время
-const MAX_PER_PROVIDER = 3;         // не более 3 моделей у одного провайдера
-// Раньше стоял общий предел попыток. Из-за него сбойные провайдеры
-// выбирали весь лимит, и до заведомо рабочих очередь не доходила.
+// Сервис закрыт (410) или требует оплаты (402) — само не починится.
+function isProviderDead(message) {
+  return (
+    message.includes('HTTP 410') ||
+    message.includes('HTTP 402') ||
+    message.includes('payment_required') ||
+    message.includes('retirement')
+  );
+}
 
-// ДИАГНОСТИКА: откройте /api/assistant в браузере — страница по очереди
-// опросит каждого провайдера коротким вопросом и честно покажет, кто отвечает,
-// а кто отказывает и почему. Нужна, чтобы не гадать при сбоях.
+// Модель не найдена или снята: пробовать следующую модель ЭТОГО же
+// провайдера имеет смысл, а откладывать провайдера — нет.
+function isModelProblem(message) {
+  return (
+    message.includes('HTTP 404') ||
+    message.includes('model_not_found') ||
+    message.includes('does not exist') ||
+    message.includes('decommissioned') ||
+    message.includes('HTTP 400')
+  );
+}
+
+// Провайдер, который только что отказал, откладывается — чтобы следующий
+// посетитель не ждал впустую. Память живёт в конкретной копии воркера,
+// поэтому это ускорение, а не жёсткое правило.
+const failedUntil = {};
+const KEY_MS = 30 * 60 * 1000;       // отклонён ключ — 30 минут
+const BUSY_MS = 3 * 60 * 1000;       // лимит частоты — 3 минуты
+const DEAD_MS = 12 * 60 * 60 * 1000; // закрыт/нужна оплата — полсуток
+const lastGoodModel = {};            // удачная модель провайдера
+
+// ------------------------------------------------------------
+// ДИАГНОСТИКА — теперь только по секретному адресу
+// ------------------------------------------------------------
+// Раньше страницу мог открыть кто угодно: она дёргала всех провайдеров
+// (то есть тратила бесплатные лимиты) и показывала начало ключей.
+// Теперь нужен параметр ?key=… со значением переменной DIAG_SECRET.
+// Если переменная не задана — диагностика выключена совсем.
+function diagAllowed(url, env) {
+  const secret = env.DIAG_SECRET;
+  if (!secret) return false;
+  return safeEqual(url.searchParams.get('key') || '', secret);
+}
+
+function keyShape(apiKey) {
+  if (!apiKey) return '— не задан';
+  const fmt = apiKey.startsWith('AQ.')
+    ? 'формат AQ. (новый ключ Google)'
+    : apiKey.startsWith('AIza')
+      ? 'формат AIza (старый ключ Google)'
+      : 'обычный';
+  return `есть, длина ${apiKey.length}, ${fmt}`;
+}
+
 async function diagnoseProviders(env) {
   const report = [];
   for (const provider of PROVIDERS) {
@@ -377,17 +591,19 @@ async function diagnoseProviders(env) {
       report.push({ провайдер: provider.id, статус: '— ключ не задан', переменная: provider.keyEnv });
       continue;
     }
+    const list = await modelsFor(provider, apiKey, env);
+    const источник = modelCache[provider.id] ? 'опрошен провайдер' : 'аварийный список в коде';
     const models = [];
-    for (const model of provider.models) {
+    for (const model of list.slice(0, 3)) {
       const t0 = Date.now();
       try {
-        await callProvider(provider, apiKey, model, 'Ответь одним словом: тест', '');
+        await callProvider(provider, apiKey, model, 'Ответь одним словом: тест', '', env, [], 10000);
         models.push({ модель: model, статус: '✅ отвечает', мс: Date.now() - t0 });
-        break; // первой рабочей достаточно
+        break;
       } catch (err) {
         models.push({
           модель: model,
-          статус: '❌ ' + String(err && err.message || err).slice(0, 160),
+          статус: '❌ ' + String((err && err.message) || err).slice(0, 200),
           мс: Date.now() - t0,
         });
       }
@@ -396,7 +612,8 @@ async function diagnoseProviders(env) {
     report.push({
       провайдер: provider.id,
       статус: ok ? '✅ РАБОТАЕТ' : '❌ не отвечает',
-      ключ: `есть (${apiKey.slice(0, 6)}…, длина ${apiKey.length})`,
+      ключ: keyShape(apiKey),
+      'список моделей': источник,
       модели: models,
     });
   }
@@ -409,23 +626,45 @@ async function diagnoseProviders(env) {
   });
 }
 
-async function handleAssistant(request, env) {
-  if (request.method === 'GET') return diagnoseProviders(env);
+// ------------------------------------------------------------
+// ГЛАВНАЯ ФУНКЦИЯ АССИСТЕНТА
+// ------------------------------------------------------------
+// Работает в два захода:
+//   Заход 1 — по очереди, от лучшего провайдера к худшему. Так ответ
+//             приходит от самой сильной модели, которая сейчас жива.
+//   Заход 2 — если время на исходе, а ответа нет, оставшиеся провайдеры
+//             опрашиваются ОДНОВРЕМЕННО и берётся первый успевший.
+//             Это и есть страховка «ассистент должен отвечать всегда».
+async function handleAssistant(request, env, url) {
+  if (request.method === 'GET') {
+    if (diagAllowed(url, env)) return diagnoseProviders(env);
+    return json({ error: 'Только POST-запросы' }, 405);
+  }
   if (request.method !== 'POST') {
     return json({ error: 'Только POST-запросы' }, 405);
   }
 
-  const { question, today } = await readBody(request);
+  const body = await readBody(request);
+  const question = body.question;
+  const today = body.today;
+  const history = Array.isArray(body.history) ? body.history : [];
+
   if (!question || typeof question !== 'string') {
     return json({ error: 'Не передан вопрос' }, 400);
+  }
+  if (question.length > 8000) {
+    return json({ error: 'Вопрос слишком длинный — сократите до 8000 знаков' }, 400);
   }
 
   const dateContext = today
     ? `Сегодняшняя дата: ${today}. Используй только актуальное на эту дату законодательство, а не устаревшие данные из твоего обучения.\n\n`
     : '';
 
-  // Провайдеры, у которых на сервере есть ключ
-  const configured = PROVIDERS.filter((p) => env[p.keyEnv]);
+  const configured = PROVIDERS.filter((p) => {
+    if (!env[p.keyEnv]) return false;
+    if (p.urlEnv && !env[p.urlEnv]) return false;
+    return true;
+  });
 
   if (configured.length === 0) {
     return json(
@@ -438,73 +677,98 @@ async function handleAssistant(request, env) {
     );
   }
 
+  const startedAt = Date.now();
+  const left = () => HARD_DEADLINE_MS - (Date.now() - startedAt);
+
   const now = Date.now();
-  // Порядок качества сохраняем; временно отставленных пропускаем
-  const chain = configured.filter((p) => !(failedUntil[p.id] > now));
-  // Если пропустить пришлось всех — пробуем всё равно, вдруг уже починилось
-  const finalChain = chain.length > 0 ? chain : configured;
+  const fresh = configured.filter((p) => !(failedUntil[p.id] > now));
+  const chain = fresh.length ? fresh : configured;
 
   const errors = [];
-  const startedAt = Date.now();
+  const notTried = [];
 
-  outer:
-  for (const provider of finalChain) {
-    let triedHere = 0;
-    let busyHere = 0;
+  // ---------- ЗАХОД 1: по очереди, от лучшего к худшему ----------
+  for (let pi = 0; pi < chain.length; pi++) {
+    const provider = chain[pi];
+    // Оставляем время на одновременный заход
+    if (left() < 15000) {
+      notTried.push(...chain.slice(pi));
+      break;
+    }
+
     const apiKey = env[provider.keyEnv];
+    let models;
+    try {
+      models = await modelsFor(provider, apiKey, env);
+    } catch {
+      models = provider.fallback || [];
+    }
+    if (!models.length) continue;
 
-    let models = provider.models;
     const good = lastGoodModel[provider.id];
     if (good && models.includes(good)) {
       models = [good, ...models.filter((m) => m !== good)];
     }
 
+    let triedHere = 0;
     for (const model of models) {
-      // Держим общее время ответа в разумных рамках: лучше честно сказать
-      // «занято, попробуйте ещё раз», чем заставлять человека ждать минуту
-      // и в итоге показать «нет связи с сервером».
-      if (Date.now() - startedAt > TOTAL_BUDGET_MS) {
-        errors.push('превышено общее время ожидания, перебор остановлен');
-        break outer;
-      }
-      // У одного провайдера пробуем максимум 2 модели, дальше — к следующему.
-      // Так каждый провайдер в цепочке гарантированно получает свой шанс.
-      if (triedHere >= MAX_PER_PROVIDER) break;
+      if (triedHere >= 2 || left() < 6000) break;
       triedHere++;
-
       try {
-        const answer = await callProvider(provider, apiKey, model, question, dateContext);
+        const answer = await callProvider(provider, apiKey, model, question, dateContext, env, history, left() - 1500);
         lastGoodModel[provider.id] = model;
         delete failedUntil[provider.id];
         return json({ answer, model: `${provider.id}/${model}` });
       } catch (err) {
-        const msg = err && err.message ? err.message : String(err);
+        const msg = (err && err.message) ? err.message : String(err);
         errors.push(`${provider.id} ${model}: ${msg}`);
 
-        if (isKeyProblem(msg)) {
-          // Ключ не принят — остальные модели откажут так же
-          failedUntil[provider.id] = Date.now() + SKIP_MS;
-          errors.push(`${provider.id}: ключ отклонён, отложен на 30 мин`);
-          break;
-        }
-        if (isProviderBusy(msg)) {
-          // Лимит у многих провайдеров считается на КАЖДУЮ модель отдельно,
-          // поэтому сначала пробуем следующую модель этого же провайдера.
-          // И только если исчерпали разрешённые попытки — откладываем его.
-          busyHere++;
-          if (busyHere >= MAX_PER_PROVIDER || triedHere >= MAX_PER_PROVIDER) {
-            failedUntil[provider.id] = Date.now() + BUSY_MS;
-            errors.push(`${provider.id}: лимит запросов, отложен на 3 мин`);
-            break;
-          }
+        if (isProviderDead(msg)) { failedUntil[provider.id] = Date.now() + DEAD_MS; break; }
+        if (isKeyProblem(msg)) { failedUntil[provider.id] = Date.now() + KEY_MS; break; }
+        if (isModelProblem(msg)) {
+          // Модель снята — забываем кэш, следующий запрос перечитает список
+          delete modelCache[provider.id];
           continue;
         }
+        if (isProviderBusy(msg)) { failedUntil[provider.id] = Date.now() + BUSY_MS; break; }
       }
     }
   }
 
-  // Человеку показываем понятную фразу, подробности прячем в отдельное поле —
-  // они нужны только для разбора, а не для клиента.
+  // ---------- ЗАХОД 2: все оставшиеся одновременно ----------
+  // Кто первый ответил — того и берём. Медленный или зависший провайдер
+  // больше не задерживает остальных.
+  const raceList = notTried.length ? notTried : configured;
+  const budget = left() - 1500;
+  if (budget > 3000) {
+    const attempts = [];
+    for (const provider of raceList) {
+      const apiKey = env[provider.keyEnv];
+      let models = modelCache[provider.id]?.models || provider.fallback || [];
+      if (!models.length) continue;
+      const model = lastGoodModel[provider.id] || models[0];
+      attempts.push(
+        callProvider(provider, apiKey, model, question, dateContext, env, history, budget).then((answer) => {
+          if (!answer) throw new Error('пустой ответ');
+          lastGoodModel[provider.id] = model;
+          return { answer, model: `${provider.id}/${model}` };
+        }).catch((err) => {
+          errors.push(`${provider.id} ${model} (параллельно): ${(err && err.message) || err}`);
+          throw err;
+        })
+      );
+    }
+    if (attempts.length) {
+      try {
+        const winner = await Promise.any(attempts);
+        delete failedUntil[winner.model.split('/')[0]];
+        return json(winner);
+      } catch {
+        // все отказали — падаем в общий ответ ниже
+      }
+    }
+  }
+
   return json(
     {
       error: 'Ассистент сейчас перегружен. Попробуйте повторить вопрос через минуту — ' +
@@ -519,29 +783,49 @@ async function handleAssistant(request, env) {
 // 3) ОТПРАВКА ЗАЯВОК В TELEGRAM
 // ============================================================
 
-async function handleLead(request, env) {
+// Простая защита от заваливания заявками: не больше 15 сообщений в минуту
+// из одной копии воркера. Обычному клиенту столько не нужно.
+const leadTimestamps = [];
+function leadFloodOk() {
+  const now = Date.now();
+  while (leadTimestamps.length && now - leadTimestamps[0] > 60000) leadTimestamps.shift();
+  if (leadTimestamps.length >= 15) return false;
+  leadTimestamps.push(now);
+  return true;
+}
+
+const cut = (v, n) => String(v == null ? '' : v).slice(0, n);
+
+async function handleLead(request, env, url) {
   const botToken = env.TELEGRAM_BOT_TOKEN;
   const chatId = env.TELEGRAM_CHAT_ID;
 
-  // ДИАГНОСТИКА: откройте /api/lead в браузере — покажет, что не так с настройкой бота
+  // ДИАГНОСТИКА — только по секретному адресу (см. DIAG_SECRET).
+  // Раньше открыть её и разослать себе тестовые сообщения мог кто угодно.
   if (request.method === 'GET') {
+    if (!diagAllowed(url, env)) return json({ error: 'Только POST-запросы' }, 405);
+
     const diag = {
-      TELEGRAM_BOT_TOKEN: botToken
-        ? `есть (${botToken.slice(0, 10)}…, длина ${botToken.length})`
-        : '❌ НЕ НАЙДЕН',
+      TELEGRAM_BOT_TOKEN: botToken ? `есть (длина ${botToken.length})` : '❌ НЕ НАЙДЕН',
       TELEGRAM_CHAT_ID: chatId ? `есть (${chatId})` : '❌ НЕ НАЙДЕН',
+      TELEGRAM_WEBHOOK_SECRET: env.TELEGRAM_WEBHOOK_SECRET
+        ? '✅ задан — вебхук защищён'
+        : '⚠️ не задан — вебхук принимает сообщения от кого угодно',
     };
     if (!botToken || !chatId) {
       return json({ status: '❌ Переменные не настроены', diag });
     }
     try {
-      const check = await fetch(`https://api.telegram.org/bot${botToken}/getMe`);
+      const check = await fetch(`https://api.telegram.org/bot${botToken}/getMe`, {
+        signal: AbortSignal.timeout(10000),
+      });
       const info = await check.json();
       if (!info.ok) {
         return json({ status: '❌ Токен бота неверный или отозван', diag, telegram: info });
       }
       const send = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: 'POST',
+        signal: AbortSignal.timeout(10000),
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: chatId,
@@ -577,8 +861,18 @@ async function handleLead(request, env) {
     return json({ error: 'TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID не настроены на сервере.' }, 500);
   }
 
-  const { name, phone, source, message, service, contactMethod, contactValue } =
-    await readBody(request);
+  if (!leadFloodOk()) {
+    return json({ error: 'Слишком много заявок подряд. Подождите минуту и повторите.' }, 429);
+  }
+
+  const raw = await readBody(request);
+  const name = cut(raw.name, 120);
+  const phone = cut(raw.phone, 40);
+  const source = cut(raw.source, 80);
+  const message = cut(raw.message, 3000);
+  const service = cut(raw.service, 200);
+  const contactMethod = cut(raw.contactMethod, 40);
+  const contactValue = cut(raw.contactValue, 200);
 
   const isServiceQuestion =
     source === 'markus-site-service-question' || source === 'markus-site-service-card';
@@ -625,6 +919,7 @@ async function handleLead(request, env) {
   try {
     const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: 'POST',
+      signal: AbortSignal.timeout(12000),
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chat_id: chatId, text: lines.join('\n') }),
     });
@@ -648,27 +943,36 @@ async function handleLead(request, env) {
 // ============================================================
 
 async function handleBot(request, env) {
-  // Telegram иногда шлёт проверочные GET — просто отвечаем ok
   if (request.method !== 'POST') return json({ ok: true });
 
   const botToken = env.TELEGRAM_BOT_TOKEN;
   const adminChatId = env.TELEGRAM_CHAT_ID;
-  // Молча выходим, чтобы Telegram не считал вебхук сломанным
   if (!botToken || !adminChatId) return json({ ok: true });
+
+  // ПРОВЕРКА ПОДЛИННОСТИ. Telegram сам подставляет этот заголовок, если
+  // при регистрации вебхука указан secret_token. Без проверки посторонний
+  // мог отправить сюда поддельное «сообщение клиента».
+  // Пока переменная не задана — работаем как раньше, чтобы бот не онемел.
+  const secret = env.TELEGRAM_WEBHOOK_SECRET;
+  if (secret) {
+    const got = request.headers.get('X-Telegram-Bot-Api-Secret-Token');
+    if (!safeEqual(got || '', secret)) return json({ ok: true });
+  }
 
   const update = await readBody(request);
   const message = update.message;
   if (!message || !message.chat) return json({ ok: true });
 
   const clientChatId = message.chat.id;
-  const text = (message.text || '').trim();
+  const text = cut(message.text, 3000).trim();
 
-  // Если админ сам написал боту (например, тестируя) — не пересылаем самому себе
+  // Если админ сам написал боту — не пересылаем самому себе
   if (String(clientChatId) === String(adminChatId)) return json({ ok: true });
 
   const sendMessage = (chatId, msgText) =>
     fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: 'POST',
+      signal: AbortSignal.timeout(10000),
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chat_id: chatId, text: msgText }),
     });
@@ -686,33 +990,65 @@ async function handleBot(request, env) {
       const username = from.username ? '@' + from.username : '—';
       await sendMessage(
         adminChatId,
-        `💬 Сообщение от клиента в боте\n\n👤 ${senderName} (${username})\n🆔 chat_id: ${clientChatId}\n📝 ${text}`
+        `💬 Сообщение от клиента в боте\n\n👤 ${cut(senderName, 120)} (${cut(username, 60)})\n🆔 chat_id: ${clientChatId}\n📝 ${text}`
       );
       await sendMessage(clientChatId, 'Спасибо! Ваше сообщение получено, мы ответим в ближайшее время.');
     }
   } catch {
-    // Не даём вебхуку "падать" — Telegram при ошибках может временно отключить его
+    // Не даём вебхуку "падать" — Telegram при ошибках отключает его
   }
 
   return json({ ok: true });
 }
 
 // ============================================================
-// ГЛАВНЫЙ ВХОД: куда пришёл запрос — туда и направляем
+// ГЛАВНЫЙ ВХОД
 // ============================================================
+
+// Картинки и прочие файлы сайта: одна повторная попытка при сбое и явное
+// разрешение браузеру держать их в кэше. Заказчик замечал, что логотип и
+// фото иногда не появляются — чаще всего это единичный сбой запроса.
+const CACHEABLE = /\.(png|jpe?g|webp|gif|svg|ico|woff2?|ttf|otf|pdf|docx|vcf)$/i;
+
+async function serveAsset(request, env) {
+  let response;
+  try {
+    response = await env.ASSETS.fetch(request);
+  } catch {
+    response = null;
+  }
+  if (!response || response.status >= 500) {
+    try {
+      response = await env.ASSETS.fetch(request);
+    } catch {
+      return new Response('Файл временно недоступен, обновите страницу', { status: 503 });
+    }
+  }
+  if (response.ok && CACHEABLE.test(new URL(request.url).pathname)) {
+    const headers = new Headers(response.headers);
+    headers.set('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
+    return new Response(response.body, { status: response.status, headers });
+  }
+  return response;
+}
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const path = url.pathname;
 
-    if (path === '/api/news') return handleNews();
-    if (path === '/api/assistant') return handleAssistant(request, env);
-    if (path === '/api/lead') return handleLead(request, env);
-    if (path === '/api/bot') return handleBot(request, env);
-
-    // Любой другой адрес — это обычный файл сайта
-    // (index.html, картинки, PDF-документы и т.д.)
-    return env.ASSETS.fetch(request);
+    try {
+      if (path === '/api/news') return await handleNews();
+      if (path === '/api/assistant') return await handleAssistant(request, env, url);
+      if (path === '/api/lead') return await handleLead(request, env, url);
+      if (path === '/api/bot') return await handleBot(request, env);
+      return await serveAsset(request, env);
+    } catch (err) {
+      // Никакая ошибка не должна ронять сайт целиком
+      if (path.startsWith('/api/')) {
+        return json({ error: 'Внутренняя ошибка сервера: ' + ((err && err.message) || err) }, 500);
+      }
+      return new Response('Временная ошибка, обновите страницу', { status: 503 });
+    }
   },
 };

@@ -7,7 +7,7 @@
 <meta name="description" content="Бухгалтерское сопровождение, регистрация ИП/ООО/СП ООО/ЧП, налоговый консалтинг и юридические услуги в Ташкенте. Рассчитайте стоимость и проверьте контрагента бесплатно.">
 <meta name="robots" content="index, follow">
 <meta name="keywords" content="бухгалтерские услуги Ташкент, бухгалтерский аутсорсинг Узбекистан, регистрация ООО Узбекистан, регистрация ИП Ташкент, налоговый консалтинг РУз, восстановление бухучёта, проверка контрагента по ИНН">
-<link rel="canonical" href="https://markus-site-three.vercel.app/">
+<link rel="canonical" href="https://markus.uz/">
 
 <!-- Иконки сайта (вкладка браузера, ярлык на телефоне) -->
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -22,14 +22,14 @@
 <meta property="og:locale" content="ru_RU">
 <meta property="og:title" content="MARKUS — бухгалтерские и юридические услуги в Узбекистане">
 <meta property="og:description" content="Бухгалтерское сопровождение, регистрация бизнеса, налоговый консалтинг в Ташкенте. Бесплатный калькулятор стоимости и проверка контрагента по ИНН.">
-<meta property="og:url" content="https://markus-site-three.vercel.app/">
-<meta property="og:image" content="https://markus-site-three.vercel.app/og-image.png">
+<meta property="og:url" content="https://markus.uz/">
+<meta property="og:image" content="https://markus.uz/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="MARKUS — бухгалтерские и юридические услуги в Узбекистане">
 <meta name="twitter:description" content="Бухгалтерское сопровождение, регистрация бизнеса, налоговый консалтинг в Ташкенте.">
-<meta name="twitter:image" content="https://markus-site-three.vercel.app/og-image.png">
+<meta name="twitter:image" content="https://markus.uz/og-image.png">
 
 <script type="application/ld+json">
 {
@@ -37,9 +37,9 @@
   "@type": "AccountingService",
   "name": "MARKUS",
   "description": "Бухгалтерские, налоговые и юридические услуги для бизнеса в Республике Узбекистан",
-  "url": "https://markus-site-three.vercel.app/",
-  "logo": "https://markus-site-three.vercel.app/icon-512.png",
-  "image": "https://markus-site-three.vercel.app/og-image.png",
+  "url": "https://markus.uz/",
+  "logo": "https://markus.uz/icon-512.png",
+  "image": "https://markus.uz/og-image.png",
   "telephone": "+998330801070",
   "areaServed": "UZ",
   "address": {
@@ -1254,6 +1254,13 @@ async function aiRespond(question) {
   const chat = document.getElementById('ai-chat');
   if (aiChatHistory.length === 0) chat.innerHTML = ''; // убираем приветствие при первом сообщении
   renderChatBubble('user', question);
+  // Память разговора: то, что было сказано ДО текущего вопроса.
+  // Раньше на сервер уходил только сам вопрос, поэтому ассистент не понимал
+  // уточнений вроде «а если наоборот?» — отвечал как на первый вопрос.
+  const priorHistory = aiChatHistory
+    .filter(m => m.text && !m.text.startsWith('⚠️'))
+    .slice(-8)
+    .map(m => ({ role: m.role, text: m.text }));
   aiChatHistory.push({ role: 'user', text: question });
   saveAiHistory();
 
@@ -1266,7 +1273,7 @@ async function aiRespond(question) {
     const resp = await fetch('/api/assistant', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question, today }),
+      body: JSON.stringify({ question, today, history: priorHistory }),
     });
     const data = await resp.json();
     const answer = resp.ok ? data.answer : ('⚠️ ' + (data.error || 'Ошибка ассистента'));
