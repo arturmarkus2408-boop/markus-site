@@ -250,6 +250,15 @@ const SYSTEM_PROMPT = `Ты — AI-ассистент бухгалтерско-�
   называй, а за содержанием отправляй на lex.uz.
 - КОГДА В СПРАВКЕ ЕСТЬ «Текст статьи» — это дословная норма. Опирайся на неё,
   а не на память, и можешь пересказывать её содержание уверенно.
+- В справочнике есть Закон «О частном предприятии» (№ 558-II). Частное
+  предприятие (ЧП, узб. ХК) — отдельная форма с одним собственником,
+  не путать с ООО.
+- Раздел «ПОДЗАКОННЫЕ АКТЫ» — это указы Президента и постановления
+  Кабинета Министров: госрегистрация предпринимателей (ПКМ-66),
+  самозанятость (ПП-4742), льготы для ИП и самозанятых (ПП-247 2025 г.),
+  перечень видов деятельности ИП (ПКМ-850), инвестклимат (УП-5495).
+  Постановления меняются чаще кодексов — ссылаясь на них, всегда
+  предупреждай, что действующую редакцию надо сверить на lex.uz.
 - По ГПК, ЭПК, Таможенному и Земельному кодексам, законам о лицензировании,
   бухучёте, валютном регулировании, защите прав потребителей, залоге,
   инвестициях, э-коммерции и по НСБУ справочника пока нет. По ним объясняй
@@ -345,6 +354,17 @@ const STOP_WORDS = new Set([
 ]);
 
 // Подбирает статьи: сначала те, чей номер назван прямо, потом по смыслу.
+function questionStems(lower) {
+  const words = lower.split(/[^а-яa-zё0-9]+/i).filter(Boolean);
+  const expanded = [];
+  for (const w of words) {
+    const syn = SYNONYMS[w] || SYNONYMS_BY_STEM[stem(w)];
+    if (syn) expanded.push(...syn.split(' '), w);
+    else expanded.push(w);
+  }
+  return [...new Set(expanded.filter((w) => w.length >= 4 && !STOP_WORDS.has(w)).map(stem))];
+}
+
 function findArticles(book, text) {
   if (!book || !book.кодексы) return [];
   const found = [];
@@ -370,6 +390,7 @@ function findArticles(book, text) {
     НК: /(?<![а-яёa-z])нк(?![а-яёa-z])|налог|ндс|ндфл|ққс|жшдс|акциз|прибыл|оборот|вычет|деклараци|счет-фактур|счёт-фактур|камеральн|пеня|соли[кқ]/i,
     ООО: /(?<![а-яёa-z])(?:ооо|мчж)(?![а-яёa-z])|общест|участник|уставн|устав|доля|доли|учредител|дивиденд|наблюдательн|аффилирован/i,
     КоАО: /коао|административн|штраф|взыскан|правонарушен|арест|конфискац|инспектор|протокол/i,
+    ЧП: /(?<![а-яёa-z])(?:чп|хк)(?![а-яёa-z])|частн(ое|ого|ом) предприят/i,
     ГК: /(?<![а-яёa-z])гк(?![а-яёa-z])|гражданск|сделк|обязательств|купл|продаж|поставк|аренд|подряд|заем|займ|кредит|поручительств|неустойк|убытк|исков(ая|ой) давност|наследств|собственност|дарени|мена|комисси|поручени|агентск|перевозк|хранени|страхован|услуг/i,
   };
   const hinted = Object.keys(hints).filter((k) => book.кодексы[k] && hints[k].test(lower));
@@ -394,17 +415,7 @@ function findArticles(book, text) {
   }
 
   // 2) По смыслу — совпадение основ слов с названием статьи
-  const words = lower.split(/[^а-яa-zё0-9]+/i).filter(Boolean);
-  const expanded = [];
-  for (const w of words) {
-    // ищем и точное слово, и его основу: «зарплату» → «зарплата»
-    const syn = SYNONYMS[w] || SYNONYMS_BY_STEM[stem(w)];
-    if (syn) expanded.push(...syn.split(' '), w);
-    else expanded.push(w);
-  }
-  const stems = [...new Set(
-    expanded.filter((w) => w.length >= 4 && !STOP_WORDS.has(w)).map(stem)
-  )];
+  const stems = questionStems(lower);
 
   if (stems.length) {
     const scored = [];
@@ -436,6 +447,46 @@ function findArticles(book, text) {
   }
 
   return found.slice(0, 10);
+}
+
+// Подзаконные акты (указы, постановления) устроены не по статьям, а по
+// пунктам. Лежат одним небольшим файлом, поэтому грузятся целиком, но
+// только когда вопрос действительно правовой.
+let actBook = null, actTried = false;
+
+async function loadActs(env, origin) {
+  if (actBook || actTried) return actBook;
+  actTried = true;
+  try {
+    const resp = await env.ASSETS.fetch(new Request(origin + '/pravo-akty.json'));
+    actBook = resp.ok ? await resp.json() : null;
+  } catch { actBook = null; }
+  return actBook;
+}
+
+// Сначала отбираем подходящий акт по его описанию «когда применять»,
+// и только потом ищем нужные пункты внутри него. Без первого шага
+// в ответ лезли бы куски постановлений по случайному совпадению слов.
+function findActChunks(acts, stems) {
+  if (!acts || stems.length < 2) return [];
+  const out = [];
+  for (const [key, act] of Object.entries(acts)) {
+    const when = (act.полное_название + ' ' + act.когда).toLowerCase();
+    let whenHits = 0;
+    for (const st of stems) if (when.includes(st)) whenHits++;
+    if (whenHits < 2) continue;
+    const scored = [];
+    for (const c of act.пункты || []) {
+      const body = (c.н + ' ' + c.т).toLowerCase();
+      let hits = 0;
+      for (const st of stems) if (body.includes(st)) hits++;
+      if (hits >= 2) scored.push({ hits, c });
+    }
+    scored.sort((a, b) => b.hits - a.hits);
+    for (const it of scored.slice(0, 2)) out.push({ акт: key, мета: act, кусок: it.c, вес: it.hits + whenHits });
+  }
+  out.sort((a, b) => b.вес - a.вес);
+  return out.slice(0, 2);
 }
 
 const MAX_FULL_TEXT = 3;      // скольким статьям подставляем полный текст
@@ -483,6 +534,36 @@ async function buildLawContext(book, question, history, env, origin) {
     }
     out += `  Ссылка: ${code.ссылка}\n`;
   }
+  // Подзаконные акты — отдельным блоком после статей кодексов.
+  // Сначала по короткому описанию в оглавлении проверяем, нужен ли вообще
+  // этот файл: грузить и разбирать его на каждый правовой вопрос — лишняя
+  // трата процессорного времени, которого на бесплатном тарифе мало.
+  const qStems = questionStems((question + ' ' + recent).toLowerCase());
+  let chunks = [];
+  const actIndex = book.подзаконные_акты || {};
+  const mayHelp = Object.values(actIndex).some((a) => {
+    const when = ((a.полное_название || '') + ' ' + (a.когда || '')).toLowerCase();
+    let hits = 0;
+    for (const st of qStems) if (when.includes(st)) hits++;
+    return hits >= 2;
+  });
+  if (mayHelp) {
+    const acts = await loadActs(env, origin);
+    chunks = findActChunks(acts, qStems);
+  }
+  if (chunks.length) {
+    out += '\nПОДЗАКОННЫЕ АКТЫ (указы и постановления) — выписка:\n';
+    for (const ch of chunks) {
+      out += `\n${ch.мета.полное_название}\n  ${ch.мета.основание}\n`;
+      const t = ch.кусок.т.length > 1200
+        ? ch.кусок.т.slice(0, 1200).replace(/\s+\S*$/, '') + ' […далее см. lex.uz]'
+        : ch.кусок.т;
+      out += `  ${ch.кусок.н}: ${t}\n`;
+    }
+    out += 'Постановления и указы меняются чаще кодексов — при ссылке на них\n';
+    out += 'предупреждай, что действующую редакцию стоит сверить на lex.uz.\n';
+  }
+
   out += '\nЕсли нужной нормы в справке нет — не подставляй номер по памяти,\n';
   out += 'а честно скажи, что его надо проверить на lex.uz.\n\n';
   return out;
