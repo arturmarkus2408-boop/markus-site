@@ -698,27 +698,6 @@
   </div>
 </section>
 
-<script>
-// Видео «О компании» в блоке «О нас»: загружается только по нажатию.
-document.addEventListener('DOMContentLoaded', function () {
-  const ABOUT_REEL = 'DemYrD_M_lY';
-  const box = document.getElementById('about-video');
-  const btn = document.getElementById('about-video-play');
-  if (!box || !btn || !/^[A-Za-z0-9_-]{5,40}$/.test(ABOUT_REEL)) return;
-  btn.addEventListener('click', function () {
-    const frame = document.createElement('iframe');
-    frame.src = 'https://www.instagram.com/p/' + ABOUT_REEL + '/embed';
-    frame.title = 'Видео о компании MARKUS';
-    frame.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen');
-    frame.setAttribute('allowfullscreen', '');
-    frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-    frame.className = 'absolute inset-0 w-full h-full border-0 bg-white';
-    box.innerHTML = '';
-    box.appendChild(frame);
-  });
-});
-</script>
-
 <!-- ===== ВИДЕО =====
      Карусель компактных плиток. Список роликов лежит в файле videos.json.
      Пока список пустой — блок и его пункты в меню скрыты.
@@ -947,16 +926,13 @@ document.addEventListener('DOMContentLoaded', function () {
       Наши специалисты — это эксперты, которые продолжают развиваться, повышать квалификацию и применять современные инструменты, чтобы предлагать клиентам только лучшее. Мы ценим доверие и строим сотрудничество на прозрачности, ответственности и внимании к каждой детали.
     </p>
     <div class="bg-noir text-paper rounded-2xl overflow-hidden">
-      <!-- Окно с рилсом «О компании». Пока человек не нажал — Instagram не загружается, сайт не тормозит.
-           Чтобы заменить ролик, поменяйте код в строке ABOUT_REEL в скрипте перед блоком «Видео». -->
+      <!-- Короткое видео о компании. Файл лежит на сайте: about-video.mp4.
+           Чтобы заменить ролик, положите новый файл с тем же именем. Грузится по нажатию «play». -->
       <div class="px-6 pt-6 flex justify-center">
-        <div id="about-video" class="relative w-full rounded-xl overflow-hidden bg-noirCard" style="max-width:340px; aspect-ratio: 340 / 560">
-          <button type="button" id="about-video-play" class="absolute inset-0 w-full h-full flex flex-col items-center justify-center gap-4 text-paper" aria-label="Смотреть видео о компании MARKUS" style="background: linear-gradient(160deg, #1f1f24 0%, #0B0B0D 70%)">
-            <img src="/logo-m.png" alt="" class="absolute left-1/2 top-[36%] -translate-x-1/2 -translate-y-1/2 pointer-events-none" style="width:46%; opacity:.14">
-            <span class="relative w-14 h-14 rounded-full bg-gold text-noir flex items-center justify-center text-xl pl-0.5">▶</span>
-            <span class="relative text-sm font-semibold">Видео о компании MARKUS</span>
-          </button>
-        </div>
+        <video id="about-video" class="w-full rounded-xl bg-noirCard" style="max-width:300px; aspect-ratio:16/9; border:1px solid rgba(201,164,107,.3)"
+               controls playsinline preload="metadata" aria-label="Видео о компании MARKUS">
+          <source src="/about-video.mp4#t=0.1" type="video/mp4">
+        </video>
       </div>
       <div class="p-8 text-center">
         <div class="font-serif text-4xl font-bold text-gold mb-2">200+</div>
