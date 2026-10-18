@@ -215,6 +215,7 @@
       <a href="#tools" class="hover:text-gold transition-colors">Инструменты</a>
       <a href="#services" class="hover:text-gold transition-colors">Услуги</a>
       <a href="#calculator" class="hover:text-gold transition-colors">Калькулятор</a>
+      <a href="#videos" data-videos-link class="hidden hover:text-gold transition-colors">Видео</a>
       <a href="#about" class="hover:text-gold transition-colors">О нас</a>
       <a href="#contact" class="hover:text-gold transition-colors">Контакты</a>
     </nav>
@@ -250,6 +251,7 @@
       <a href="#tools" class="mobile-nav-link px-2 py-2.5 rounded-lg hover:bg-white/5 hover:text-gold transition-colors">Инструменты</a>
       <a href="#services" class="mobile-nav-link px-2 py-2.5 rounded-lg hover:bg-white/5 hover:text-gold transition-colors">Услуги</a>
       <a href="#calculator" class="mobile-nav-link px-2 py-2.5 rounded-lg hover:bg-white/5 hover:text-gold transition-colors">Калькулятор</a>
+      <a href="#videos" data-videos-link class="hidden mobile-nav-link px-2 py-2.5 rounded-lg hover:bg-white/5 hover:text-gold transition-colors">Видео</a>
       <a href="#about" class="mobile-nav-link px-2 py-2.5 rounded-lg hover:bg-white/5 hover:text-gold transition-colors">О нас</a>
       <a href="#contact" class="mobile-nav-link px-2 py-2.5 rounded-lg hover:bg-white/5 hover:text-gold transition-colors">Контакты</a>
       <a href="#contact" class="mobile-nav-link sm:hidden mt-2 text-center bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-5 py-3 rounded-full">Связаться с нами</a>
@@ -697,27 +699,64 @@
 </section>
 
 <!-- ===== ВИДЕО =====
-     Список роликов лежит в файле videos.json. Пока он пустой — блок скрыт.
+     Карусель компактных плиток. Список роликов лежит в файле videos.json.
+     Пока список пустой — блок и его пункты в меню скрыты.
      Формат строки: {"type":"youtube","id":"ID_ВИДЕО","title":"Название"}
-                    {"type":"instagram","id":"КОД_ПОСТА_ИЛИ_РИЛСА","title":"Название"}
+                    {"type":"instagram","id":"КОД_РИЛСА","title":"Название"}
                     {"type":"telegram","id":"MARKUS_JW/123","title":"Название"}
-     Видео подгружается только по нажатию «Смотреть», поэтому сайт не тормозит. -->
-<section id="videos" class="hidden max-w-6xl mx-auto px-5 md:px-8 py-20">
-  <span class="inline-block bg-gold/15 text-goldDim text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full mb-4">Видео</span>
-  <h2 class="font-serif text-3xl md:text-4xl font-bold mb-8 max-w-lg">Смотрите и узнавайте больше</h2>
-  <div id="videos-grid" class="grid md:grid-cols-2 gap-6"></div>
+     Порядок: рилсы Instagram сортируются «свежие первыми» автоматически (по коду поста).
+     Если есть YouTube/Telegram — новые ставьте в начало списка.
+     В карусели показываются MAX_TILES самых свежих, остальные скрыты;
+     внизу есть ссылка на весь Instagram. Видео открывается по нажатию во всплывающем окне,
+     пока человек не нажал — ничего лишнего не грузится, сайт не тормозит. -->
+<style>
+  #videos-track { scrollbar-width: none; -ms-overflow-style: none; }
+  #videos-track::-webkit-scrollbar { display: none; }
+  .video-tile { width: 164px; aspect-ratio: 9 / 16; transition: transform .25s ease, box-shadow .25s ease; }
+  .video-tile:hover { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(11,11,13,.28); }
+  .video-tile:focus-visible { outline: 2px solid #C9A46B; outline-offset: 3px; }
+  @media (min-width: 640px) { .video-tile { width: 184px; } }
+  .video-arrow:disabled { opacity: .3; cursor: default; }
+</style>
+<section id="videos" class="hidden max-w-6xl mx-auto px-5 md:px-8 py-16">
+  <div class="flex items-end justify-between gap-4 mb-6">
+    <div>
+      <span class="inline-block bg-gold/15 text-goldDim text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full mb-4">Видео</span>
+      <h2 class="font-serif text-3xl md:text-4xl font-bold max-w-lg">Смотрите и узнавайте больше</h2>
+    </div>
+    <div class="flex gap-2 flex-shrink-0">
+      <button type="button" id="videos-prev" class="video-arrow w-10 h-10 rounded-full border border-noir/20 hover:border-gold hover:text-goldDim transition-colors text-xl leading-none" aria-label="Назад">‹</button>
+      <button type="button" id="videos-next" class="video-arrow w-10 h-10 rounded-full border border-noir/20 hover:border-gold hover:text-goldDim transition-colors text-xl leading-none" aria-label="Вперёд">›</button>
+    </div>
+  </div>
+  <div id="videos-track" class="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2"></div>
+  <div class="mt-5 text-right">
+    <a href="https://www.instagram.com/markus_uzbekistan/" target="_blank" rel="noopener" class="text-goldDim hover:text-noir text-sm font-semibold transition-colors">Все видео в Instagram →</a>
+  </div>
 </section>
 <script>
 (function () {
+  const MAX_TILES = 12;
   const section = document.getElementById('videos');
-  const grid = document.getElementById('videos-grid');
-  if (!section || !grid) return;
+  const track = document.getElementById('videos-track');
+  const prevBtn = document.getElementById('videos-prev');
+  const nextBtn = document.getElementById('videos-next');
+  if (!section || !track) return;
 
   const ID_RULES = {
     youtube:   /^[A-Za-z0-9_-]{6,20}$/,
     instagram: /^[A-Za-z0-9_-]{5,40}$/,
     telegram:  /^[A-Za-z0-9_]{3,40}\/\d{1,10}$/,
   };
+
+  // Код поста Instagram — это число в «64-ричной» записи, которое растёт со временем.
+  // По нему можно расставить рилсы «свежие первыми» без ручных дат.
+  const IG_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  function igValue(code) {
+    let n = 0n;
+    for (const ch of code) n = n * 64n + BigInt(IG_ALPHABET.indexOf(ch));
+    return n;
+  }
 
   function embedUrl(v) {
     if (v.type === 'youtube')   return 'https://www.youtube-nocookie.com/embed/' + v.id + '?autoplay=1&rel=0';
@@ -726,62 +765,151 @@
     return null;
   }
 
-  function makeCard(v) {
-    const card = document.createElement('div');
-    card.className = 'bg-noir rounded-2xl overflow-hidden';
-    const stage = document.createElement('div');
-    stage.className = 'relative w-full bg-noirCard flex items-center justify-center';
-    stage.style.aspectRatio = v.type === 'youtube' ? '16 / 9' : '9 / 16';
+  /* ---------- всплывающее окно с видео ---------- */
+  let overlay = null;
+  let lastTile = null;
 
+  function closeModal() {
+    if (!overlay) return;
+    overlay.remove();           // вместе с окном исчезает iframe — воспроизведение останавливается
+    overlay = null;
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', onKey);
+    if (lastTile) lastTile.focus();
+  }
+  function onKey(e) { if (e.key === 'Escape') closeModal(); }
+
+  function openModal(v, tile) {
+    closeModal();
+    lastTile = tile;
+    overlay = document.createElement('div');
+    overlay.className = 'fixed inset-0 z-[100] flex items-center justify-center p-4';
+    overlay.style.background = 'rgba(11,11,13,.86)';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', v.title || 'Видео MARKUS');
+
+    const box = document.createElement('div');
+    box.className = 'relative bg-noir rounded-2xl overflow-hidden';
     if (v.type === 'youtube') {
-      const img = document.createElement('img');
-      img.src = 'https://i.ytimg.com/vi/' + v.id + '/hqdefault.jpg';
-      img.alt = v.title || 'Видео MARKUS';
-      img.loading = 'lazy';
-      img.className = 'absolute inset-0 w-full h-full object-cover opacity-80';
-      stage.appendChild(img);
+      box.style.width = 'min(920px, 94vw)';
+      box.style.aspectRatio = '16 / 9';
+    } else {
+      box.style.width = 'min(400px, 92vw)';
+      box.style.height = 'min(88vh, 760px)';
     }
 
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'relative z-10 bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-6 py-3 rounded-full';
-    btn.textContent = '▶ Смотреть';
-    btn.addEventListener('click', function () {
-      const frame = document.createElement('iframe');
-      frame.src = embedUrl(v);
-      frame.title = v.title || 'Видео MARKUS';
-      frame.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen');
-      frame.setAttribute('allowfullscreen', '');
-      frame.setAttribute('loading', 'lazy');
-      frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-      frame.className = 'absolute inset-0 w-full h-full border-0';
-      stage.innerHTML = '';
-      stage.appendChild(frame);
-    });
-    stage.appendChild(btn);
-    card.appendChild(stage);
+    const frame = document.createElement('iframe');
+    frame.src = embedUrl(v);
+    frame.title = v.title || 'Видео MARKUS';
+    frame.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen');
+    frame.setAttribute('allowfullscreen', '');
+    frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+    frame.className = 'w-full h-full border-0 bg-white';
+    box.appendChild(frame);
 
-    if (v.title) {
-      const cap = document.createElement('div');
-      cap.className = 'p-5 text-paper font-semibold';
-      cap.textContent = v.title;
-      card.appendChild(cap);
-    }
-    return card;
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.setAttribute('aria-label', 'Закрыть');
+    close.textContent = '✕';
+    close.className = 'absolute top-2 right-2 z-10 w-9 h-9 rounded-full bg-noir/80 hover:bg-gold hover:text-noir text-paper transition-colors';
+    close.addEventListener('click', closeModal);
+    box.appendChild(close);
+
+    overlay.appendChild(box);
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) closeModal(); });
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', onKey);
+    close.focus();
   }
 
+  /* ---------- плитки ---------- */
+  function makeTile(v, index) {
+    const tile = document.createElement('button');
+    tile.type = 'button';
+    tile.className = 'video-tile relative flex-shrink-0 snap-start overflow-hidden rounded-2xl text-left';
+    tile.setAttribute('aria-label', 'Смотреть: ' + (v.title || 'видео MARKUS'));
+    tile.style.background = 'linear-gradient(160deg, #1f1f24 0%, #0B0B0D 70%)';
+
+    if (v.type === 'youtube') {
+      tile.style.backgroundImage = 'url(https://i.ytimg.com/vi/' + v.id + '/hqdefault.jpg)';
+      tile.style.backgroundSize = 'cover';
+      tile.style.backgroundPosition = 'center';
+    } else {
+      const logo = document.createElement('img');
+      logo.src = '/logo-m.png';
+      logo.alt = '';
+      logo.className = 'absolute left-1/2 top-[38%] -translate-x-1/2 -translate-y-1/2 pointer-events-none';
+      logo.style.width = '54%';
+      logo.style.opacity = '.14';
+      tile.appendChild(logo);
+    }
+
+    const shade = document.createElement('div');
+    shade.className = 'absolute inset-x-0 bottom-0 h-1/2 pointer-events-none';
+    shade.style.background = 'linear-gradient(to top, rgba(11,11,13,.92), rgba(11,11,13,0))';
+    tile.appendChild(shade);
+
+    const play = document.createElement('span');
+    play.className = 'absolute left-1/2 top-[42%] -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-gold text-noir flex items-center justify-center text-lg pl-0.5';
+    play.textContent = '▶';
+    tile.appendChild(play);
+
+    if (index === 0) {
+      const badge = document.createElement('span');
+      badge.className = 'absolute top-2.5 left-2.5 bg-gold text-noir text-[10px] font-bold tracking-wider uppercase px-2 py-1 rounded-full';
+      badge.textContent = 'Новое';
+      tile.appendChild(badge);
+    }
+
+    const cap = document.createElement('span');
+    cap.className = 'absolute inset-x-0 bottom-0 p-3 text-paper text-xs font-semibold leading-snug';
+    cap.style.display = '-webkit-box';
+    cap.style.webkitLineClamp = '3';
+    cap.style.webkitBoxOrient = 'vertical';
+    cap.style.overflow = 'hidden';
+    cap.textContent = v.title || (v.type === 'youtube' ? 'Смотреть видео' : 'Смотреть рилс');
+    tile.appendChild(cap);
+
+    tile.addEventListener('click', function () { openModal(v, tile); });
+    return tile;
+  }
+
+  /* ---------- стрелки карусели ---------- */
+  function updateArrows() {
+    const max = track.scrollWidth - track.clientWidth - 2;
+    prevBtn.disabled = track.scrollLeft <= 2;
+    nextBtn.disabled = track.scrollLeft >= max;
+    const needArrows = track.scrollWidth > track.clientWidth + 4;
+    prevBtn.parentElement.style.display = needArrows ? '' : 'none';
+  }
+  function scrollStep(dir) { track.scrollBy({ left: dir * Math.max(200, track.clientWidth * 0.8), behavior: 'smooth' }); }
+  prevBtn.addEventListener('click', function () { scrollStep(-1); });
+  nextBtn.addEventListener('click', function () { scrollStep(1); });
+  track.addEventListener('scroll', updateArrows, { passive: true });
+  window.addEventListener('resize', updateArrows);
+
+  /* ---------- загрузка списка ---------- */
   fetch('/videos.json', { cache: 'no-cache' })
     .then(function (r) { return r.ok ? r.json() : []; })
     .then(function (list) {
-      const ok = (Array.isArray(list) ? list : []).filter(function (v) {
+      let ok = (Array.isArray(list) ? list : []).filter(function (v) {
         return v && ID_RULES[v.type] && ID_RULES[v.type].test(String(v.id || ''));
       });
       if (!ok.length) return;
-      if (ok.some(function (v) { return v.type !== 'youtube'; })) {
-        grid.className = 'grid sm:grid-cols-2 lg:grid-cols-3 gap-6';
+      // Если в списке только рилсы Instagram — расставляем «свежие первыми» сами.
+      if (ok.every(function (v) { return v.type === 'instagram'; })) {
+        ok = ok.slice().sort(function (a, b) {
+          const x = igValue(a.id), y = igValue(b.id);
+          return x < y ? 1 : x > y ? -1 : 0;
+        });
       }
-      ok.forEach(function (v) { grid.appendChild(makeCard(v)); });
+      ok.slice(0, MAX_TILES).forEach(function (v, i) { track.appendChild(makeTile(v, i)); });
       section.classList.remove('hidden');
+      document.querySelectorAll('[data-videos-link]').forEach(function (el) { el.classList.remove('hidden'); });
+      updateArrows();
+      if (typeof updateSectionNav === 'function') updateSectionNav();
     })
     .catch(function () { /* нет видео или ошибка — блок остаётся скрытым */ });
 })();
@@ -892,6 +1020,10 @@
       <span class="section-nav-dot block w-[7px] h-[7px] rounded-full bg-gold border border-gold transition-all duration-300 relative z-10 flex-shrink-0"></span>
       <span class="section-nav-label text-xs font-semibold whitespace-nowrap" style="transition: opacity .35s ease, color .35s ease; color:#8A7550">Калькулятор</span>
     </a>
+    <a href="#videos" data-section="videos" class="section-nav-item group flex items-center gap-3" style="transition: opacity .35s ease; display:none">
+      <span class="section-nav-dot block w-[7px] h-[7px] rounded-full bg-gold border border-gold transition-all duration-300 relative z-10 flex-shrink-0"></span>
+      <span class="section-nav-label text-xs font-semibold whitespace-nowrap" style="transition: opacity .35s ease, color .35s ease; color:#8A7550">Видео</span>
+    </a>
     <a href="#about" data-section="about" class="section-nav-item group flex items-center gap-3" style="transition: opacity .35s ease">
       <span class="section-nav-dot block w-[7px] h-[7px] rounded-full bg-gold border border-gold transition-all duration-300 relative z-10 flex-shrink-0"></span>
       <span class="section-nav-label text-xs font-semibold whitespace-nowrap" style="transition: opacity .35s ease, color .35s ease; color:#8A7550">О нас</span>
@@ -1001,6 +1133,7 @@
         <li><a href="#top" class="hover:text-gold transition-colors">Главная</a></li>
         <li><a href="#about" class="hover:text-gold transition-colors">О нас</a></li>
         <li><a href="#calculator" class="hover:text-gold transition-colors">Калькулятор</a></li>
+        <li data-videos-link class="hidden"><a href="#videos" class="hover:text-gold transition-colors">Видео</a></li>
         <li><a href="#contact" class="hover:text-gold transition-colors">Контакты</a></li>
       </ul>
     </div>
@@ -1912,33 +2045,39 @@ document.getElementById('services-toggle').addEventListener('click', () => {
    ============================================================ */
 const sectionNavItems = document.querySelectorAll('.section-nav-item');
 const sectionNavProgress = document.getElementById('section-nav-progress');
-const trackedSections = ['top', 'tools', 'services', 'calculator', 'about', 'contact']
-  .map(id => document.getElementById(id))
-  .filter(Boolean);
 
-// Для каждого отслеживаемого раздела заранее знаем, тёмный у него фон или светлый —
-// от этого зависит, каким цветом рисовать текст навигатора, чтобы он не терялся.
-const sectionIsDark = [true, false, false, true, false, true]; // top, tools, services, calculator, about, contact
+// Тёмный или светлый фон у каждого раздела — от этого зависит цвет текста навигатора,
+// чтобы он не терялся на фоне.
+const sectionIsDark = { top: true, tools: false, services: false, calculator: true, videos: false, about: false, contact: true };
 
 function updateSectionNav() {
-  if (trackedSections.length === 0) return;
+  // Учитываем только те разделы, которые сейчас видны на странице
+  // (блок «Видео» скрыт, пока в videos.json нет роликов).
+  const visible = [];
+  sectionNavItems.forEach(item => {
+    const sec = document.getElementById(item.dataset.section);
+    const shown = !!sec && sec.offsetParent !== null;
+    item.style.display = shown ? '' : 'none';
+    if (shown) visible.push({ item, sec });
+  });
+  if (visible.length === 0) return;
+
   const scrollPos = window.scrollY + window.innerHeight * 0.35;
   let activeIndex = 0;
-  trackedSections.forEach((sec, i) => { if (sec.offsetTop <= scrollPos) activeIndex = i; });
+  visible.forEach(({ sec }, i) => { if (sec.offsetTop <= scrollPos) activeIndex = i; });
 
-  const isDark = sectionIsDark[activeIndex];
+  const isDark = sectionIsDark[visible[activeIndex].item.dataset.section];
   const activeColor = isDark ? '#F2DFB8' : '#2B2013';
   const inactiveColor = isDark ? '#C9A46B' : '#8A7550';
 
-  sectionNavItems.forEach((item, i) => {
+  visible.forEach(({ item }, i) => {
     const dot = item.querySelector('.section-nav-dot');
     const label = item.querySelector('.section-nav-label');
     const distance = Math.abs(i - activeIndex);
     const isActive = distance === 0;
 
     // Чем дальше блок от текущего места на странице, тем сильнее тускнеет —
-    // плавно, а не просто "включено/выключено". Палитра целиком переключается
-    // между тёмной и светлой в зависимости от фона активного раздела.
+    // плавно, а не просто "включено/выключено".
     const opacity = isActive ? 1 : Math.max(0.4, 1 - distance * 0.2);
     item.style.opacity = opacity;
     dot.style.transform = isActive ? 'scale(1.4)' : 'scale(1)';
@@ -1947,7 +2086,7 @@ function updateSectionNav() {
     label.style.color = isActive ? activeColor : inactiveColor;
   });
 
-  const progressPct = trackedSections.length > 1 ? (activeIndex / (trackedSections.length - 1)) * 100 : 0;
+  const progressPct = visible.length > 1 ? (activeIndex / (visible.length - 1)) * 100 : 0;
   sectionNavProgress.style.height = progressPct + '%';
 }
 window.addEventListener('scroll', updateSectionNav);
