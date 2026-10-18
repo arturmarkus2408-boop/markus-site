@@ -696,6 +696,95 @@
   </div>
 </section>
 
+<!-- ===== ВИДЕО =====
+     Список роликов лежит в файле videos.json. Пока он пустой — блок скрыт.
+     Формат строки: {"type":"youtube","id":"ID_ВИДЕО","title":"Название"}
+                    {"type":"instagram","id":"КОД_ПОСТА_ИЛИ_РИЛСА","title":"Название"}
+                    {"type":"telegram","id":"MARKUS_JW/123","title":"Название"}
+     Видео подгружается только по нажатию «Смотреть», поэтому сайт не тормозит. -->
+<section id="videos" class="hidden max-w-6xl mx-auto px-5 md:px-8 py-20">
+  <span class="inline-block bg-gold/15 text-goldDim text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full mb-4">Видео</span>
+  <h2 class="font-serif text-3xl md:text-4xl font-bold mb-8 max-w-lg">Смотрите и узнавайте больше</h2>
+  <div id="videos-grid" class="grid md:grid-cols-2 gap-6"></div>
+</section>
+<script>
+(function () {
+  const section = document.getElementById('videos');
+  const grid = document.getElementById('videos-grid');
+  if (!section || !grid) return;
+
+  const ID_RULES = {
+    youtube:   /^[A-Za-z0-9_-]{6,20}$/,
+    instagram: /^[A-Za-z0-9_-]{5,40}$/,
+    telegram:  /^[A-Za-z0-9_]{3,40}\/\d{1,10}$/,
+  };
+
+  function embedUrl(v) {
+    if (v.type === 'youtube')   return 'https://www.youtube-nocookie.com/embed/' + v.id + '?autoplay=1&rel=0';
+    if (v.type === 'instagram') return 'https://www.instagram.com/p/' + v.id + '/embed';
+    if (v.type === 'telegram')  return 'https://t.me/' + v.id + '?embed=1&mode=tme';
+    return null;
+  }
+
+  function makeCard(v) {
+    const card = document.createElement('div');
+    card.className = 'bg-noir rounded-2xl overflow-hidden';
+    const stage = document.createElement('div');
+    stage.className = 'relative w-full bg-noirCard flex items-center justify-center';
+    stage.style.aspectRatio = v.type === 'youtube' ? '16 / 9' : '4 / 5';
+    stage.style.minHeight = '220px';
+
+    if (v.type === 'youtube') {
+      const img = document.createElement('img');
+      img.src = 'https://i.ytimg.com/vi/' + v.id + '/hqdefault.jpg';
+      img.alt = v.title || 'Видео MARKUS';
+      img.loading = 'lazy';
+      img.className = 'absolute inset-0 w-full h-full object-cover opacity-80';
+      stage.appendChild(img);
+    }
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'relative z-10 bg-gold hover:bg-goldLight transition-colors text-noir font-semibold px-6 py-3 rounded-full';
+    btn.textContent = '▶ Смотреть';
+    btn.addEventListener('click', function () {
+      const frame = document.createElement('iframe');
+      frame.src = embedUrl(v);
+      frame.title = v.title || 'Видео MARKUS';
+      frame.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen');
+      frame.setAttribute('allowfullscreen', '');
+      frame.setAttribute('loading', 'lazy');
+      frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+      frame.className = 'absolute inset-0 w-full h-full border-0';
+      stage.innerHTML = '';
+      stage.appendChild(frame);
+    });
+    stage.appendChild(btn);
+    card.appendChild(stage);
+
+    if (v.title) {
+      const cap = document.createElement('div');
+      cap.className = 'p-5 text-paper font-semibold';
+      cap.textContent = v.title;
+      card.appendChild(cap);
+    }
+    return card;
+  }
+
+  fetch('/videos.json', { cache: 'no-cache' })
+    .then(function (r) { return r.ok ? r.json() : []; })
+    .then(function (list) {
+      const ok = (Array.isArray(list) ? list : []).filter(function (v) {
+        return v && ID_RULES[v.type] && ID_RULES[v.type].test(String(v.id || ''));
+      });
+      if (!ok.length) return;
+      ok.forEach(function (v) { grid.appendChild(makeCard(v)); });
+      section.classList.remove('hidden');
+    })
+    .catch(function () { /* нет видео или ошибка — блок остаётся скрытым */ });
+})();
+</script>
+
 <!-- ===== О НАС ===== -->
 <section id="about" class="max-w-6xl mx-auto px-5 md:px-8 py-20">
   <span class="inline-block bg-gold/15 text-goldDim text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full mb-4">О нас</span>
