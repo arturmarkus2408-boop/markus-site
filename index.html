@@ -731,8 +731,7 @@
     card.className = 'bg-noir rounded-2xl overflow-hidden';
     const stage = document.createElement('div');
     stage.className = 'relative w-full bg-noirCard flex items-center justify-center';
-    stage.style.aspectRatio = v.type === 'youtube' ? '16 / 9' : '4 / 5';
-    stage.style.minHeight = '220px';
+    stage.style.aspectRatio = v.type === 'youtube' ? '16 / 9' : '9 / 16';
 
     if (v.type === 'youtube') {
       const img = document.createElement('img');
@@ -778,6 +777,9 @@
         return v && ID_RULES[v.type] && ID_RULES[v.type].test(String(v.id || ''));
       });
       if (!ok.length) return;
+      if (ok.some(function (v) { return v.type !== 'youtube'; })) {
+        grid.className = 'grid sm:grid-cols-2 lg:grid-cols-3 gap-6';
+      }
       ok.forEach(function (v) { grid.appendChild(makeCard(v)); });
       section.classList.remove('hidden');
     })
