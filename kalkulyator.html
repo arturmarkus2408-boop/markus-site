@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Калькулятор стоимости бухгалтерии — MARKUS, Ташкент</title>
+<meta name="description" content="Рассчитайте стоимость бухгалтерского сопровождения в Узбекистане: режим налогообложения, сотрудники, документооборот, ВЭД и валютный контроль, составление договоров, восстановление учёта.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://markus.uz/kalkulyator">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://markus.uz/kalkulyator">
+<meta property="og:title" content="Калькулятор стоимости бухгалтерии — MARKUS">
+<meta property="og:description" content="Посчитайте стоимость бухгалтерского сопровождения за минуту и отправьте заявку.">
+<meta property="og:image" content="https://markus.uz/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0B0B0D">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/calc/markus-calc.css">
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: #0B0B0D; color: #FAFAF8; font-family: 'Manrope', system-ui, sans-serif; overflow-x: hidden; }
+  a { color: inherit; }
+  .wrap { max-width: 1152px; margin: 0 auto; padding: 0 16px; }
+  @media (min-width: 768px) { .wrap { padding: 0 32px; } }
+  .top { position: sticky; top: 0; z-index: 50; background: rgba(11,11,13,.95); backdrop-filter: blur(6px); border-bottom: 1px solid rgba(255,255,255,.1); }
+  .top .wrap { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .brand { display: flex; align-items: center; gap: 10px; font: 700 20px 'PT Serif', serif; text-decoration: none; }
+  .brand img { height: 34px; width: auto; }
+  .top-links { display: flex; align-items: center; gap: 16px; font-size: 14px; }
+  .top-links a { text-decoration: none; color: rgba(250,250,248,.8); }
+  .top-links a:hover { color: #C9A46B; }
+  .top-phone { border: 1px solid rgba(250,250,248,.2); border-radius: 999px; padding: 7px 14px; white-space: nowrap; }
+  @media (max-width: 560px) { .top-site { display: none; } .brand span { display: none; } }
+  .hero { padding: 44px 0 26px; }
+  .tag { display: inline-block; background: rgba(201,164,107,.15); color: #C9A46B; font-size: 11.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; padding: 6px 12px; border-radius: 999px; margin-bottom: 14px; }
+  h1 { font: 700 clamp(28px, 5vw, 42px)/1.15 'PT Serif', serif; margin: 0 0 12px; }
+  .lead { color: rgba(250,250,248,.62); max-width: 640px; margin: 0; font-size: 16px; line-height: 1.55; }
+  .calc-wrap { padding: 8px 0 72px; }
+  footer { border-top: 1px solid rgba(255,255,255,.1); padding: 26px 0 90px; color: rgba(250,250,248,.45); font-size: 13px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 10px 22px; justify-content: space-between; }
+  footer a { text-decoration: none; }
+  footer a:hover { color: #C9A46B; }
+  noscript p { background: #17171A; border: 1px solid #2A2A2E; border-radius: 14px; padding: 16px; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/"><img src="/logo-m.png" alt="MARKUS"><span>MARKUS</span></a>
+    <nav class="top-links">
+      <a class="top-site" href="/">На главную</a>
+      <a class="top-phone" href="tel:+998330801070">+998 33 080-10-70</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <span class="tag">Калькулятор</span>
+      <h1>Сколько стоит бухгалтерия для вашей компании</h1>
+      <p class="lead">Выберите параметры — сумма пересчитывается сразу. Готовый расчёт можно скачать в PDF, отправить ссылкой или оставить заявку: специалист MARKUS уточнит детали и назовёт точную цену.</p>
+    </div>
+  </section>
+
+  <section class="calc-wrap">
+    <div class="wrap">
+      <div id="markus-calc">
+        <noscript><p>Для работы калькулятора включите JavaScript или позвоните нам: +998 33 080-10-70.</p></noscript>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 MARKUS · бухгалтерские, налоговые и юридические услуги в Узбекистане</span>
+    <span><a href="/">markus.uz</a> · <a href="https://t.me/MarkusJW_bot" target="_blank" rel="noopener">Telegram</a> · <a href="tel:+998330801070">+998 33 080-10-70</a></span>
+  </div>
+</footer>
+
+<script src="/calc/markus-calc.js"></script>
+<script>
+  MarkusCalc.init(document.getElementById('markus-calc'), { syncHash: true });
+</script>
+</body>
+</html>
