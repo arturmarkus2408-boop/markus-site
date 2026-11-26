@@ -17,8 +17,9 @@
 
   const PRICES = {
     // ---- Ежемесячно ----
-    base: 4000000,            // базовая ставка (была на сайте)
-    osn: 3000000,             // надбавка за ОСН (была на сайте)
+    // Базовая ставка по системе налогообложения. Для ОСН — сразу полная сумма,
+    // без отдельной строки «надбавка» (решение владельца 26.11.2026).
+    base: { usn: 4000000, osn: 7000000 },
     // Сотрудники: опорные точки [кол-во, сумма], между ними плавно (были на сайте)
     employees: [[0, 0], [3, 300000], [10, 800000], [25, 1600000], [50, 2800000], [100, 4500000]],
     // Документооборот, ступени «до N документов — сумма».
@@ -116,14 +117,13 @@
   // ---------- расчёт ----------
   function compute(s) {
     const r = { lines: [], once: [] };
-    r.base = PRICES.base;
-    r.osn = s.regime === 'osn' ? PRICES.osn : 0;
+    r.base = PRICES.base[s.regime] || PRICES.base.usn;
     r.emp = round10k(interpolate(s.emp, PRICES.employees));
     const d = docsPrice(s.docs);
     r.docs = d.price; r.docsTier = d.tier;
     r.monthly = PRICES.monthly.filter((x) => s.monthly[x.id]);
     r.monthlySum = r.monthly.reduce((a, x) => a + x.price, 0);
-    r.subscription = r.base + r.osn + r.emp + r.docs + r.monthlySum;
+    r.subscription = r.base + r.emp + r.docs + r.monthlySum;
     r.discount = Math.round(r.subscription * s.term);
     r.subscriptionNet = round10k(r.subscription - r.discount);
 
@@ -266,12 +266,12 @@
 
     // Режим
     const regimeOpts = [
-      opt('radio', 'mc-regime', s.regime === 'usn', 'УСН — налог с оборота 4%', 'ИП, ООО, СП ООО, ЧП', null, (on) => on && (s.regime = 'usn')),
-      opt('radio', 'mc-regime', s.regime === 'osn', 'ОСН — НДС 12%, налог на прибыль 15%', 'ИП, ООО, СП ООО, ЧП', '+' + fmt(PRICES.osn), (on) => on && (s.regime = 'osn')),
+      opt('radio', 'mc-regime', s.regime === 'usn', 'УСН — налог с оборота 4%', 'ИП, ООО, ЧП, ИП ООО, СП ООО', fmt(PRICES.base.usn), (on) => on && (s.regime = 'usn')),
+      opt('radio', 'mc-regime', s.regime === 'osn', 'ОСН — НДС 12%, налог на прибыль 15%', 'ИП, ООО, ЧП, ИП ООО, СП ООО', fmt(PRICES.base.osn), (on) => on && (s.regime = 'osn')),
     ];
     refs.regime = regimeOpts;
     main.append(h('div', null, h('p', { class: 'mc-h', text: 'Режим налогообложения' }),
-      h('p', { class: 'mc-sub', text: 'Базовая ставка ' + sum(PRICES.base) + ' в месяц. На ОСН больше отчётности, поэтому надбавка.' }),
+      h('p', { class: 'mc-sub', text: 'Выберите систему налогообложения вашего бизнеса — от неё зависит базовая ставка в месяц.' }),
       h('div', { class: 'mc-opts' }, regimeOpts.map((o) => o.lab))));
 
     // Сотрудники
@@ -407,7 +407,6 @@
       refs.total.textContent = fmt(r.monthTotal);
       refs.barTotal.textContent = fmt(r.monthTotal);
       const L = [line('Базовая ставка', fmt(r.base))];
-      if (r.osn) L.push(line('Надбавка за ОСН', fmt(r.osn)));
       L.push(line('Сотрудники (' + s.emp + ')', fmt(r.emp)));
       L.push(line('Документооборот (' + s.docs + ')', fmt(r.docs)));
       r.monthly.forEach((x) => L.push(line(x.name, fmt(x.price))));
@@ -514,7 +513,6 @@
       const head = (t, note) => '<p style="font:bold 12.5px Arial,sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#555;margin:22px 0 6px">' + t + (note ? ' <span style="font-weight:normal;text-transform:none;color:#999">' + note + '</span>' : '') + '</p>';
       const term = PRICES.terms.find((x) => x.v === s.term);
       const A = [row('Режим налогообложения', s.regime === 'osn' ? 'ОСН' : 'УСН (4%)'), row('Базовая ставка', sum(r.base))];
-      if (r.osn) A.push(row('Надбавка за ОСН', sum(r.osn)));
       A.push(row('Сотрудники: ' + s.emp, sum(r.emp)));
       A.push(row('Документооборот: ' + s.docs + ' в месяц (' + r.docsTier + ')', sum(r.docs)));
       r.monthly.forEach((x) => A.push(row(x.name, sum(x.price))));
